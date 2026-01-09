@@ -1,4 +1,3 @@
-from django.conf import settings
 from django.db import models
 from apps.game.models import Game
 
