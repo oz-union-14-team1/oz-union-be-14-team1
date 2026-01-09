@@ -58,7 +58,14 @@ docs(#501): README 배포 구조 업데이트
 - 본문(optional)에 상세 변경 내역 작성 가능
 ---
 ## code style
+### 1. 린트 및 Import 정리 (자동 수정)
+poetry run ruff check . --fix
 
+### 2. 코드 포맷팅 (자동 수정)
+poetry run black .
+
+### 3. 타입 검사
+poetry run mypy .
 
 
 

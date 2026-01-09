@@ -6,7 +6,7 @@ authors = [
     {name = "kihoon",email = "nike6736@naver.com"}
 ]
 readme = "README.md"
-requires-python = ">=3.12"
+requires-python = ">=3.12,<4.0"
 dependencies = [
     "django (>=6.0.1,<7.0.0)",
     "djangorestframework (>=3.16.1,<4.0.0)",
@@ -26,3 +26,5 @@ mypy = "^1.19.1"
 django-stubs = "^5.2.8"
 coverage = "^7.13.1"
 
+[tool.poetry]
+package-mode = false
