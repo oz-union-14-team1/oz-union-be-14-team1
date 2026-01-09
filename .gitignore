@@ -4,5 +4,4 @@ __pycache__/
 *.py[cod]
 .idea/
 .env
-db.sqlite3
 .DS_Store

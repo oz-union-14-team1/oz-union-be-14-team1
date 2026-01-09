@@ -1,0 +1,28 @@
+[project]
+name = "oz-playtype"
+version = "0.1.0"
+description = ""
+authors = [
+    {name = "kihoon",email = "nike6736@naver.com"}
+]
+readme = "README.md"
+requires-python = ">=3.12"
+dependencies = [
+    "django (>=6.0.1,<7.0.0)",
+    "djangorestframework (>=3.16.1,<4.0.0)",
+    "psycopg2-binary (>=2.9.11,<3.0.0)",
+    "django-environ (>=0.12.0,<0.13.0)"
+]
+
+
+[build-system]
+requires = ["poetry-core>=2.0.0,<3.0.0"]
+build-backend = "poetry.core.masonry.api"
+
+[tool.poetry.group.dev.dependencies]
+black = "^25.12.0"
+ruff = "^0.14.11"
+mypy = "^1.19.1"
+django-stubs = "^5.2.8"
+coverage = "^7.13.1"
+

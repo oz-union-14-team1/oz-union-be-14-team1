@@ -1,0 +1,32 @@
+services:
+  backend:
+    build: .                          # [핵심] 현재 폴더(.)의 Dockerfile로 빌드하라는 뜻
+    container_name: PlayType_Django     # 컨테이너 이름 지정
+    volumes:
+      - ./:/app                       # 로컬 코드 수정 시 컨테이너에 즉시 반영
+    ports:
+      - "8000:8000"                   # 포트 연결
+    env_file:
+      - .env
+    depends_on:
+      - db
+    command: >                        # 서버 실행 명령어
+      sh -c "python manage.py migrate &&
+             python manage.py runserver 0.0.0.0:8000"
+
+  db:
+    image: postgres:15
+    container_name: PlayType_db
+    environment:
+      - POSTGRES_DB=${POSTGRES_DB}
+      - POSTGRES_USER=${POSTGRES_USER}
+      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    env_file:
+      - .env
+
+volumes:
+  postgres_data:
