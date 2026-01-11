@@ -1,19 +1,13 @@
 from django.db import models
 
-from apps.community.models.post import Post
-from apps.core.models import TimeStampedModel
-from apps.user.models import User
-
-
-class PostComment(TimeStampedModel):
+class Game(models.Model):
     name = models.CharField(max_length=255)
-    content = models.TextField()`
-    post = models.ForeignKey(Post, on_delete=models.CASCADE)
-
-
-    author = models.ForeignKey(User, on_delete=models.CASCADE)
-    post = models.ForeignKey(Post, on_delete=models.CASCADE, related_name="post_comments")
-    content = models.CharField(max_length=300)
+    intro = models.TextField()
+    released_at = models.DateTimeField()
+    developer = models.CharField(max_length=255)
+    created_at = models.DateTimeField(auto_now_add=True)
+    id_deleted = models.BooleanField(default=False)
+    avg_score = models.FloatField(default=0)
 
     class Meta:
-        db_table = "post_comments"
+        db_table = "games"
