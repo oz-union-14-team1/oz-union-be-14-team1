@@ -31,7 +31,7 @@ DJANGO_APPS = [
 
 THIRD_PARTY_APPS = [
     "rest_framework",
-    'drf_spectacular',
+    "drf_spectacular",
 ]
 
 CUSTOM_APPS: list[str] = [
@@ -111,7 +111,7 @@ DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 
 REST_FRAMEWORK = {
     # DRF가 스키마(문서) 생성기로 spectacular를 쓰도록 지정
-    'DEFAULT_SCHEMA_CLASS': 'drf_spectacular.openapi.AutoSchema',
+    "DEFAULT_SCHEMA_CLASS": "drf_spectacular.openapi.AutoSchema",
 }
 
 MEDIA_URL = "/media/"
