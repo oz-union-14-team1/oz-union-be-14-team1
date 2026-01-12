@@ -7,6 +7,5 @@ class GameGenre(models.Model):
     game = models.ForeignKey(Game, on_delete=models.CASCADE)
     genre = models.ForeignKey(Genre, on_delete=models.CASCADE)
 
-
     class Meta:
-        db_table = 'game_genre'
+        db_table = "game_genre"

@@ -7,5 +7,4 @@ class GameImg(models.Model):
     img_url = models.TextField()
 
     class Meta:
-        db_table = 'game_img'
-
+        db_table = "game_img"

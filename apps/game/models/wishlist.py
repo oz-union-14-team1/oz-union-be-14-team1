@@ -1,6 +1,7 @@
 from django.db import models
 
 from apps.game.models.game import Game
+from apps.user.models.user import User
 
 
 class Wishlist(models.Model):
@@ -8,5 +9,6 @@ class Wishlist(models.Model):
     game = models.ForeignKey(Game, on_delete=models.CASCADE)
     created_at = models.DateTimeField(auto_now_add=True)
 
+
     class Meta:
-        db_table = 'wishlist'
+        db_table = "wishlist"

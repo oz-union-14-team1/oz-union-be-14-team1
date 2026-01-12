@@ -8,4 +8,4 @@ class GamePlatform(models.Model):
     platform_url = models.TextField()
 
     class Meta:
-        db_table = 'game_platform'
+        db_table = "game_platform"

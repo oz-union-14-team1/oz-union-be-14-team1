@@ -10,5 +10,5 @@ class GamePublisher(models.Model):
     publisher = models.ForeignKey(Publisher, on_delete=models.CASCADE)
 
     class Meta:
-        db_table = 'game_publisher'
-        UniqueConstraint(fields=['game', 'publisher'], name='unique_publisher')
+        db_table = "game_publisher"
+        UniqueConstraint(fields=["game", "publisher"], name="unique_publisher")

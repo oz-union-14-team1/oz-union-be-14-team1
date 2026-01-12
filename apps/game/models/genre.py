@@ -6,4 +6,4 @@ class Genre(models.Model):
     Genre_ko = models.CharField(max_length=255)
 
     class Meta:
-        db_table = 'genre'
+        db_table = "genre"
