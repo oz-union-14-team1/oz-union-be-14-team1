@@ -40,6 +40,11 @@ jobs:
         if: steps.cache-venv.outputs.cache-hit != 'true'
         run: poetry install --no-root
 
+      # settings.py가 루트의 .env를 바라보도록 설정했으므로 루트에 생성해야 합니다.
+      - name: Create .env file
+        run: |
+          echo "${{ secrets.DJANGO_ENVS }}" > .env
+
       # isort 제거 -> Ruff가 대신 함
       # Ruff 실행 (Lint + Import Sorting)
       - name: Run Ruff (Lint & Import Sorting)
@@ -52,6 +57,8 @@ jobs:
           poetry run black . --check
 
       - name: Run Mypy (Type Checking)
+        env:
+          SECRET_KEY: ${{ secrets.SECRET_KEY }}z
         run: poetry run mypy .
 
   # 2. 테스트 (Tests)
@@ -112,11 +119,6 @@ jobs:
       - name: Install dependencies
         if: steps.cache-venv.outputs.cache-hit != 'true'
         run: poetry install --no-root
-
-      # settings.py가 루트의 .env를 바라보도록 설정했으므로 루트에 생성해야 합니다.
-      - name: Create .env file
-        run: |
-          echo "${{ secrets.DJANGO_ENVS }}" > .env
 
       - name: Run Django Migration
         run: |
