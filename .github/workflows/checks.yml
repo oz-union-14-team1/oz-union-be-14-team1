@@ -52,6 +52,8 @@ jobs:
           poetry run black . --check
 
       - name: Run Mypy (Type Checking)
+        env:
+          SECRET_KEY: ${{ secrets.SECRET_KEY }}z
         run: poetry run mypy .
 
   # 2. 테스트 (Tests)
