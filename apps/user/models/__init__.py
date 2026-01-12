@@ -1,1 +1,1 @@
-from .preference import Preference
+from .preference import Preference as Preference
