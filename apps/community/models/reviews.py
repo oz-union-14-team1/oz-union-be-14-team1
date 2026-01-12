@@ -1,9 +1,9 @@
-from django.conf import settings
 from django.core.validators import MinValueValidator, MaxValueValidator
 from django.db import models
 
 from apps.core.models import TimeStampedModel
 from apps.game.models.game import Game
+from apps.user.models.user import User
 
 
 class Review(TimeStampedModel):
@@ -17,7 +17,7 @@ class Review(TimeStampedModel):
         related_name="reviews",
     )
     user = models.ForeignKey(
-        settings.AUTH_USER_MODEL,
+        User,
         on_delete=models.CASCADE,
         related_name="reviews",
     )

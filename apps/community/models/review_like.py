@@ -1,7 +1,7 @@
-from django.conf import settings
 from django.db import models
 
 from apps.community.models.reviews import Review
+from apps.user.models.user import User
 
 
 class ReviewLike(models.Model):
@@ -15,7 +15,7 @@ class ReviewLike(models.Model):
         related_name="likes",
     )
     user = models.ForeignKey(
-        settings.AUTH_USER_MODEL,
+        User,
         on_delete=models.CASCADE,
         related_name="liked_reviews",
     )
