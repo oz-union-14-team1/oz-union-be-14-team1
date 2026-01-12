@@ -63,6 +63,8 @@ jobs:
   test:
     needs: ci # 린트 검사가 통과해야 테스트를 실행함 (자원 절약)
     runs-on: ubuntu-latest
+    env:
+      POSTGRES_HOST: db
     services:
       # DB 설정을 프로젝트(.env)와 일치시킴
       db:
@@ -117,6 +119,10 @@ jobs:
       - name: Install dependencies
         if: steps.cache-venv.outputs.cache-hit != 'true'
         run: poetry install --no-root
+
+      - name: Create .env file
+        run: |
+          echo "${{ secrets.DJANGO_ENVS }}" > .env
 
       - name: Run Django Migration
         run: |
