@@ -28,3 +28,9 @@ coverage = "^7.13.1"
 
 [tool.poetry]
 package-mode = false
+
+[tool.mypy]
+plugins = ["mypy_django_plugin.main"]
+
+[tool.django-stubs]
+django_settings_module = "config.settings"
