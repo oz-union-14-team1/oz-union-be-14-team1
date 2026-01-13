@@ -19,7 +19,7 @@ security:
   - BearerAuth: []
 
 paths:
-  /api/v1/games/{game_id}/reviews:
+  /api/v1/community/{game_id}/reviews:
     post:
       summary: 리뷰 등록
       tags:
@@ -136,7 +136,7 @@ paths:
                     rating: 4
                     created_at: "2025-01-15T14:30:00+09:00"
 
-  /api/v1/games/reviews/{review_id}:
+  /api/v1/community/reviews/{review_id}:
     put:
       summary: 리뷰 수정
       tags:
@@ -236,7 +236,7 @@ paths:
               example:
                 error_detail: "삭제 권한이 없습니다."
 
-  /api/v1/games/reviews/{review_id}/comments:
+  /api/v1/community/reviews/{review_id}/comments:
     post:
       summary: 댓글 작성
       tags:
@@ -337,7 +337,7 @@ paths:
                     like_count: 5
                     dislike_count: 0
 
-  /api/v1/games/reviews/comments/{comment_id}:
+  /api/v1/community/reviews/comments/{comment_id}:
     put:
       summary: 댓글 수정
       tags:
@@ -423,7 +423,7 @@ paths:
               example:
                 error_detail: "삭제 권한이 없습니다."
 
-  /api/v1/games/reviews/comments/{comment_id}/vote:
+  /api/v1/community/reviews/comments/{comment_id}/vote:
     post:
       summary: 댓글 투표 (좋아요)
       tags:
@@ -523,7 +523,7 @@ paths:
               example:
                 error_detail: "투표 내역이 없습니다."
 
-  /api/v1/games/{game_id}/reviews/summary:
+  /api/v1/community/{game_id}/reviews/summary:
     post:
       summary: AI 리뷰 요약 생성
       tags:
