@@ -1,11 +1,13 @@
 from django.urls import reverse
-from django.utils import timezone  # [추가] 날짜 생성을 위해 필요
+from django.utils import timezone
 from rest_framework import status
 from rest_framework.test import APITestCase
+from django.contrib.auth import get_user_model
 
 from apps.game.models.game import Game
-from apps.user.models.user import User
 from apps.community.models.reviews import Review
+
+User = get_user_model()
 
 
 class GameReviewAPITest(APITestCase):
@@ -13,29 +15,23 @@ class GameReviewAPITest(APITestCase):
         """
         테스트 데이터 초기화
         """
-        self.game = Game.objects.create(
-            name="Test Game",
-            released_at=timezone.now()
-        )
+        self.game = Game.objects.create(name="Test Game", released_at=timezone.now())
         self.url = reverse("game_review_create", kwargs={"game_id": self.game.id})
 
     def create_user(self):
-        return User.objects.create(
+        return User.objects.create_user(
+            email="test@test.com",
+            password="test1234",
             nickname="test_user",
-            hashed_password="test1234",
-            email="tset@test.com",
             phone_number="010-0000-0000",
         )
 
     def test_create_review_api_success(self):
         """
-        리뷰 등록 성공 (201 Created)
+        리뷰 등록 성공 (201)
         """
         self.client.force_authenticate(user=self.create_user())
-        payload = {
-            "content": "그저그런 게임입니다.",
-            "rating": 3
-        }
+        payload = {"content": "그저그런 게임입니다.", "rating": 3}
 
         response = self.client.post(self.url, payload)
 
@@ -45,12 +41,9 @@ class GameReviewAPITest(APITestCase):
 
     def test_create_review_unauthorized(self):
         """
-        비로그인 유저 요청 차단 (401 Unauthorized)
+        비로그인 유저 요청 차단 (401)
         """
-        payload = {
-            "content": "재미없어요",
-            "rating": 1
-        }
+        payload = {"content": "재미없어요", "rating": 1}
 
         response = self.client.post(self.url, payload)
 
@@ -61,10 +54,7 @@ class GameReviewAPITest(APITestCase):
         별점 범위 초과 시 실패 (400 Bad Request)
         """
         self.client.force_authenticate(user=self.create_user())
-        payload = {
-            "content": "완벽해요",
-            "rating": 6  # 1~5
-        }
+        payload = {"content": "완벽해요", "rating": 6}  # 1~5 범위를 벗어남
 
         response = self.client.post(self.url, payload)
 
@@ -73,7 +63,7 @@ class GameReviewAPITest(APITestCase):
 
     def test_create_review_game_not_found(self):
         """
-        없는 게임에 리뷰 등록 시 404 Not Found
+        없는 게임에 리뷰 등록 시 404
         """
         self.client.force_authenticate(user=self.create_user())
 
