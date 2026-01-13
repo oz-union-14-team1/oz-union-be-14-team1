@@ -86,12 +86,12 @@ class RegisterSerializer(serializers.ModelSerializer):
             raise serializers.ValidationError(e.message)
         return value
 
-    #### 비밀번호 검증 (Django 내장 validator 사용)
+    #### 비밀번호 검증
     def validate_password(self, value: str) -> str:
-        #### Django 내장 validator 적용
+
         validate_password(value, user=self.instance)
 
-        #### 커스텀 추가 규칙: 연속된 문자/숫자 3개 이상 체크
+        #### 연속된 문자/숫자 3개 이상 체크
         for i in range(len(value) - 2):
             if value[i] == value[i + 1] == value[i + 2]:
                 raise serializers.ValidationError(
