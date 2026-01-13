@@ -83,7 +83,7 @@ paths:
                   error_detail:
                     type: string
               example:
-                error_detail: "로그인이 필요합니다."
+                error_detail: "자격 인증 데이터가 제공되지 않았습니다."
 
     get:
       summary: 리뷰 조회
@@ -284,7 +284,7 @@ paths:
                   error_detail:
                     type: string
               example:
-                error_detail: "로그인이 필요합니다."
+                error_detail: "자격 인증 데이터가 제공되지 않았습니다."
 
     get:
       summary: 리뷰 상세 조회 (댓글 목록)
@@ -499,7 +499,7 @@ paths:
                   error_detail:
                     type: string
               example:
-                error_detail: "로그인이 필요합니다."
+                error_detail: "자격 인증 데이터가 제공되지 않았습니다."
         '403':
           description: Forbidden
           content:

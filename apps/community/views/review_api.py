@@ -11,6 +11,8 @@ from apps.user.models.user import User
 class GameReviewView(APIView):
     permission_classes = [IsAuthenticated]
 
+    validation_error_message = "이 필드는 필수 항목입니다."
+
     def post(self, request, game_id):
         # 1. 입력 데이터 검증
         serializer = ReviewCreateSerializer(data=request.data)
