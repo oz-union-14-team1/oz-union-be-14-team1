@@ -39,3 +39,6 @@ plugins = [
 
 [tool.django-stubs]
 django_settings_module = "config.settings"
+
+[tool.poetry.dependencies]
+python = ">=3.12,<4.0"
