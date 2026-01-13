@@ -1,21 +1,28 @@
 from django.test import TestCase
 from django.http import Http404
+from django.utils import timezone
 from apps.community.services.review_create_service import create_review
 from apps.community.models.reviews import Review
 from apps.game.models.game import Game
 from apps.user.models.user import User
+
 
 class ReviewServiceTest(TestCase):
     def setUp(self):
         """
         테스트 시작 전 공통 데이터 생성
         """
-        self.user = User.objects.create_user(
+        self.user = User.objects.create(
             nickname="극성 테스터",
-            password="password",
-            email="tester@test.com" # (선택) 이메일도 필요하면 추가
+            hashed_password="password",
+            email="tester@test.com",
+            phone_number="010-1234-5678"
         )
-        self.game = Game.objects.create(name="Test Game")
+
+        self.game = Game.objects.create(
+            name="Test Game",
+            released_at=timezone.now()
+        )
 
     def test_create_review_success(self):
         """
