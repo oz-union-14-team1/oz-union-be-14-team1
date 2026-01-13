@@ -5,7 +5,6 @@ from django.contrib.auth.models import PermissionsMixin
 from django.db import models
 
 from apps.core.models import TimeStampedModel
-from apps.user.utils.nickname import generate_nickname
 
 
 class UserManager(BaseUserManager["User"]):
@@ -16,19 +15,6 @@ class UserManager(BaseUserManager["User"]):
             raise ValueError("이메일은 필수입니다.")
 
         email = self.normalize_email(email)
-
-        # nickname 자동 생성
-        if not extra_fields.get("nickname"):
-            nickname = generate_nickname()
-            for _ in range(5):
-                if not User.objects.filter(nickname=nickname).exists():
-                    break
-                nickname = generate_nickname()
-            else:
-                raise ValueError("닉네임 자동 생성 실패")
-
-            extra_fields["nickname"] = nickname
-
         user = self.model(email=email, **extra_fields)
 
         if password:
@@ -46,11 +32,6 @@ class UserManager(BaseUserManager["User"]):
         extra_fields.setdefault("is_superuser", True)
         extra_fields.setdefault("is_active", True)
 
-        if extra_fields.get("is_staff") is not True:
-            raise ValueError("슈퍼유저는 is_staff=True 여야 합니다.")
-        if extra_fields.get("is_superuser") is not True:
-            raise ValueError("슈퍼유저는 is_superuser=True 여야 합니다.")
-
         return self.create_user(email, password, **extra_fields)
 
 
@@ -63,10 +44,8 @@ class User(AbstractBaseUser, PermissionsMixin, TimeStampedModel):
     email = models.EmailField(unique=True)
     nickname = models.CharField(max_length=15, unique=True)
 
-    phone_number = models.CharField(max_length=20, blank=True, null=True)
-    gender = models.CharField(
-        max_length=1, choices=GenderChoices.choices, blank=True, null=True
-    )
+    phone_number = models.CharField(max_length=20)
+    gender = models.CharField(max_length=1, choices=GenderChoices.choices)
 
     profile_img_url = models.TextField(blank=True, null=True)
 
