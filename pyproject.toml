@@ -6,7 +6,7 @@ authors = [
     {name = "kihoon",email = "nike6736@naver.com"}
 ]
 readme = "README.md"
-requires-python = ">=3.12,<4.0"
+requires-python = ">=3.13,<4.0"
 dependencies = [
     "django (>=6.0.1,<7.0.0)",
     "djangorestframework (>=3.16.1,<4.0.0)",
@@ -39,3 +39,6 @@ plugins = [
 
 [tool.django-stubs]
 django_settings_module = "config.settings"
+
+[tool.poetry.dependencies]
+python = ">=3.13,<4.0"
