@@ -41,13 +41,14 @@ class GameReviewAPITest(APITestCase):
 
     def test_create_review_unauthorized(self):
         """
-        비로그인 유저 요청 차단 (401)
+        비로그인 유저 요청 차단 (401 UnAuthorized)
         """
         payload = {"content": "재미없어요", "rating": 1}
 
         response = self.client.post(self.url, payload)
 
         self.assertEqual(response.status_code, status.HTTP_401_UNAUTHORIZED)
+        self.assertEqual(response.data["error_detail"], "로그인이 필요한 서비스입니다.")
 
     def test_create_review_invalid_rating(self):
         """
@@ -59,7 +60,23 @@ class GameReviewAPITest(APITestCase):
         response = self.client.post(self.url, payload)
 
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
-        self.assertIn("rating", response.data)
+        self.assertEqual(
+            response.data["errors"],
+            {"rating": ["별점은 1에서 5 사이의 정수여야 합니다."]},
+        )
+        self.assertEqual(response.data["error_detail"], "이 필드는 필수 항목입니다.")
+
+    def test_create_review_invalid_content(self):
+        """
+        content 내용 없어서 실패 (400 Bad Request)
+        """
+        self.client.force_authenticate(user=self.create_user())
+        payload = {"content": "", "rating": 3}  # content 빈 값
+
+        response = self.client.post(self.url, payload)
+
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+        self.assertEqual(response.data["error_detail"], "이 필드는 필수 항목입니다.")
 
     def test_create_review_game_not_found(self):
         """

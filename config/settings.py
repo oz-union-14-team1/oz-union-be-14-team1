@@ -121,6 +121,7 @@ REST_FRAMEWORK = {
         "rest_framework.authentication.BasicAuthentication",
         "rest_framework.authentication.SessionAuthentication",
     ],
+    "EXCEPTION_HANDLER": "apps.core.exceptions.handler.custom_exception_handler",
 }
 
 MEDIA_URL = "/media/"
