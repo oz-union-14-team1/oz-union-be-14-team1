@@ -28,21 +28,22 @@ def custom_exception_handler(
         )
 
     # 3. 에러 메시지 포맷 통일 (Detail -> Error Detail)
-    if isinstance(response.data, dict):
 
+    # 유효성 검사 실패 (400)
+    if isinstance(exc, ValidationError):
+        view = context.get("view")
+        # 뷰에 설정된 메시지 or 기본 메시지 가져오기
+        message = getattr(
+            view, "validation_error_message", "유효하지 않은 데이터입니다."
+        )
+
+        response.data = {"error_detail": message, "errors": response.data}
+
+    # 4. 그 외 에러 처리 (데이터가 딕셔너리인 경우)
+    if isinstance(response.data, dict):
         # 401 인증 에러 (로그인 안 함)
         if isinstance(exc, (NotAuthenticated, AuthenticationFailed)):
             response.data = {"error_detail": "로그인이 필요한 서비스입니다."}
-
-        # 유효성 검사 실패 (400)
-        if isinstance(exc, ValidationError):
-            view = context.get("view")
-            # 뷰에 설정된 메시지 or 기본 메시지 가져오기
-            message = getattr(
-                view, "validation_error_message", "유효하지 않은 데이터입니다."
-            )
-
-            response.data = {"error_detail": message, "errors": response.data}
 
         # 그 외 모든 에러 (403, 404, 409 등)
         else:
