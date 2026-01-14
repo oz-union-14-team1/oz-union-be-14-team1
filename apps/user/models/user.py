@@ -49,13 +49,15 @@ class GenderChoices(models.TextChoices):
 class User(AbstractBaseUser, PermissionsMixin, TimeStampedModel):
     email = models.EmailField(unique=True, validators=[validate_email_format])
     nickname = models.CharField(
-        max_length=15, unique=True, validators=[validate_nickname_format]
+        max_length=10, unique=True, validators=[validate_nickname_format]
     )
     phone_number = models.CharField(max_length=20, validators=[validate_phone_format])
     gender = models.CharField(max_length=1, choices=GenderChoices.choices)
     profile_img_url = models.TextField(blank=True, null=True)
     is_active = models.BooleanField(default=True)
     is_staff = models.BooleanField(default=False)
+    name = models.CharField(max_length=10, default="")
+
     objects = UserManager()
 
     USERNAME_FIELD = "email"
