@@ -1,0 +1,27 @@
+name: Deploy to EC2 (develop)
+
+on:
+  push:
+    branches:
+      - develop
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Deploy via SSH
+        uses: appleboy/ssh-action@v1.0.3
+        with:
+          host: ${{ secrets.EC2_HOST }}
+          username: ${{ secrets.EC2_USER }}
+          key: ${{ secrets.EC2_SSH_KEY }}
+          script: |
+            cd ${{ secrets.EC2_PATH }}
+
+            git fetch origin
+            git checkout develop
+            git pull origin develop
+
+            docker compose build
+            docker compose up -d
