@@ -10,10 +10,10 @@ class ReviewListSerializer(serializers.ModelSerializer):
     class Meta:
         model = Review
         fields = [
-            'id',
-            'author',
-            'content',
-            'rating',
-            'like_count',
+            "id",
+            "author",
+            "content",
+            "rating",
+            "like_count",
             "created_at",
         ]

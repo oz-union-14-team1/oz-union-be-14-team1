@@ -39,7 +39,6 @@ class ReviewAPIView(APIView):
             status=status.HTTP_201_CREATED,
         )
 
-
     def get(self, request, game_id):
         self.validation_error_message = "유효하지 않은 조회 요청입니다."
         # 1. 서비스 레이어를 통해 QuerySet 가져오기
