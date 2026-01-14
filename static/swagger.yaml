@@ -140,7 +140,7 @@ paths:
     put:
       summary: 리뷰 수정
       tags:
-        - Reviews
+        - 리뷰
       parameters:
         - in: path
           name: review_id
