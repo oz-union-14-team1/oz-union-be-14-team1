@@ -107,34 +107,82 @@ paths:
           schema:
             type: string
             example: "latest"
-          description: 정렬 기준
+          description: 정렬 기준 (latest, likes 등)
       responses:
         '200':
           description: OK
           content:
             application/json:
               schema:
-                type: array
-                items:
-                  type: object
-                  properties:
-                    id:
-                      type: integer
-                    nickname:
-                      type: string
-                    content:
-                      type: string
-                    rating:
-                      type: integer
-                    created_at:
-                      type: string
-                      format: date-time
+                type: object
+                properties:
+                  count:
+                    type: integer
+                    description: 전체 리뷰 개수
+                    example: 100
+                  next:
+                    type: string
+                    nullable: true
+                    format: uri
+                    description: 다음 페이지 URL (없으면 null)
+                    example: "http://api.example.com/reviews?page=2"
+                  previous:
+                    type: string
+                    nullable: true
+                    format: uri
+                    description: 이전 페이지 URL (없으면 null)
+                    example: null
+                  results:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        id:
+                          type: integer
+                          description: 리뷰 ID
+                        author:
+                          type: object
+                          description: 작성자 정보
+                          properties:
+                            id:
+                              type: integer
+                              description: 유저 ID
+                            nickname:
+                              type: string
+                              description: 유저 닉네임
+                            profile_img_url:
+                              type: string
+                              nullable: true
+                              format: uri
+                              description: 프로필 이미지 URL
+                        content:
+                          type: string
+                          description: 리뷰 내용
+                        rating:
+                          type: integer
+                          description: 별점 (1~5)
+                        like_count:
+                          type: integer
+                          description: 좋아요 수
+                        created_at:
+                          type: string
+                          format: date-time
+                          description: 작성일시
                 example:
-                  - id: 1
-                    nickname: "감자"
-                    content: "좋아요"
-                    rating: 4
-                    created_at: "2025-01-15T14:30:00+09:00"
+                  count: 1
+                  next: null
+                  previous: null
+                  results:
+                    - id: 1
+                      author:
+                        id: 10
+                        nickname: "감자"
+                        profile_img_url: "https://example.com/profile.jpg"
+                      content: "정말 재미있는 게임입니다!"
+                      rating: 5
+                      like_count: 12
+                      created_at: "2025-01-15T14:30:00+09:00"
+
 
   /api/v1/community/reviews/{review_id}:
     put:
@@ -287,10 +335,9 @@ paths:
                 error_detail: "자격 인증 데이터가 제공되지 않았습니다."
 
     get:
-      summary: 리뷰 상세 조회 (댓글 목록)
+      summary: 리뷰 상세 조회 (댓글 포함)
       tags:
-        - Comments
-      security: [] # GET 요청에는 인증 헤더가 명시되어 있지 않음 (이미지 기준)
+        - Reviews
       parameters:
         - in: path
           name: review_id
@@ -298,44 +345,105 @@ paths:
             type: integer
           required: true
           description: 리뷰 ID
-        - in: query
-          name: page
-          schema:
-            type: integer
-            example: 1
-          description: 페이지 번호
-        - in: query
-          name: sort
-          schema:
-            type: string
-            example: "latest"
-          description: 정렬 기준
       responses:
         '200':
           description: OK
           content:
             application/json:
               schema:
-                type: array
-                items:
-                  type: object
-                  properties:
-                    comment_id:
-                      type: integer
-                    nickname:
-                      type: string
-                    content:
-                      type: string
-                    like_count:
-                      type: integer
-                    dislike_count:
-                      type: integer
+                type: object
+                properties:
+                  id:
+                    type: integer
+                    description: 리뷰 ID
+                  author:
+                    type: object
+                    description: 리뷰 작성자 정보
+                    properties:
+                      id:
+                        type: integer
+                      nickname:
+                        type: string
+                      profile_img_url:
+                        type: string
+                        nullable: true
+                        format: uri
+                  content:
+                    type: string
+                    description: 리뷰 내용
+                  rating:
+                    type: integer
+                    description: 별점
+                  view_count:
+                    type: integer
+                    description: 조회수
+                  like_count:
+                    type: integer
+                    description: 좋아요 수
+                  created_at:
+                    type: string
+                    format: date-time
+                    description: 작성일시
+                  comments:
+                    type: array
+                    description: 해당 리뷰에 달린 댓글 목록
+                    items:
+                      type: object
+                      properties:
+                        id:
+                          type: integer
+                          description: 댓글 ID
+                        author:
+                          type: object
+                          description: 댓글 작성자 정보
+                          properties:
+                            id:
+                              type: integer
+                            nickname:
+                              type: string
+                            profile_img_url:
+                              type: string
+                              nullable: true
+                              format: uri
+                        content:
+                          type: string
+                          description: 댓글 내용
+                        created_at:
+                          type: string
+                          format: date-time
                 example:
-                  - comment_id: 10
-                    nickname: "유저1"
-                    content: "좋아요"
-                    like_count: 5
-                    dislike_count: 0
+                  id: 100
+                  author:
+                    id: 10
+                    nickname: "겜돌이"
+                    profile_image_url: "https://example.com/profile.jpg"
+                  content: "이 게임 정말 강추합니다! 스토리랑 그래픽이 미쳤어요."
+                  rating: 5
+                  view_count: 120
+                  like_count: 45
+                  created_at: "2025-01-15T10:00:00+09:00"
+                  comments:
+                    - id: 1
+                      author:
+                        id: 25
+                        nickname: "지나가던유저"
+                        profile_image_url: null
+                      content: "저도 동의합니다. 특히 엔딩이 인상 깊었어요."
+                      created_at: "2025-01-15T10:30:00+09:00"
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error_detail:
+                    type: string
+                  code:
+                    type: string
+                example:
+                  error_detail: "유효하지 않은 조회 요청입니다."
+
 
   /api/v1/community/reviews/comments/{comment_id}:
     put:

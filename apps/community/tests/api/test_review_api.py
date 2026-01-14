@@ -1,11 +1,11 @@
+from django.contrib.auth import get_user_model
 from django.urls import reverse
 from django.utils import timezone
 from rest_framework import status
 from rest_framework.test import APITestCase
-from django.contrib.auth import get_user_model
 
-from apps.game.models.game import Game
 from apps.community.models.reviews import Review
+from apps.game.models.game import Game
 
 User = get_user_model()
 
