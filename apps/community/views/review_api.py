@@ -2,7 +2,7 @@ from rest_framework.permissions import IsAuthenticatedOrReadOnly
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework import status
-
+from drf_spectacular.utils import extend_schema
 from typing import cast
 
 from apps.community.pagination import ReviewPageNumberPagination
@@ -18,6 +18,11 @@ class ReviewAPIView(APIView):
 
     validation_error_message = "이 필드는 필수 항목입니다."
 
+    @extend_schema(
+        tags=["리뷰"],
+        summary="리뷰 등록 API",
+        request=[ReviewCreateSerializer],
+    )
     def post(self, request, game_id):
         # 1. 입력 데이터 검증
         serializer = ReviewCreateSerializer(data=request.data)
@@ -39,6 +44,11 @@ class ReviewAPIView(APIView):
             status=status.HTTP_201_CREATED,
         )
 
+    @extend_schema(
+        tags=["리뷰"],
+        summary="리뷰 목록 조회 API",
+        responses=ReviewListSerializer,
+    )
     def get(self, request, game_id):
         self.validation_error_message = "유효하지 않은 조회 요청입니다."
         # 1. 서비스 레이어를 통해 QuerySet 가져오기
