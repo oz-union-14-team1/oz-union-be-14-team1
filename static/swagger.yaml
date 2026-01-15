@@ -22,6 +22,9 @@ paths:
   /api/v1/community/{game_id}/reviews:
     post:
       summary: 리뷰 등록
+      description: |
+        특정 게임에 대한 새로운 리뷰를 등록합니다.
+        - **권한**: 인증된 사용자만 가능 (Bearer Token 필요)
       tags:
         - Reviews
       parameters:
@@ -37,13 +40,18 @@ paths:
           application/json:
             schema:
               type: object
+              required:
+                - content
+                - rating
               properties:
                 content:
                   type: string
                   description: 리뷰 내용
                 rating:
                   type: integer
-                  description: 평점
+                  description: 평점 (1~5 사이의 정수)
+                  minimum: 1
+                  maximum: 5
               example:
                 content: "생각해보니 스토리는 별로네요."
                 rating: 3
@@ -57,13 +65,14 @@ paths:
                 properties:
                   id:
                     type: integer
+                    description: 생성된 리뷰 ID
                   message:
                     type: string
                 example:
                   id: 101
                   message: "리뷰가 등록되었습니다."
         '400':
-          description: Bad Request
+          description: Bad Request (유효성 검사 실패)
           content:
             application/json:
               schema:
@@ -71,8 +80,18 @@ paths:
                 properties:
                   error_detail:
                     type: string
+                    description: 에러 요약 메시지
+                  errors:
+                    type: object
+                    description: 필드별 상세 에러 내역
+                    additionalProperties:
+                      type: array
+                      items:
+                        type: string
               example:
                 error_detail: "이 필드는 필수 항목입니다."
+                errors:
+                  rating: ["별점은 1에서 5 사이의 정수여야 합니다."]
         '401':
           description: Unauthorized
           content:
@@ -83,10 +102,22 @@ paths:
                   error_detail:
                     type: string
               example:
-                error_detail: "자격 인증 데이터가 제공되지 않았습니다."
+                error_detail: "로그인이 필요한 서비스입니다."
+        '404':
+          description: Not Found (존재하지 않는 게임)
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error_detail:
+                    type: string
 
     get:
-      summary: 리뷰 조회
+      summary: 리뷰 목록 조회
+      description: |
+        특정 게임의 리뷰 목록을 최신순으로 조회합니다.
+        - **권한**: 누구나 가능 (AllowAny)
       tags:
         - Reviews
       parameters:
@@ -100,14 +131,14 @@ paths:
           name: page
           schema:
             type: integer
-            example: 1
-          description: 페이지 번호
+            default: 1
+          description: 페이지 번호 (기본값 1)
         - in: query
-          name: sort
+          name: size
           schema:
-            type: string
-            example: "latest"
-          description: 정렬 기준 (latest, likes 등)
+            type: integer
+            default: 10
+          description: 페이지 당 개수 (기본값 10, 최대 50)
       responses:
         '200':
           description: OK
@@ -119,19 +150,16 @@ paths:
                   count:
                     type: integer
                     description: 전체 리뷰 개수
-                    example: 100
                   next:
                     type: string
                     nullable: true
                     format: uri
-                    description: 다음 페이지 URL (없으면 null)
-                    example: "http://api.example.com/reviews?page=2"
+                    description: 다음 페이지 URL
                   previous:
                     type: string
                     nullable: true
                     format: uri
-                    description: 이전 페이지 URL (없으면 null)
-                    example: null
+                    description: 이전 페이지 URL
                   results:
                     type: array
                     items:
@@ -182,8 +210,6 @@ paths:
                       rating: 5
                       like_count: 12
                       created_at: "2025-01-15T14:30:00+09:00"
-
-
   /api/v1/community/reviews/{review_id}:
     put:
       summary: 리뷰 수정
@@ -532,104 +558,115 @@ paths:
                 error_detail: "삭제 권한이 없습니다."
 
   /api/v1/community/reviews/{review_id}/like:
-    post:
-      summary: 댓글 투표 (좋아요)
-      tags:
-        - Likes
-      parameters:
-        - in: path
-          name: comment_id
-          schema:
-            type: integer
-          required: true
-          description: 댓글 ID
-      responses:
-        '200':
-          description: OK
-          content:
-            application/json:
-              schema:
-                type: object
-                properties:
-                  id:
-                    type: integer
-                  message:
-                    type: string
+      post:
+        summary: 리뷰 좋아요 등록
+        description: |
+          특정 리뷰에 좋아요를 등록합니다.
+        tags:
+          - Likes
+        parameters:
+          - in: path
+            name: review_id
+            schema:
+              type: integer
+            required: true
+            description: 리뷰 ID
+        responses:
+          '201':
+            description: Created
+            content:
+              application/json:
+                schema:
+                  type: object
+                  properties:
+                    message:
+                      type: string
+                    is_liked:
+                      type: boolean
+                      description: 현재 유저의 좋아요 여부 (항상 true)
+                    like_count:
+                      type: integer
+                      description: 갱신된 총 좋아요 수
+                  example:
+                    message: "좋아요를 눌렀습니다."
+                    is_liked: true
+                    like_count: 13
+          '401':
+            description: Unauthorized
+            content:
+              application/json:
+                schema:
+                  type: object
+                  properties:
+                    error_detail:
+                      type: string
                 example:
-                  id: 101
-                  message: "좋아요를 눌렀습니다"
-        '404':
-          description: Conflict
-          content:
-            application/json:
-              schema:
-                type: object
-                properties:
-                  error_detail:
-                    type: string
-              example:
-                error_detail: "존재하지 않는 리뷰입니다."
-
-
-    delete:
-      summary: 댓글 투표 취소
-      tags:
-        - Likes
-      parameters:
-        - in: path
-          name: comment_id
-          schema:
-            type: integer
-          required: true
-          description: 댓글 ID
-      responses:
-        '200':
-          description: OK
-          content:
-            application/json:
-              schema:
-                type: object
-                properties:
-                  id:
-                    type: integer
-                  message:
-                    type: string
+                  error_detail: "로그인이 필요한 서비스입니다."
+          '404':
+            description: Not Found (존재하지 않는 리뷰)
+            content:
+              application/json:
+                schema:
+                  type: object
+                  properties:
+                    error_detail:
+                      type: string
                 example:
-                  id: 101
-                  message: "투표가 취소되었습니다."
-        '401':
-          description: Unauthorized
-          content:
-            application/json:
-              schema:
-                type: object
-                properties:
-                  error_detail:
-                    type: string
-              example:
-                error_detail: "자격 인증 데이터가 제공되지 않았습니다."
-        '403':
-          description: Forbidden
-          content:
-            application/json:
-              schema:
-                type: object
-                properties:
-                  error_detail:
-                    type: string
-              example:
-                error_detail: "삭제 권한이 없습니다."
-        '404':
-          description: Not Found
-          content:
-            application/json:
-              schema:
-                type: object
-                properties:
-                  error_detail:
-                    type: string
-              example:
-                error_detail: "투표 내역이 없습니다."
+                  error_detail: "존재하지 않는 리뷰입니다."
+
+      delete:
+        summary: 리뷰 좋아요 취소
+        description: |
+          특정 리뷰의 좋아요를 취소합니다.
+        tags:
+          - Likes
+        parameters:
+          - in: path
+            name: review_id
+            schema:
+              type: integer
+            required: true
+            description: 리뷰 ID
+        responses:
+          '200':
+            description: OK
+            content:
+              application/json:
+                schema:
+                  type: object
+                  properties:
+                    message:
+                      type: string
+                    is_liked:
+                      type: boolean
+                      description: 현재 유저의 좋아요 여부 (항상 false)
+                    like_count:
+                      type: integer
+                      description: 갱신된 총 좋아요 수
+                  example:
+                    message: "좋아요를 취소했습니다."
+                    is_liked: false
+                    like_count: 12
+          '401':
+            description: Unauthorized
+            content:
+              application/json:
+                schema:
+                  type: object
+                  properties:
+                    error_detail:
+                      type: string
+                example:
+                  error_detail: "로그인이 필요한 서비스입니다."
+          '404':
+            description: Not Found (존재하지 않는 리뷰)
+            content:
+              application/json:
+                schema:
+                  type: object
+                  properties:
+                    error_detail:
+                      type: string
 
   /api/v1/community/{game_id}/reviews/summary:
     post:
