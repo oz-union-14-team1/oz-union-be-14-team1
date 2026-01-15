@@ -8,8 +8,8 @@ from typing import cast
 from apps.community.pagination import ReviewPageNumberPagination
 from apps.community.serializers.review.review_create import ReviewCreateSerializer
 from apps.community.serializers.review.review_list import ReviewListSerializer
-from apps.community.services.review_create_service import create_review
-from apps.community.services.review_list_service import get_review_list
+from apps.community.services.review.review_create_service import create_review
+from apps.community.services.review.review_list_service import get_review_list
 from apps.user.models.user import User
 
 

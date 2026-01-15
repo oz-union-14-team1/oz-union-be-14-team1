@@ -3,7 +3,7 @@ from django.http import Http404
 from django.utils import timezone
 from django.contrib.auth import get_user_model
 
-from apps.community.services.review_create_service import create_review
+from apps.community.services.review.review_create_service import create_review
 from apps.community.models.reviews import Review
 from apps.game.models.game import Game
 

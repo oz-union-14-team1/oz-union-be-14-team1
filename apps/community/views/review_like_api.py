@@ -5,7 +5,7 @@ from rest_framework import status
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.request import Request
 from drf_spectacular.utils import extend_schema
-from apps.community.services.review_like_service import (
+from apps.community.services.review.review_like_service import (
     add_review_like,
     remove_review_like,
 )
