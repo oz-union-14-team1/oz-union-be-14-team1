@@ -37,7 +37,7 @@ def remove_review_like(user: User, review_id: int) -> int:
     except Review.DoesNotExist:
         raise ReviewNotFound()
 
-    # 2. 좋아요 삭제(deleted_count = 1(삭제)/2(유지))
+    # 2. 좋아요 삭제(deleted_count = 1(삭제)/0(유지))
     deleted_count, _ = ReviewLike.objects.filter(user=user, review=review).delete()  # type: ignore
 
     if deleted_count > 0:
