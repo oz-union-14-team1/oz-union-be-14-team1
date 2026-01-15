@@ -188,7 +188,7 @@ paths:
     put:
       summary: 리뷰 수정
       tags:
-        - 리뷰
+        - Reviews
       parameters:
         - in: path
           name: review_id
@@ -531,7 +531,7 @@ paths:
               example:
                 error_detail: "삭제 권한이 없습니다."
 
-  /api/v1/community/reviews/comments/{comment_id}/vote:
+  /api/v1/community/reviews/{review_id}/like:
     post:
       summary: 댓글 투표 (좋아요)
       tags:
@@ -558,7 +558,7 @@ paths:
                 example:
                   id: 101
                   message: "좋아요를 눌렀습니다"
-        '409':
+        '404':
           description: Conflict
           content:
             application/json:
@@ -568,7 +568,7 @@ paths:
                   error_detail:
                     type: string
               example:
-                error_detail: "투표 내역이 없습니다."
+                error_detail: "존재하지 않는 리뷰입니다."
 
 
     delete:
