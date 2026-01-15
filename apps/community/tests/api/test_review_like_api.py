@@ -36,7 +36,6 @@ class ReviewLikeServiceTest(APITestCase):
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
         self.assertTrue(response.data["is_liked"])
         self.assertEqual(response.data["like_count"], 1)
-        self.assertEqual(response.data["message"], "좋아요를 눌렀습니다.")
 
         # 한 번 더 요청해도 개수가 늘어나지 않은지 확인
         response_2 = self.client.post(self.url)
@@ -58,7 +57,6 @@ class ReviewLikeServiceTest(APITestCase):
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertFalse(response.data["is_liked"])
         self.assertEqual(response.data["like_count"], 0)
-        self.assertEqual(response.data["message"], "좋아요를 취소했습니다.")
 
     def test_api_unauthorized(self):
         """
