@@ -118,8 +118,9 @@ REST_FRAMEWORK = {
         "rest_framework.permissions.IsAuthenticated",
     ],
     "DEFAULT_AUTHENTICATION_CLASSES": [
-        "rest_framework.authentication.BasicAuthentication",
-        "rest_framework.authentication.SessionAuthentication",
+        # "rest_framework.authentication.BasicAuthentication",
+        # "rest_framework.authentication.SessionAuthentication",
+        "rest_framework_simplejwt.authentication.JWTAuthentication",
     ],
     "EXCEPTION_HANDLER": "apps.core.exceptions.handler.custom_exception_handler",
 }
@@ -134,14 +135,24 @@ SPECTACULAR_SETTINGS = {
     "VERSION": "1.0.0",
     "SERVE_INCLUDE_SCHEMA": False,
     "COMPONENT_SPLIT_REQUEST": True,
-    "SWAGGER_UI_SETTINGS": {
+    "SWAGGER_UI_SETTINGS": """{
         "dom_id": "#swagger-ui",
-        "layout": "BaseLayout",
-        "deepLinking": True,  # API를 클릭할때 마다 SwaggerUI의 url이 변경됩니다. (특정 API url 공유시 유용하기때문에 True설정을 사용합니다)
-        "persistAuthorization": True,  # True 이면 SwaggerUI상 Authorize에 입력된 정보가 새로고침을 하더라도 초기화되지 않습니다.
-        "displayOperationId": True,  # True이면 API의 urlId 값을 노출합니다. 대체로 DRF api name둘과 일치하기때문에 api를 찾을때 유용합니다.
-        "filter": True,  # True 이면 Swagger UI에서 'Filter by Tag' 검색이 가능합니다
-    },
+        "layout": "StandaloneLayout",
+        "deepLinking": true,
+        "persistAuthorization": true,
+        "displayOperationId": true,
+        "filter": true,
+        
+        "urls": [
+            {url: "/static/swagger.yaml", name: "1. 기획서 (Static YAML)"},
+            {url: "/api/schema", name: "2. 실제 구현 코드 (Live Schema)"}
+        ],
+        
+        "presets": [
+            SwaggerUIBundle.presets.apis,
+            SwaggerUIStandalonePreset
+        ]
+    }""",
     "SERVE_PERMISSIONS": ["rest_framework.permissions.AllowAny"],
     "SECURITY": [
         {
