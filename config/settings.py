@@ -73,6 +73,25 @@ TEMPLATES = [
     },
 ]
 
+# Redis Cache 설정
+CACHES = {
+    "default": {
+        "BACKEND": "django_redis.cache.RedisCache",
+        "LOCATION": env(
+            "REDIS_URL",
+            default="redis://redis:6379/0",
+        ),
+        "OPTIONS": {
+            "CLIENT_CLASS": "django_redis.client.DefaultClient",
+        },
+        "KEY_PREFIX": "playtype",
+    }
+}
+
+# 세션을 Redis에 저장
+SESSION_ENGINE = "django.contrib.sessions.backends.cache"
+SESSION_CACHE_ALIAS = "default"
+
 WSGI_APPLICATION = "config.wsgi.application"
 
 # 4. Database 설정 (.env 사용)

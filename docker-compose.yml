@@ -28,5 +28,11 @@ services:
     env_file:
       - .env
 
+  redis:
+    image: redis:7
+    container_name: PlayType_redis
+    ports:
+      - "6379:6379"
+
 volumes:
   postgres_data:
