@@ -10,6 +10,7 @@ from apps.community.serializers.review.review_update import ReviewUpdateSerializ
 from apps.community.services.review.review_update_service import update_review
 from apps.user.models.user import User
 
+
 class ReviewUpdateAPIView(APIView):
     permission_classes = [IsAuthenticated]
     validation_error_message = "이 필드는 필수 항목입니다."
@@ -20,15 +21,11 @@ class ReviewUpdateAPIView(APIView):
         request=ReviewUpdateSerializer,
         responses=ReviewUpdateSerializer,
     )
-
     def patch(self, request, review_id):
         self.validation_error_message = "유효하지 않은 수정 요청입니다."
 
         # 1. 수정할 데이터 검증
-        serializer = ReviewUpdateSerializer(
-            data=request.data,
-            partial=True
-        )
+        serializer = ReviewUpdateSerializer(data=request.data, partial=True)
         serializer.is_valid(raise_exception=True)
 
         # 2. 유저 타입 캐스팅 (Type Hinting)

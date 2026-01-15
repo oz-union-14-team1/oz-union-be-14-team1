@@ -7,7 +7,9 @@ from apps.community.selectors.review_selector import check_and_get_review_for_up
 
 
 @transaction.atomic
-def update_review(*, user: User, review_id: int, validated_data: dict[str, Any]) -> Review:
+def update_review(
+    *, user: User, review_id: int, validated_data: dict[str, Any]
+) -> Review:
     """
     Selector를 통해 검증된 리뷰 객체를 가져와서
     실제 필드 업데이트와 저장을 수행합니다.

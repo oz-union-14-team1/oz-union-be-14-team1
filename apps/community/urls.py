@@ -9,5 +9,7 @@ urlpatterns = [
     path(
         "reviews/<int:review_id>/like", ReviewLikeAPIView.as_view(), name="review_like"
     ),
-    path("reviews/<int:review_id>", ReviewUpdateAPIView.as_view(), name="review_update"),
+    path(
+        "reviews/<int:review_id>", ReviewUpdateAPIView.as_view(), name="review_update"
+    ),
 ]
