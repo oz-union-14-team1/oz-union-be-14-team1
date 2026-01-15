@@ -92,6 +92,17 @@ CACHES = {
 SESSION_ENGINE = "django.contrib.sessions.backends.cache"
 SESSION_CACHE_ALIAS = "default"
 
+# verification settings
+VERIFICATION_DEFAULT_TTL_SECONDS: int = int(
+    os.getenv("VERIFICATION_DEFAULT_TTL_SECONDS", "300")
+)
+VERIFICATION_TOKEN_GENERATE_MAX_ATTEMPTS: int = int(
+    os.getenv("VERIFICATION_TOKEN_GENERATE_MAX_ATTEMPTS", "5")
+)
+VERIFICATION_CODE_LENGTH: int = int(os.getenv("VERIFICATION_CODE_LENGTH", "6"))
+VERIFICATION_TOKEN_BYTES: int = int(os.getenv("VERIFICATION_TOKEN_BYTES", "32"))
+VERIFICATION_CODE_CHARS: str = os.getenv("VERIFICATION_CODE_CHARS", "1234567890")
+
 WSGI_APPLICATION = "config.wsgi.application"
 
 # 4. Database 설정 (.env 사용)
