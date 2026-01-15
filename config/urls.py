@@ -4,7 +4,8 @@ from django.contrib import admin
 from django.urls import URLPattern, URLResolver, include, path
 from drf_spectacular.views import (
     SpectacularRedocView,
-    SpectacularSwaggerView, SpectacularAPIView,
+    SpectacularSwaggerView,
+    SpectacularAPIView,
 )
 
 urlpatterns: list[URLPattern | URLResolver] = [
@@ -22,7 +23,6 @@ if settings.DEBUG:
         urlpatterns += [
             # 1. 코드를 읽고 자동으로 스키마를 생성하는 뷰
             path("api/schema", SpectacularAPIView.as_view(), name="schema"),
-
             # 2. Swagger UI 설정 수정
             path(
                 "api/schema/swagger-ui",

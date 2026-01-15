@@ -153,7 +153,6 @@ SPECTACULAR_SETTINGS = {
             SwaggerUIStandalonePreset
         ]
     }""",
-
     "SERVE_PERMISSIONS": ["rest_framework.permissions.AllowAny"],
     "SECURITY": [
         {
