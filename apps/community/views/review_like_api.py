@@ -22,7 +22,6 @@ class ReviewLikeAPIView(APIView):
 
         return Response(
             {
-                "message": "좋아요를 눌렀습니다.",
                 "is_liked": True,
                 "like_count": total_likes,
             },
@@ -36,7 +35,6 @@ class ReviewLikeAPIView(APIView):
 
         return Response(
             {
-                "message": "좋아요를 취소했습니다.",
                 "is_liked": False,
                 "like_count": total_likes,
             },

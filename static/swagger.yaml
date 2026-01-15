@@ -579,8 +579,6 @@ paths:
                 schema:
                   type: object
                   properties:
-                    message:
-                      type: string
                     is_liked:
                       type: boolean
                       description: 현재 유저의 좋아요 여부 (항상 true)
@@ -588,7 +586,6 @@ paths:
                       type: integer
                       description: 갱신된 총 좋아요 수
                   example:
-                    message: "좋아요를 눌렀습니다."
                     is_liked: true
                     like_count: 13
           '401':
@@ -635,8 +632,6 @@ paths:
                 schema:
                   type: object
                   properties:
-                    message:
-                      type: string
                     is_liked:
                       type: boolean
                       description: 현재 유저의 좋아요 여부 (항상 false)
@@ -644,7 +639,6 @@ paths:
                       type: integer
                       description: 갱신된 총 좋아요 수
                   example:
-                    message: "좋아요를 취소했습니다."
                     is_liked: false
                     like_count: 12
           '401':
