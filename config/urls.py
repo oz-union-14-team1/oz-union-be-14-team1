@@ -4,14 +4,13 @@ from django.contrib import admin
 from django.urls import URLPattern, URLResolver, include, path
 from drf_spectacular.views import (
     SpectacularRedocView,
-    SpectacularSwaggerView,
+    SpectacularSwaggerView, SpectacularAPIView,
 )
 
 urlpatterns: list[URLPattern | URLResolver] = [
     path("admin/", admin.site.urls),
     path("api/v1/community/", include("apps.community.urls")),
 ]
-
 
 if settings.DEBUG:
     urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
@@ -21,12 +20,13 @@ if settings.DEBUG:
         urlpatterns += [path("__debug__/", include("debug_toolbar.urls"))]
     if "drf_spectacular" in settings.INSTALLED_APPS:
         urlpatterns += [
-            # YAML이 아닌 코드를 읽고 자동으로 만드는 세팅
-            # path("api/schema", SpectacularAPIView.as_view(), name="schema"),
-            # path("api/schema/swagger-ui", SpectacularSwaggerView.as_view(url_name="schema"), name="swagger-ui"),
+            # 1. 코드를 읽고 자동으로 스키마를 생성하는 뷰
+            path("api/schema", SpectacularAPIView.as_view(), name="schema"),
+
+            # 2. Swagger UI 설정 수정
             path(
                 "api/schema/swagger-ui",
-                SpectacularSwaggerView.as_view(url="/static/swagger.yaml"),
+                SpectacularSwaggerView.as_view(url_name="schema"),
                 name="swagger-ui",
             ),
             path(
