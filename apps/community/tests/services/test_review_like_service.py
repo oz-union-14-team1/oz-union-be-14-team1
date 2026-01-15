@@ -2,7 +2,7 @@ from django.test import TestCase
 from django.contrib.auth import get_user_model
 from django.utils import timezone
 
-from apps.community.services.review_like_service import (
+from apps.community.services.review.review_like_service import (
     add_review_like,
     remove_review_like,
 )

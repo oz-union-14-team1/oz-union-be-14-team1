@@ -211,7 +211,7 @@ paths:
                       like_count: 12
                       created_at: "2025-01-15T14:30:00+09:00"
   /api/v1/community/reviews/{review_id}:
-    put:
+    patch:
       summary: 리뷰 수정
       tags:
         - Reviews
@@ -262,7 +262,7 @@ paths:
                   error_detail:
                     type: string
               example:
-                error_detail: "이 필드는 필수 항목입니다."
+                error_detail: "유효하지 않은 수정 요청입니다."
         '403':
           description: Forbidden
           content:
