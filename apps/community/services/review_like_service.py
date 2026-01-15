@@ -5,19 +5,17 @@ from apps.community.models.reviews import Review
 from apps.community.models.review_like import ReviewLike
 from apps.user.models.user import User
 
+
 @transaction.atomic
 def create_review_like(user: User, review_id: int) -> tuple[bool, int]:
     # 1. 리뷰 가져오기 (select_for_update로 동시성 제어 - 락 걸기)
     try:
-        review = Review.objects.select_for_update().get(id=review_id)
+        review = Review.objects.select_for_update().get(id=review_id)  # type: ignore
     except Review.DoesNotExist:
         raise ReviewNotFound()
 
     # 2. 중간 테이블(ReviewLike) 확인
-    like_obj, created = ReviewLike.objects.get_or_create(
-        user=user,
-        review=review
-    )
+    like_obj, created = ReviewLike.objects.get_or_create(user=user, review=review)  # type: ignore
 
     if created:
         # 없어서 새로 생성됨 -> 좋아요 등록

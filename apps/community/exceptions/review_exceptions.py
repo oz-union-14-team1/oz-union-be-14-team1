@@ -8,6 +8,7 @@ class NotReviewAuthor(APIException):
     default_detail = "작성자가 일치하지 않습니다."
     default_code = "not_review_author"
 
+
 # 404 - 리뷰 없음 예외
 class ReviewNotFound(APIException):
     status_code = status.HTTP_404_NOT_FOUND
