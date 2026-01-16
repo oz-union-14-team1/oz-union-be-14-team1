@@ -26,5 +26,5 @@ class ReviewComment(TimeStampedModel):
     class Meta:
         db_table = "comments"
         indexes = [
-            models.Index(fields=['review', 'created_at']),
+            models.Index(fields=["review", "created_at"]),
         ]
