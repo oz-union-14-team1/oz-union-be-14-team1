@@ -6,7 +6,7 @@ from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework import status
 
-from apps.community.serializers.review.review_update import ReviewUpdateSerializer
+from apps.community.serializers.review.review_create import ReviewCreateSerializer
 from apps.community.services.review.review_delete_service import delete_review
 from apps.community.services.review.review_update_service import update_review
 from apps.user.models.user import User
@@ -19,14 +19,14 @@ class ReviewUpdateAPIView(APIView):
     @extend_schema(
         tags=["리뷰"],
         summary="리뷰 수정 API",
-        request=ReviewUpdateSerializer,
-        responses=ReviewUpdateSerializer,
+        request=ReviewCreateSerializer,
+        responses=ReviewCreateSerializer,
     )
     def patch(self, request, review_id):
         self.validation_error_message = "유효하지 않은 수정 요청입니다."
 
         # 1. 수정할 데이터 검증
-        serializer = ReviewUpdateSerializer(data=request.data, partial=True)
+        serializer = ReviewCreateSerializer(data=request.data, partial=True)
         serializer.is_valid(raise_exception=True)
 
         # 2. 유저 타입 캐스팅 (Type Hinting)
@@ -41,7 +41,7 @@ class ReviewUpdateAPIView(APIView):
 
         # 4. 수정된 데이터 반환
         return Response(
-            ReviewUpdateSerializer(review).data,
+            ReviewCreateSerializer(review).data,
             status=status.HTTP_200_OK,
         )
 

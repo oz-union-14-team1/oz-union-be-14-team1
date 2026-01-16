@@ -26,7 +26,6 @@ class ReviewLikeAPIView(APIView):
 
         return Response(
             {
-                "is_liked": True,
                 "like_count": total_likes,
             },
             status=status.HTTP_201_CREATED,
@@ -43,7 +42,6 @@ class ReviewLikeAPIView(APIView):
 
         return Response(
             {
-                "is_liked": False,
                 "like_count": total_likes,
             },
             status=status.HTTP_200_OK,
