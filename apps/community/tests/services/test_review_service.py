@@ -3,6 +3,7 @@ from django.http import Http404
 from django.utils import timezone
 from django.contrib.auth import get_user_model
 
+from apps.community.exceptions.review_exceptions import GameNotFound
 from apps.community.services.review.review_create_service import create_review
 from apps.community.models.reviews import Review
 from apps.game.models.game import Game
@@ -48,7 +49,7 @@ class ReviewServiceTest(TestCase):
         invalid_game_id = 9999
         data = {"content": "재밌음", "rating": 5}
 
-        with self.assertRaises(Http404):
+        with self.assertRaises(GameNotFound):
             create_review(
                 author=self.user, game_id=invalid_game_id, validated_data=data
             )
