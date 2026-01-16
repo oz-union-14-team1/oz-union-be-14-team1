@@ -34,11 +34,14 @@ class ReviewUpdateAPITest(APITestCase):
         """
         작성자 본인의 리뷰 수정 성공
         """
+        # Given: 작성자 본인 로그인 및 수정 데이터 준비
         self.client.force_authenticate(user=self.user)
         data = {"content": "New Content"}
 
+        # When: 리뷰 수정 API 호출
         response = self.client.patch(self.url, data)
 
+        # Then: 200 응답 및 수정 확인
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.review.refresh_from_db()
         self.assertEqual(self.review.content, "New Content")
@@ -48,10 +51,14 @@ class ReviewUpdateAPITest(APITestCase):
         """
         다른 유저가 수정 시도 시 403 Forbidden
         """
+        # Given: 작성자가 아닌 다른 유저로 로그인 및 데이터 준비
         self.client.force_authenticate(user=self.other_user)
         data = {"content": "Hacked"}
 
+        # When: 리뷰 수정 API 호출
         response = self.client.patch(self.url, data)
+
+        # Then: 403 Forbidden 반환 / 에러 메세지 확인
         self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
         self.assertEqual(response.data["error_detail"], "작성자가 일치하지 않습니다.")
 
@@ -61,7 +68,7 @@ class ReviewUpdateAPITest(APITestCase):
         """
         # Given: 로그인하지 않은 상태 (force_authenticate 없음)
 
-        # When: 리뷰 삭제 요청
+        # When: 리뷰 수정 API 호출
         response = self.client.patch(self.url)
 
         # Then: 401 Unauthorized 반환 확인

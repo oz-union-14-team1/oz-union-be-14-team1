@@ -28,12 +28,15 @@ class ReviewServiceTest(TestCase):
         """
         정상적인 데이터로 리뷰 생성 성공
         """
+        # Given: 리뷰 생성에 필요한 데이터 준비
         data = {"content": "그저 그런데요?", "rating": 2}
 
+        # When: 서비스 로직 실행
         review = create_review(
             author=self.user, game_id=self.game.id, validated_data=data
         )
 
+        # Then: 리뷰가 정상적으로 생성되었는지 검증
         self.assertIsNotNone(review.id)
         self.assertEqual(review.user, self.user)
         self.assertEqual(review.game, self.game)
@@ -45,9 +48,11 @@ class ReviewServiceTest(TestCase):
         """
         존재하지 않는 게임 ID로 요청 시 404
         """
+        # Given: 존재하지 않는 게임 ID와 데이터 준비
         invalid_game_id = 9999
         data = {"content": "재밌음", "rating": 5}
 
+        # When & Then: 예외가 발생하는지 확인
         with self.assertRaises(GameNotFound):
             create_review(
                 author=self.user, game_id=invalid_game_id, validated_data=data

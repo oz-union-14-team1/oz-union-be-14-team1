@@ -37,17 +37,19 @@ class GameReviewListAPITest(APITestCase):
         """
         리뷰 목록 조회 성공 (200)
         """
+        # Given: 로그인하지 않은 상태 (force_authenticate 없음)
+
+        # When: 리뷰 조회 API 요청
         response = self.client.get(self.url)
 
+        # Then: 200 응답 및 DB 저장 확인
         self.assertEqual(response.status_code, status.HTTP_200_OK)
 
         # 페이지네이션 응답 구조 확인 (count, next, previous, results)
         self.assertIn("count", response.data)
         self.assertIn("results", response.data)
-
-        # 전체 개수는 15개
+        # 전체 개수는 15개 확인
         self.assertEqual(response.data["count"], 15)
-
         # 1페이지는 10개 반환 (ReviewPageNumberPagination.page_size = 10)
         self.assertEqual(len(response.data["results"]), 10)
 
@@ -55,10 +57,13 @@ class GameReviewListAPITest(APITestCase):
         """
         리뷰 목록 조회 페이지네이션 (2페이지)
         """
+        # Given: 로그인하지 않은 상태 (force_authenticate 없음)
+
+        # When: 특정 페이지에 대한 리뷰 조회 API 요청
         response = self.client.get(self.url, {"page": 2})
 
+        # Then: 200 응답 및 DB 저장 확인
         self.assertEqual(response.status_code, status.HTTP_200_OK)
-
         # 2페이지는 남은 5개 반환(10개는 1페이지)
         self.assertEqual(len(response.data["results"]), 5)
         # 다음 페이지는 없어야 함 (None)
@@ -68,10 +73,13 @@ class GameReviewListAPITest(APITestCase):
         """
         잘못된 페이지 번호 타입 요청 - 400 Bad Request
         """
+        # Given: 로그인하지 않은 상태 (force_authenticate 없음)
+
+        # When: 잘못된 페이지 리뷰 조회 API 요청
         response = self.client.get(self.url, {"page": "invalid"})
 
+        # Then: 400 에러 및 에러메세지 확인
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
-
         self.assertEqual(
             response.data["error_detail"], "유효하지 않은 조회 요청입니다."
         )
@@ -81,8 +89,12 @@ class GameReviewListAPITest(APITestCase):
         """
         잘못된 페이지 번호 범위 요청 (0페이지) - 400 Bad Request
         """
+        # Given: 로그인하지 않은 상태 (force_authenticate 없음)
+
+        # When: 잘못된 페이지 리뷰 조회 API 요청
         response = self.client.get(self.url, {"page": 0})
 
+        # Then: 400 에러 및 에러메세지 확인
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
         self.assertEqual(
             response.data["error_detail"], "유효하지 않은 조회 요청입니다."
@@ -93,8 +105,12 @@ class GameReviewListAPITest(APITestCase):
         """
         페이지 범위를 벗어난 요청 - 200 OK (빈 리스트 반환)
         """
+        # Given: 로그인하지 않은 상태 (force_authenticate 없음)
+
+        # When: 페이지 리뷰 조회 API 요청
         response = self.client.get(self.url, {"page": 999})
 
+        # Then: 200 응답 및 DB 저장 확인
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         # 빈 리스트 반환 확인
         self.assertEqual(len(response.data["results"]), 0)
@@ -105,11 +121,14 @@ class GameReviewListAPITest(APITestCase):
         """
         리뷰가 없는 게임 조회 - 200 OK (빈 리스트)
         """
+        # Given: 로그인하지 않은 상태 (force_authenticate 없음) 및 리뷰없는 게임 데이터 준비
         new_game = Game.objects.create(name="New Game", released_at=timezone.now())
         url = reverse("game_review_create", kwargs={"game_id": new_game.id})
 
+        # When: 페이지 리뷰 조회 API 요청
         response = self.client.get(url)
 
+        # Then: 200 응답 및 DB 저장 확인
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertEqual(response.data["count"], 0)
         self.assertEqual(len(response.data["results"]), 0)
@@ -118,10 +137,13 @@ class GameReviewListAPITest(APITestCase):
         """
         존재하지 않는 게임 ID로 조회 - 200 OK (빈 리스트)
         """
+        # Given: 로그인하지 않은 상태 (force_authenticate 없음) 및 잘못된 데이터 준비
         url = reverse("game_review_create", kwargs={"game_id": 99999})
 
+        # When: 페이지 리뷰 조회 API 요청
         response = self.client.get(url)
 
+        # Then: 200 응답 및 DB 저장 확인
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertEqual(response.data["count"], 0)
         self.assertEqual(len(response.data["results"]), 0)
