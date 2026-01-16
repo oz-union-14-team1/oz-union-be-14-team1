@@ -61,6 +61,7 @@ class ReviewDeleteAPITest(APITestCase):
         self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
         self.review.refresh_from_db()
         self.assertFalse(self.review.is_deleted)
+        self.assertEqual(response.data["error_detail"], "작성자가 일치하지 않습니다.")
 
     def test_delete_review_unauthorized(self):
         """
@@ -73,6 +74,7 @@ class ReviewDeleteAPITest(APITestCase):
 
         # Then: 401 Unauthorized 반환 확인
         self.assertEqual(response.status_code, status.HTTP_401_UNAUTHORIZED)
+        self.assertEqual(response.data["error_detail"], "로그인이 필요한 서비스입니다.")
 
     def test_delete_review_not_found(self):
         """
@@ -87,3 +89,4 @@ class ReviewDeleteAPITest(APITestCase):
 
         # Then: 404 Not Found 반환 확인
         self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
+        self.assertEqual(response.data["error_detail"], "존재하지 않는 리뷰입니다.")

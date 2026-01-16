@@ -53,3 +53,32 @@ class ReviewUpdateAPITest(APITestCase):
 
         response = self.client.patch(self.url, data)
         self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
+        self.assertEqual(response.data["error_detail"], "작성자가 일치하지 않습니다.")
+
+    def test_patch_review_unauthorized(self):
+        """
+        비로그인 유저가 삭제 시도 시 차단 (401)
+        """
+        # Given: 로그인하지 않은 상태 (force_authenticate 없음)
+
+        # When: 리뷰 삭제 요청
+        response = self.client.patch(self.url)
+
+        # Then: 401 Unauthorized 반환 확인
+        self.assertEqual(response.status_code, status.HTTP_401_UNAUTHORIZED)
+        self.assertEqual(response.data["error_detail"], "로그인이 필요한 서비스입니다.")
+
+    def test_patch_review_not_found(self):
+        """
+        존재하지 않는 리뷰 삭제 시도 (404)
+        """
+        # Given: 작성자로 로그인했으나, 잘못된 리뷰 ID 준비
+        self.client.force_authenticate(user=self.user)
+        wrong_url = reverse("review_update", kwargs={"review_id": 99999})
+
+        # When: 없는 리뷰 삭제 요청
+        response = self.client.patch(wrong_url)
+
+        # Then: 404 Not Found 반환 확인
+        self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
+        self.assertEqual(response.data["error_detail"], "존재하지 않는 리뷰입니다.")

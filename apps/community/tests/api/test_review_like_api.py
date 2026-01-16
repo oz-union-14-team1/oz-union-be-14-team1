@@ -65,10 +65,16 @@ class ReviewLikeServiceTest(APITestCase):
         # POST 요청
         response_post = self.client.post(self.url)
         self.assertEqual(response_post.status_code, status.HTTP_401_UNAUTHORIZED)
+        self.assertEqual(
+            response_post.data["error_detail"], "로그인이 필요한 서비스입니다."
+        )
 
         # DELETE 요청
         response_delete = self.client.delete(self.url)
         self.assertEqual(response_delete.status_code, status.HTTP_401_UNAUTHORIZED)
+        self.assertEqual(
+            response_delete.data["error_detail"], "로그인이 필요한 서비스입니다."
+        )
 
     def test_api_not_found(self):
         """
@@ -80,7 +86,13 @@ class ReviewLikeServiceTest(APITestCase):
         # POST
         response_post = self.client.post(wrong_url)
         self.assertEqual(response_post.status_code, status.HTTP_404_NOT_FOUND)
+        self.assertEqual(
+            response_post.data["error_detail"], "존재하지 않는 리뷰입니다."
+        )
 
         # DELETE
         response_delete = self.client.delete(wrong_url)
         self.assertEqual(response_delete.status_code, status.HTTP_404_NOT_FOUND)
+        self.assertEqual(
+            response_delete.data["error_detail"], "존재하지 않는 리뷰입니다."
+        )

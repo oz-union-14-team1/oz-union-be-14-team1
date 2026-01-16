@@ -90,3 +90,4 @@ class GameReviewAPITest(APITestCase):
         response = self.client.post(wrong_url, payload)
 
         self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
+        self.assertEqual(response.data["error_detail"], "존재하지 않는 게임입니다.")
