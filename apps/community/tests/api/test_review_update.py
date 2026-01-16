@@ -89,3 +89,21 @@ class ReviewUpdateAPITest(APITestCase):
         # Then: 404 Not Found 반환 확인
         self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
         self.assertEqual(response.data["error_detail"], "존재하지 않는 리뷰입니다.")
+
+    def test_patch_review_invalid_rating(self):
+        """
+        별점 범위 초과 시 실패 (400 Bad Request)
+        """
+        # Given: 잘못된 별점 데이터 준비
+        self.client.force_authenticate(user=self.user)
+        payload = {"content": "완벽해요", "rating": 6}
+
+        # When: 리뷰 생성 API 호출
+        response = self.client.patch(self.url, payload)
+
+        # Then: 400 에러 및 에러메세지 확인
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+        self.assertEqual(
+            response.data["errors"],
+            {"rating": ["별점은 1에서 5 사이의 정수여야 합니다."]},
+        )
