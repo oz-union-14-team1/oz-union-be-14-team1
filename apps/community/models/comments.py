@@ -4,7 +4,7 @@ from apps.community.models.reviews import Review
 from apps.user.models.user import User
 
 
-class Comment(TimeStampedModel):
+class ReviewComment(TimeStampedModel):
     """
     리뷰 댓글 저장 테이블
     """
@@ -25,3 +25,6 @@ class Comment(TimeStampedModel):
 
     class Meta:
         db_table = "comments"
+        indexes = [
+            models.Index(fields=['review', 'created_at']),
+        ]
