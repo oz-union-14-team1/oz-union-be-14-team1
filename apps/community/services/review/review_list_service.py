@@ -8,7 +8,7 @@ def get_review_list(game_id: int) -> QuerySet[Review]:
     user 정보를 함께 가져오기 위해 select_related를 사용합니다 (N+1 방지)
     """
     return (
-        Review.objects.filter(game_id=game_id,is_deleted=False)  # type: ignore
+        Review.objects.filter(game_id=game_id, is_deleted=False)  # type: ignore
         .select_related("user")  # Review 모델의 user 필드를 미리 조인해서 가져옴
         .order_by("-created_at")  # 최신순 정렬
     )
