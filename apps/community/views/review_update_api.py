@@ -7,6 +7,7 @@ from rest_framework.response import Response
 from rest_framework import status
 
 from apps.community.serializers.review.review_update import ReviewUpdateSerializer
+from apps.community.services.review.review_delete_service import delete_review
 from apps.community.services.review.review_update_service import update_review
 from apps.user.models.user import User
 
@@ -42,4 +43,14 @@ class ReviewUpdateAPIView(APIView):
         return Response(
             ReviewUpdateSerializer(review).data,
             status=status.HTTP_200_OK,
+        )
+
+    @extend_schema(tags=["리뷰"], summary="리뷰 삭제 API")
+    def delete(self, request, review_id):
+
+        # 1. 서비스 레이어 호출 (존재 여부 및 권한 검증 포함)
+        delete_review(review_id=review_id, user=cast(User, request.user))
+
+        return Response(
+            {"message": "리뷰가 삭제되었습니다."}, status=status.HTTP_204_NO_CONTENT
         )
