@@ -103,6 +103,10 @@ VERIFICATION_CODE_LENGTH: int = int(os.getenv("VERIFICATION_CODE_LENGTH", "6"))
 VERIFICATION_TOKEN_BYTES: int = int(os.getenv("VERIFICATION_TOKEN_BYTES", "32"))
 VERIFICATION_CODE_CHARS: str = os.getenv("VERIFICATION_CODE_CHARS", "1234567890")
 
+# Telnyx (SMS)
+TELNYX_API_KEY: str = env("TELNYX_API_KEY", default="")
+TELNYX_FROM_NUMBER: str = env("TELNYX_FROM_NUMBER", default="")
+
 WSGI_APPLICATION = "config.wsgi.application"
 
 # 4. Database 설정 (.env 사용)
