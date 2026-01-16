@@ -15,6 +15,7 @@ class ReviewNotFound(APIException):
     default_detail = "존재하지 않는 리뷰입니다."
     default_code = "review_not_found"
 
+
 # 404 - 게임 없음 예외
 class GameNotFound(APIException):
     status_code = status.HTTP_404_NOT_FOUND

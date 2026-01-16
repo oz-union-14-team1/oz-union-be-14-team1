@@ -2,7 +2,7 @@ from rest_framework.permissions import IsAuthenticatedOrReadOnly
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework import status
-from drf_spectacular.utils import extend_schema, inline_serializer, OpenApiResponse
+from drf_spectacular.utils import extend_schema, inline_serializer
 from typing import cast
 from rest_framework import serializers
 from apps.community.pagination import ReviewPageNumberPagination
@@ -24,13 +24,13 @@ class ReviewAPIView(APIView):
         request=ReviewCreateSerializer,
         responses={
             201: inline_serializer(
-                name='ReviewCreateResponse',
+                name="ReviewCreateResponse",
                 fields={
-                    'id': serializers.IntegerField(),
-                    'message': serializers.CharField(),
-                }
+                    "id": serializers.IntegerField(),
+                    "message": serializers.CharField(),
+                },
             ),
-        }
+        },
     )
     def post(self, request, game_id):
         # 1. 입력 데이터 검증
@@ -54,9 +54,7 @@ class ReviewAPIView(APIView):
         )
 
     @extend_schema(
-        tags=["리뷰"],
-        summary="리뷰 목록 조회 API",
-        responses=ReviewListSerializer
+        tags=["리뷰"], summary="리뷰 목록 조회 API", responses=ReviewListSerializer
     )
     def get(self, request, game_id):
         self.validation_error_message = "유효하지 않은 조회 요청입니다."

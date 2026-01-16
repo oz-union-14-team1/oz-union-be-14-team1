@@ -1,5 +1,3 @@
-from django.db import transaction
-from django.shortcuts import get_object_or_404
 from typing import Any
 
 from apps.community.exceptions.review_exceptions import GameNotFound
@@ -27,4 +25,3 @@ def create_review(
     )
 
     return review
-

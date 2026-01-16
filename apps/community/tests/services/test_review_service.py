@@ -1,5 +1,4 @@
 from django.test import TestCase
-from django.http import Http404
 from django.utils import timezone
 from django.contrib.auth import get_user_model
 

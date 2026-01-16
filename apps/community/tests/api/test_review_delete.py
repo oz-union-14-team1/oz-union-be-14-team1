@@ -90,4 +90,3 @@ class ReviewDeleteAPITest(APITestCase):
         # Then: 404 Not Found 반환 확인
         self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
         self.assertEqual(response.data["error_detail"], "존재하지 않는 리뷰입니다.")
-
