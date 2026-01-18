@@ -1,5 +1,4 @@
 from __future__ import annotations
-
 import secrets
 from typing import Optional, cast
 
@@ -16,45 +15,34 @@ TOKEN_GENERATE_MAX_ATTEMPTS = cast(
 
 
 def _normalize(identifier: str) -> str:
-    return identifier.strip().lower()
+    return identifier.strip()
 
 
-class VerificationService:
-    # 이메일 / sms 인증을 위한 코드 & 토큰 관리 서비스
+class SMSVerificationsService:
     def __init__(
-        self, redis_alias: str = "default", namespace: str = "verification"
+        self, redis_alias: str = "default", namespace: str = "sms_verification"
     ) -> None:
         self.redis = caches[redis_alias]
         self.namespace = namespace
 
-    # 키 빌드
-    def _code_key(self, identifier: str) -> str:
-        return f"{self.namespace}:code:{identifier}"
+    # Redis 키 생성
+    def _code_key(self, phone: str) -> str:
+        return f"{self.namespace}:code:{phone}"
 
     def _token_key(self, token: str) -> str:
         return f"{self.namespace}:token:{token}"
 
-    # 퍼블릭 메소드
-    # 인증코드 생성
-    def generate_code(
-        self,
-        identifier: str,
-        ttl_seconds: int = DEFAULT_TTL_SECONDS,
-    ) -> str:
-        identifier = _normalize(identifier)
+    # 코드 생성
+    def generate_code(self, phone: str, ttl_seconds: int = DEFAULT_TTL_SECONDS) -> str:
+        phone = _normalize(phone)
         code = "".join(secrets.choice(CODE_CHARS) for _ in range(CODE_LENGTH))
-        self.redis.set(self._code_key(identifier), code, ttl_seconds)
+        self.redis.set(self._code_key(phone), code, ttl_seconds)
         return code
 
-    # 인증코드 검증
-    def verify_code(
-        self,
-        identifier: str,
-        code: str,
-        consume: bool = True,
-    ) -> bool:
-        identifier = _normalize(identifier)
-        key = self._code_key(identifier)
+    # 코드 검증
+    def verify_code(self, phone: str, code: str, consume: bool = True) -> bool:
+        phone = _normalize(phone)
+        key = self._code_key(phone)
         stored = self.redis.get(key)
 
         if stored is None:
@@ -72,23 +60,18 @@ class VerificationService:
 
         return True
 
-    # 인증 완료 후 발급되는 1회성 토큰
-    def generate_token(
-        self,
-        identifier: str,
-        ttl_seconds: int = DEFAULT_TTL_SECONDS,
-    ) -> str:
-        identifier = _normalize(identifier)
+    # 1회용 토큰 생성
+    def generate_token(self, phone: str, ttl_seconds: int = DEFAULT_TTL_SECONDS) -> str:
+        phone = _normalize(phone)
 
         for _ in range(TOKEN_GENERATE_MAX_ATTEMPTS):
             token = secrets.token_urlsafe(TOKEN_BYTES)
             key = self._token_key(token)
-
             if not self.redis.get(key):
-                self.redis.set(key, identifier, ttl_seconds)
+                self.redis.set(key, phone, ttl_seconds)
                 return token
 
-        raise RuntimeError("Failed to generate unique verification token")
+        raise RuntimeError("Token generation failed")
 
     # 토큰 검증
     def verify_token(self, token: str, consume: bool = True) -> Optional[str]:
@@ -98,26 +81,22 @@ class VerificationService:
         if value is None:
             return None
 
-        identifier = value.decode() if isinstance(value, (bytes, bytearray)) else value
+        phone = value.decode() if isinstance(value, (bytes, bytearray)) else value
 
         if consume:
             self.redis.delete(key)
 
-        return identifier
+        return phone
 
-    # 남은 TTL조회
+    # 남은 TTL 조회
     def get_remaining_ttl(
-        self,
-        identifier_or_token: str,
-        *,
-        is_token: bool = False,
+        self, identifier_or_token: str, *, is_token: bool = False
     ) -> Optional[int]:
         key = (
             self._token_key(identifier_or_token)
             if is_token
-            else self._code_key(_normalize(identifier_or_token))
+            else self._token_key(_normalize())
         )
-
         ttl_func = getattr(self.redis, "ttl", None)
         if ttl_func is None:
             return None
@@ -126,15 +105,10 @@ class VerificationService:
         return remaining if remaining and remaining > 0 else None
 
     # 강제 삭제
-    def clear(
-        self,
-        identifier_or_token: str,
-        *,
-        is_token: bool = False,
-    ) -> None:
+    def clear(self, identifier_or_token: str, *, is_token: bool = False) -> None:
         key = (
             self._token_key(identifier_or_token)
             if is_token
-            else self._code_key(_normalize(identifier_or_token))
+            else self._token_key(_normalize(identifier_or_token))
         )
         self.redis.delete(key)
