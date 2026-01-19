@@ -1,5 +1,6 @@
 from enum import Enum
 
+
 class Period(str, Enum):
     HOURLY = "hourly"
     MINUTE = "minute"
