@@ -1,8 +1,7 @@
 from __future__ import annotations
-from typing import Optional
+from typing import Optional, Any
 
 from django.core.cache import caches
-from django.core.cache.backends.base import BaseCache
 
 ONE_MINUTE = 60
 ONE_HOUR = ONE_MINUTE * 60
@@ -11,7 +10,7 @@ ONE_DAY = ONE_HOUR * 24
 
 class SMSLimiter:
     def __init__(self, redis_alias: str = "default", namespace: str = "limiter_sms"):
-        self.cache: BaseCache = caches[redis_alias]
+        self.redis: Any = caches[redis_alias]
         self.namespace = namespace
 
     # Redis key 생성
@@ -26,7 +25,7 @@ class SMSLimiter:
         return int(count) < limit
 
     # 요청기록 + 카운트 증가 Redis에 키가 없으면 생성 TTL 설정 , Redis에 키가 있으면 incr만 함
-    def record(self, phone: str, period: str, limit: int, ttl: str) -> bool:
+    def record(self, phone: str, period: str, limit: int, ttl: int) -> bool:
         key = self._key(phone, period)
         new = self.redis.incr(key)
 
