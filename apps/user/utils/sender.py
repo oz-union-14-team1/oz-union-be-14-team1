@@ -1,4 +1,4 @@
-import telnyx  # type: ignore[attr-defined]
+import telnyx  # type: ignore[import-not-found]
 from django.conf import settings
 
 # Tenlyx에 내 API키로 인증
