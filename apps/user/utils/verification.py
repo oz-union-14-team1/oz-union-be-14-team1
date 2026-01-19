@@ -95,7 +95,7 @@ class SMSVerificationsService:
         key = (
             self._token_key(identifier_or_token)
             if is_token
-            else self._token_key(_normalize())
+            else self._token_key(_normalize(identifier_or_token))
         )
         ttl_func = getattr(self.redis, "ttl", None)
         if ttl_func is None:
