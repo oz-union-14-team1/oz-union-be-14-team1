@@ -73,20 +73,30 @@ TEMPLATES = [
     },
 ]
 
+#Redis 사용 여부
+USE_REDIS : bool = env.bool("USE_REDIS", default=False)
+
 # Redis Cache 설정
-CACHES = {
-    "default": {
-        "BACKEND": "django_redis.cache.RedisCache",
-        "LOCATION": env(
-            "REDIS_URL",
-            default="redis://redis:6379/0",
-        ),
-        "OPTIONS": {
-            "CLIENT_CLASS": "django_redis.client.DefaultClient",
-        },
-        "KEY_PREFIX": "playtype",
+if USE_REDIS:
+    CACHES = {
+        "default": {
+            "BACKEND": "django_redis.cache.RedisCache",
+            "LOCATION": env(
+                "REDIS_URL",
+                default="redis://redis:6379/0",
+            ),
+            "OPTIONS": {
+                "CLIENT_CLASS": "django_redis.client.DefaultClient",
+            },
+            "KEY_PREFIX": "playtype",
+        }
     }
-}
+else:
+    CACHES = {
+        "default": {
+            "BACKEND": "django.core.cache.backends.locmem.LocMemCache",
+        }
+    }
 
 # 세션을 Redis에 저장
 SESSION_ENGINE = "django.contrib.sessions.backends.cache"
