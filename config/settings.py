@@ -73,6 +73,50 @@ TEMPLATES = [
     },
 ]
 
+# Redis 사용 여부
+USE_REDIS: bool = env.bool("USE_REDIS", default=False)
+
+# Redis Cache 설정
+if USE_REDIS:
+    CACHES = {
+        "default": {
+            "BACKEND": "django_redis.cache.RedisCache",
+            "LOCATION": env(
+                "REDIS_URL",
+                default="redis://redis:6379/0",
+            ),
+            "OPTIONS": {
+                "CLIENT_CLASS": "django_redis.client.DefaultClient",
+            },
+            "KEY_PREFIX": "playtype",
+        }
+    }
+else:
+    CACHES = {
+        "default": {
+            "BACKEND": "django.core.cache.backends.locmem.LocMemCache",
+        }
+    }
+
+# 세션을 Redis에 저장
+SESSION_ENGINE = "django.contrib.sessions.backends.cache"
+SESSION_CACHE_ALIAS = "default"
+
+# verification settings
+VERIFICATION_DEFAULT_TTL_SECONDS: int = int(
+    os.getenv("VERIFICATION_DEFAULT_TTL_SECONDS", "300")
+)
+VERIFICATION_TOKEN_GENERATE_MAX_ATTEMPTS: int = int(
+    os.getenv("VERIFICATION_TOKEN_GENERATE_MAX_ATTEMPTS", "5")
+)
+VERIFICATION_CODE_LENGTH: int = int(os.getenv("VERIFICATION_CODE_LENGTH", "6"))
+VERIFICATION_TOKEN_BYTES: int = int(os.getenv("VERIFICATION_TOKEN_BYTES", "32"))
+VERIFICATION_CODE_CHARS: str = os.getenv("VERIFICATION_CODE_CHARS", "1234567890")
+
+# Telnyx (SMS)
+TELNYX_API_KEY: str = env("TELNYX_API_KEY", default="")
+TELNYX_FROM_NUMBER: str = env("TELNYX_FROM_NUMBER", default="")
+
 WSGI_APPLICATION = "config.wsgi.application"
 
 # 4. Database 설정 (.env 사용)

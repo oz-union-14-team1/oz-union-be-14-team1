@@ -13,7 +13,7 @@ dependencies = [
     "psycopg2-binary (>=2.9.11,<3.0.0)",
     "django-environ (>=0.12.0,<0.13.0)",
     "drf-spectacular (>=0.29.0,<0.30.0)",
-    "djangorestframework-simplejwt (>=5.5.1,<6.0.0)"
+    "djangorestframework-simplejwt (>=5.5.1,<6.0.0)",
 ]
 
 
@@ -43,3 +43,6 @@ django_settings_module = "config.settings"
 
 [tool.poetry.dependencies]
 python = ">=3.12,<4.0"
+django-redis = ">=5.4.0,<6.0.0"
+redis = ">=5.0.0, <6.0.0"
+telnyx = "^2.0"
