@@ -146,6 +146,9 @@ TIME_ZONE = "Asia/Seoul"
 USE_I18N = True
 USE_TZ = True
 
+# 6. Ai 설정(.env)
+GEMINI_API_KEY = env("GEMINI_API_KEY")
+
 STATIC_URL = "/static/"
 STATIC_ROOT = os.path.join(BASE_DIR, "staticfiles")
 # 프로젝트 루트의 'static' 폴더를 정적 파일 경로로 인식시킴
