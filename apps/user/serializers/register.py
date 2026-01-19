@@ -6,7 +6,7 @@ from django.contrib.auth import get_user_model
 from django.contrib.auth.password_validation import validate_password
 from rest_framework import serializers
 
-from apps.user.models.validators import (
+from apps.user.validators.validator import (
     validate_email_format,
     validate_nickname_format,
     validate_phone_format,
