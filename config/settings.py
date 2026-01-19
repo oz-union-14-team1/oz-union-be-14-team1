@@ -73,8 +73,8 @@ TEMPLATES = [
     },
 ]
 
-#Redis 사용 여부
-USE_REDIS : bool = env.bool("USE_REDIS", default=False)
+# Redis 사용 여부
+USE_REDIS: bool = env.bool("USE_REDIS", default=False)
 
 # Redis Cache 설정
 if USE_REDIS:
