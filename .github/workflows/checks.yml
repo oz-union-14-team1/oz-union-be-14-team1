@@ -115,7 +115,6 @@ jobs:
             python-3.12-poetry-
 
       - name: Install dependencies
-        if: steps.cache-venv.outputs.cache-hit != 'true'
         run: poetry install --no-root
 
       - name: Create .env file
