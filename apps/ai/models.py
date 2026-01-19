@@ -16,6 +16,5 @@ class GameReviewSummary(TimeStampedModel):
     )
     text = models.TextField(verbose_name="AI가 생성한 본문")
 
-
     class Meta:
         db_table = "game_review_summarise"
