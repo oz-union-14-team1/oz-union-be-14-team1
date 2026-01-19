@@ -147,7 +147,7 @@ USE_I18N = True
 USE_TZ = True
 
 # 6. Ai 설정(.env)
-GEMINI_API_KEY = env("GEMINI_API_KEY",default="")
+GEMINI_API_KEY = env("GEMINI_API_KEY", default="")
 
 STATIC_URL = "/static/"
 STATIC_ROOT = os.path.join(BASE_DIR, "staticfiles")
