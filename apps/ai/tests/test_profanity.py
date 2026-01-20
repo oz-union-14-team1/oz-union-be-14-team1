@@ -2,6 +2,7 @@ from django.test import TestCase
 from apps.ai.services import ReviewSummaryService
 from unittest.mock import patch
 
+
 class ProfanityFilterTest(TestCase):
     def setUp(self):
         with patch("apps.ai.services.genai.Client"):
