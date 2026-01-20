@@ -8,6 +8,9 @@ services:
       - "8000:8000"                   # 포트 연결
     env_file:
       - .env
+    environment:
+      # 1. 호스트 주소 고정
+      - POSTGRES_HOST=PlayType_db
     depends_on:
       - db
     command: >                        # 서버 실행 명령어
