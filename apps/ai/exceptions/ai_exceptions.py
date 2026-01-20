@@ -1,5 +1,9 @@
 from rest_framework.exceptions import APIException
 from rest_framework import status
+from django.conf import settings
+
+MIN_COUNT = getattr(settings, "AI_SUMMARY_MIN_REVIEW_COUNT", 10)
+MIN_VALID_COUNT = getattr(settings, "AI_SUMMARY_MIN_VALID_REVIEWS", 3)
 
 
 class NotEnoughReviews(APIException):
@@ -8,8 +12,22 @@ class NotEnoughReviews(APIException):
     """
 
     status_code = status.HTTP_400_BAD_REQUEST
-    default_detail = "리뷰가 부족하여 요약을 생성할 수 없습니다. (최소 10개 필요)"
+    default_detail = (
+        f"리뷰가 부족하여 요약을 생성할 수 없습니다. (최소 {MIN_COUNT}개 필요)"
+    )
     default_code = "not_enough_reviews"
+
+
+class NotEnoughValidReviews(APIException):
+    """
+    글자 수 조건을 만족하는 '유효한 리뷰'가 부족할 때 발생
+    """
+
+    status_code = status.HTTP_400_BAD_REQUEST
+    default_detail = (
+        f"요약에 적합한 긴 리뷰가 부족합니다. (최소 {MIN_VALID_COUNT}개 필요)"
+    )
+    default_code = "not_enough_valid_reviews"
 
 
 class AiGenerationFailed(APIException):

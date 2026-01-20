@@ -13,7 +13,9 @@ from apps.ai.exceptions.ai_exceptions import (
     GameNotFound,
     NotEnoughReviews,
     AiGenerationFailed,
+    NotEnoughValidReviews,
 )
+from django.db.models.functions import Length
 
 logger = logging.getLogger(__name__)
 
@@ -24,10 +26,17 @@ class ReviewSummaryService:
         서비스 초기화: Client 생성 및 공통 설정 정의
         """
         api_key = settings.GEMINI_API_KEY
-
         # 최신 SDK의 Client 인스턴스 생성
         self.client = genai.Client(api_key=api_key)
         self.model_name = "gemini-flash-latest"
+
+        # 환경변수 혹은 settings에서 값을 가져옴, 없을 경우 기본값(default)을 사용
+        self.min_review_count = getattr(settings, "AI_SUMMARY_MIN_REVIEW_COUNT", 10)
+        self.update_interval_days = getattr(
+            settings, "AI_SUMMARY_UPDATE_INTERVAL_DAYS", 30
+        )
+        self.min_review_length = getattr(settings, "AI_REVIEW_MIN_LENGTH", 10)
+        self.min_valid_reviews = getattr(settings, "AI_SUMMARY_MIN_VALID_REVIEWS", 3)
 
         # AI의 페르소나(역할)를 정의
         self.system_instruction = (
@@ -42,16 +51,13 @@ class ReviewSummaryService:
         외부에서 호출하는 요약 조회 메서드
         """
         try:
-            # 게임 ID로 게임 객체를 조회
             game = Game.objects.select_related("summary").get(id=game_id)
         except Game.DoesNotExist:
-            # 게임이 없으면 커스텀 예외(404) 발생
             raise GameNotFound()
 
         review_count = game.reviews.filter(is_deleted=False).count()  # type: ignore
 
-        if review_count < 10:
-            # 리뷰가 10개 미만이면 예외(400) 발생
+        if review_count < self.min_review_count:
             raise NotEnoughReviews()
 
         summary_obj = getattr(game, "summary", None)
@@ -75,14 +81,26 @@ class ReviewSummaryService:
         update_time_difference = timezone.now() - summary_obj.updated_at
 
         # 마지막 수정일로부터 30일이 지났으면 True를 반환
-        return update_time_difference > timedelta(days=30)
+        return update_time_difference > timedelta(days=self.update_interval_days)
 
     def _generate_and_save(self, game: Game, summary_obj) -> dict:
         """
         AI 요약 생성 및 DB 저장
         """
-        # 최신 리뷰 5개를 가져오기
-        reviews = game.reviews.filter(is_deleted=False).order_by("-created_at")[:5]  # type: ignore
+        # 글자 수 필터링 및 유효 리뷰 개수 확인
+        reviews = (
+            game.reviews.annotate(text_len=Length("content"))  # type: ignore
+            .filter(is_deleted=False, text_len__gte=self.min_review_length)
+            .order_by("-created_at")[:5]
+        )
+
+        # 유효한 리뷰가 설정된 개수(예: 3개) 미만이면 중단
+        if len(reviews) < self.min_valid_reviews:
+            logger.warning(
+                f"Game({game.id}) has enough raw reviews but VALID reviews({len(reviews)}) "
+                f"are less than {self.min_valid_reviews}."
+            )
+            raise NotEnoughValidReviews()
 
         # 리뷰 내용들을 줄바꿈 문자로 연결하여 하나의 문자열로 만듬
         reviews_text = "\n".join([f"- {r.content}" for r in reviews])
