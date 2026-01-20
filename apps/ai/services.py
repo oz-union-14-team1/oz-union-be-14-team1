@@ -7,6 +7,7 @@ from django.conf import settings
 from google import genai
 from google.genai import types
 from apps.ai.pydantics import GameSummary
+from apps.ai.utils import BAD_PATTERNS, SAFETY_SETTINGS
 from apps.game.models.game import Game
 from apps.ai.models import GameReviewSummary
 from apps.ai.exceptions.ai_exceptions import (
@@ -16,6 +17,7 @@ from apps.ai.exceptions.ai_exceptions import (
     NotEnoughValidReviews,
 )
 from django.db.models.functions import Length
+import re
 
 logger = logging.getLogger(__name__)
 
@@ -37,12 +39,19 @@ class ReviewSummaryService:
         )
         self.min_review_length = getattr(settings, "AI_REVIEW_MIN_LENGTH", 10)
         self.min_valid_reviews = getattr(settings, "AI_SUMMARY_MIN_VALID_REVIEWS", 3)
+        self.summary_review_count = getattr(settings, "AI_SUMMARY_REVIEW_COUNT", 5)
+
+        self.profanity_pattern = re.compile("|".join(BAD_PATTERNS))
 
         # AI의 페르소나(역할)를 정의
         self.system_instruction = (
             "당신은 20년 경력의 베테랑 게임 전문 리뷰 분석가입니다. "
             "사용자의 리뷰 데이터를 객관적으로 분석하여, "
             "게임의 장단점과 핵심적인 특징을 명확하게 요약해야 합니다. "
+            # 2차 필터링
+            "리뷰 원문에 비속어, 은어, 공격적인 표현이 포함되어 있더라도 "
+            "절대로 요약 결과에는 그대로 포함하지 마세요. "
+            "해당 표현은 무시하거나, 격식 있고 정중한 표현으로 순화하여 요약해야 합니다. "
             "무조건 JSON 형식으로만 응답하세요."
         )
 
@@ -88,22 +97,32 @@ class ReviewSummaryService:
         AI 요약 생성 및 DB 저장
         """
         # 글자 수 필터링 및 유효 리뷰 개수 확인
-        reviews = (
+        bring_reviews = (
             game.reviews.annotate(text_len=Length("content"))  # type: ignore
             .filter(is_deleted=False, text_len__gte=self.min_review_length)
-            .order_by("-created_at")[:5]
+            .order_by("-created_at")[:20]
         )
 
+        clean_reviews = []
+        for review in bring_reviews:
+            if self.profanity_pattern.search(review.content):
+                continue  # 욕설 발견 시 건너뜀
+
+            clean_reviews.append(review)
+
+            if len(clean_reviews) >= self.summary_review_count:
+                break
+
         # 유효한 리뷰가 설정된 개수(예: 3개) 미만이면 중단
-        if len(reviews) < self.min_valid_reviews:
+        if len(clean_reviews) < self.min_valid_reviews:
             logger.warning(
-                f"Game({game.id}) has enough raw reviews but VALID reviews({len(reviews)}) "
+                f"Game({game.id}) has enough raw reviews but VALID reviews({len(clean_reviews)}) "
                 f"are less than {self.min_valid_reviews}."
             )
             raise NotEnoughValidReviews()
 
         # 리뷰 내용들을 줄바꿈 문자로 연결하여 하나의 문자열로 만듬
-        reviews_text = "\n".join([f"- {r.content}" for r in reviews])
+        reviews_text = "\n".join([f"- {r.content}" for r in clean_reviews])
 
         # AI에게 보낼 사용자 프롬프트를 구성
         user_prompt = f"""
@@ -123,6 +142,7 @@ class ReviewSummaryService:
                     system_instruction=self.system_instruction,  # 페르소나 적용
                     response_mime_type="application/json",  # 응답 형식을 JSON으로 강제
                     response_schema=GameSummary,  # Pydantic 모델을 스키마로 전달하여 구조 강제
+                    safety_settings=SAFETY_SETTINGS,  # 안전 설정 적용
                 ),
             )
 
