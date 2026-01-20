@@ -1,11 +1,12 @@
 from django.test import TestCase
 from apps.ai.services import ReviewSummaryService
-
+from unittest.mock import patch
 
 class ProfanityFilterTest(TestCase):
     def setUp(self):
-        self.service = ReviewSummaryService()
-        self.pattern = self.service.profanity_pattern
+        with patch("apps.ai.services.genai.Client"):
+            self.service = ReviewSummaryService()
+            self.pattern = self.service.profanity_pattern
 
     def test_bad_words_detection(self):
         """욕설이 제대로 잡히는지 테스트"""
