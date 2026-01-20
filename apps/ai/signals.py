@@ -20,15 +20,15 @@ def trigger_ai_summary(sender, instance, created, **kwargs):
     game = instance.game
 
     # 설정값 로드
-    MIN_COUNT = getattr(settings, 'AI_SUMMARY_MIN_REVIEW_COUNT', 10)
-    UPDATE_DAYS = getattr(settings, 'AI_SUMMARY_UPDATE_INTERVAL_DAYS', 30)
+    MIN_COUNT = getattr(settings, "AI_SUMMARY_MIN_REVIEW_COUNT", 10)
+    UPDATE_DAYS = getattr(settings, "AI_SUMMARY_UPDATE_INTERVAL_DAYS", 30)
 
     # 2. 현재 유효 리뷰 개수 확인
     current_count = game.reviews.filter(is_deleted=False).count()
 
     # 조건1: 리뷰 개수가 기준(10개) 이상인가?
     if current_count >= MIN_COUNT:
-        summary_obj = getattr(game, 'summary', None)
+        summary_obj = getattr(game, "summary", None)
 
         should_run = False
 

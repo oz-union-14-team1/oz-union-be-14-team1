@@ -1,4 +1,4 @@
-from celery import shared_task
+from celery import shared_task  # type: ignore
 from apps.ai.services import ReviewSummaryService
 import logging
 
