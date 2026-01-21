@@ -35,6 +35,5 @@ class Review(TimeStampedModel):
     class Meta:
         db_table = "reviews"
         indexes = [
-            models.Index(fields=["game"], name="idx_reviews_best"),
-            models.Index(fields=["like_count"], name="idx_reviews_best_like_count"),
+            models.Index(fields=["game", "like_count"], name="idx_reviews_game_best"),
         ]
