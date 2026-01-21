@@ -2,6 +2,7 @@ from django.db.models import Prefetch
 from apps.community.models.reviews import Review
 from apps.community.models.comments import ReviewComment
 
+
 def get_review_detail_queryset(review_id: int) -> Review | None:
     """
     리뷰 상세 정보와 해당 리뷰의 댓글 목록을 함께 조회합니다.

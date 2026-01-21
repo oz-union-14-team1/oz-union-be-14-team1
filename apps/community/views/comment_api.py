@@ -6,7 +6,9 @@ from rest_framework.response import Response
 
 from apps.community.serializers.comment.comment_list import ReviewCommentListSerializer
 from apps.community.services.comment.comment_create_service import create_comment
-from apps.community.services.comment.comment_list_service import get_review_comment_detail
+from apps.community.services.comment.comment_list_service import (
+    get_review_comment_detail,
+)
 from apps.user.models import User
 from apps.community.serializers.comment.comment_create import (
     ReviewCommentCreateSerializer,

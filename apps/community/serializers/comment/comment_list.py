@@ -16,9 +16,11 @@ class CommentListSerializer(serializers.ModelSerializer):
             "created_at",
         ]
 
+
 class ReviewCommentListSerializer(serializers.ModelSerializer):
     author = AuthorSerializer(source="user", read_only=True)
     comments = CommentListSerializer(many=True, read_only=True)
+
     class Meta:
         model = Review
         fields = [
