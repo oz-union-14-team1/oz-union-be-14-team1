@@ -108,3 +108,53 @@ class ReviewSummaryServiceTest(TestCase):
         # When & Then: 메서드 호출 시 AiGenerationFailed 예외 발생 검증
         with self.assertRaises(AiGenerationFailed):
             service.get_summary(self.game.id)
+
+    @patch("apps.ai.services.genai.Client")
+    def test_filter_profanity_before_ai_call(self, mock_client_class):
+        """
+        욕설이 포함된 리뷰는 AI 요약 요청 데이터에서 제외되는지 테스트
+        """
+        # Given: 정상 리뷰 3개 + 욕설 리뷰 2개 생성 (총 5개)
+        Review.objects.create(
+            game=self.game,
+            user=self.user,
+            content="정말 재미있는 게임입니다.",
+            rating=5,
+        )
+        Review.objects.create(
+            game=self.game, user=self.user, content="이건 진짜로 시1발 망겜임", rating=1
+        )  # 욕설
+        Review.objects.create(
+            game=self.game, user=self.user, content="그래픽이 엄청 훌륭해요.", rating=5
+        )
+        Review.objects.create(
+            game=self.game, user=self.user, content="운영자가 진짜 개.새.끼임", rating=1
+        )  # 욕설
+        Review.objects.create(
+            game=self.game,
+            user=self.user,
+            content="타격감과 스토리가 좋아요.",
+            rating=5,
+        )
+
+        # AI 응답 Mock 설정 (성공 케이스)
+        mock_instance = mock_client_class.return_value
+        mock_instance.models.generate_content.return_value.text = "{}"
+
+        # When: 서비스 호출
+        service = ReviewSummaryService()
+
+        service.min_review_count = 1
+        service.get_summary(self.game.id)
+
+        # Then: AI에게 전달된 프롬프트 내용 확인
+        call_args = mock_instance.models.generate_content.call_args
+        prompt_text = call_args.kwargs["contents"]
+
+        # 1. 욕설 리뷰 내용은 없어야 함
+        self.assertNotIn("시1발", prompt_text)
+        self.assertNotIn("개.새.끼", prompt_text)
+
+        # 2. 정상 리뷰 내용은 있어야 함
+        self.assertIn("정말 재미있는 게임입니다.", prompt_text)
+        self.assertIn("그래픽이 엄청 훌륭해요.", prompt_text)
