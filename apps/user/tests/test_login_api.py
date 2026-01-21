@@ -102,7 +102,7 @@ class LoginViewTest(TestCase):
     @patch("apps.user.views.LoginView.TokenService.create_token_pair")
     def test_login_success(self, mock_create_access_token):
         """로그인 성공 → access_token 반환"""
-        mock_create_access_token.return_value = "fake-access-token"
+        mock_create_access_token.return_value = ("fake-refresh-token","fake-access-token")
 
         response = self.client.post(
             self.url,
@@ -115,6 +115,7 @@ class LoginViewTest(TestCase):
 
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertEqual(response.data["access_token"], "fake-access-token")
+        self.assertIn("refresh_token",response.cookies)
         mock_create_access_token.assert_called_once()
 
     def test_login_fail_wrong_password(self):
