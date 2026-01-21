@@ -2,7 +2,9 @@ from __future__ import annotations
 
 import secrets
 from typing import Optional
-from datetime import datetime, timedelta
+from django.utils import timezone
+from datetime import timedelta
+from rest_framework_simplejwt.tokens import AccessToken, RefreshToken
 
 import jwt
 from django.conf import settings
@@ -53,18 +55,8 @@ class TokenService:
     def revoke(self, token: str) -> None:
         self.cache.delete(self._key(token))
 
-    def create_access_token(self, *, user) -> str:
-        now = datetime.utcnow()
+    def create_token_pair(self, *, user) -> tuple[str, str]:
+        refresh_token = RefreshToken.for_user(user)
+        access_token = str(refresh_token.access_token)
 
-        payload = {
-            "user_id": user.id,
-            "email": user.email,
-            "iat": now,
-            "exp": now + timedelta(seconds=ACCESS_TOKEN_EXPIRE_SECONDS),
-        }
-
-        return jwt.encode(
-            payload,
-            settings.SECRET_KEY,
-            algorithm="HS256",
-        )
+        return str(refresh_token), access_token
