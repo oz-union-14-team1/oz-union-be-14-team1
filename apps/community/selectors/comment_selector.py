@@ -1,0 +1,23 @@
+from apps.community.models import ReviewComment
+from apps.community.models.reviews import Review
+from apps.community.exceptions.review_exceptions import NotReviewAuthor, CommentNotFound
+from apps.user.models.user import User
+
+
+def check_and_get_comment_for_update(comment_id: int, user: User) -> Review:
+    """
+    댓글 조회 및 권한 검증 Selector
+    존재하지 않거나 권한이 없으면 예외를 발생시킴
+    """
+    try:
+        # 1. 댓글 조회
+        comment = ReviewComment.objects.select_for_update().get(id=comment_id)  # type: ignore
+    except ReviewComment.DoesNotExist:
+        # 2. 존재 여부 판단 -> 실패 시 404 예외 발생
+        raise CommentNotFound()
+
+    # 3. 작성자 본인 확인 -> 실패 시 403 예외 발생
+    if comment.user != user:
+        raise NotReviewAuthor()
+
+    return comment
