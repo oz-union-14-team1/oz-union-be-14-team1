@@ -40,7 +40,7 @@ class LoginView(APIView):
         user = serializer.validated_data["user"]
 
         token_service = TokenService()
-        refresh_token,access_token = token_service.create_token_pair(user=user)
+        refresh_token, access_token = token_service.create_token_pair(user=user)
 
         response = Response(
             {"access_token": access_token},
