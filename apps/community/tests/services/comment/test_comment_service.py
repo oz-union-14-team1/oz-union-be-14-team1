@@ -34,9 +34,7 @@ class ReviewCommentServiceTest(TestCase):
 
         # When: 서비스 함수 직접 호출
         comment = create_comment(
-            author=self.user,
-            review_id=self.review.id,
-            validated_data=data
+            author=self.user, review_id=self.review.id, validated_data=data
         )
 
         # Then: 반환된 객체 및 DB 저장 검증
@@ -58,11 +56,7 @@ class ReviewCommentServiceTest(TestCase):
 
         # When & Then: 예외 발생 확인
         with self.assertRaises(ReviewNotFound):
-            create_comment(
-                author=self.user,
-                review_id=invalid_id,
-                validated_data=data
-            )
+            create_comment(author=self.user, review_id=invalid_id, validated_data=data)
 
     def test_create_comment_fail_soft_deleted_review(self):
         """
@@ -77,8 +71,5 @@ class ReviewCommentServiceTest(TestCase):
         # When & Then: 서비스 로직에서 필터링되어 ReviewNotFound가 떠야 함
         with self.assertRaises(ReviewNotFound):
             create_comment(
-                author=self.user,
-                review_id=self.review.id,
-                validated_data=data
+                author=self.user, review_id=self.review.id, validated_data=data
             )
-

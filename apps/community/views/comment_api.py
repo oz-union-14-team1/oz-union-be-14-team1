@@ -5,7 +5,9 @@ from typing import cast
 from rest_framework.response import Response
 from apps.community.services.comment.comment_create_service import create_comment
 from apps.user.models import User
-from apps.community.serializers.comment.comment_create import ReviewCommentCreateSerializer
+from apps.community.serializers.comment.comment_create import (
+    ReviewCommentCreateSerializer,
+)
 from drf_spectacular.utils import extend_schema, inline_serializer
 from rest_framework import serializers
 

@@ -8,11 +8,17 @@ from apps.community.views.review_update_api import ReviewUpdateAPIView
 urlpatterns = [
     # review
     path("<int:game_id>/reviews", ReviewAPIView.as_view(), name="game_review_create"),
-    path("reviews/<int:review_id>", ReviewUpdateAPIView.as_view(), name="review_update"),
-
+    path(
+        "reviews/<int:review_id>", ReviewUpdateAPIView.as_view(), name="review_update"
+    ),
     # like
-    path("reviews/<int:review_id>/like", ReviewLikeAPIView.as_view(), name="review_like"),
-
+    path(
+        "reviews/<int:review_id>/like", ReviewLikeAPIView.as_view(), name="review_like"
+    ),
     # comment
-    path("reviews/<int:review_id>/comments", ReviewCommentAPIView.as_view(), name="review_comments"),
+    path(
+        "reviews/<int:review_id>/comments",
+        ReviewCommentAPIView.as_view(),
+        name="review_comments",
+    ),
 ]
