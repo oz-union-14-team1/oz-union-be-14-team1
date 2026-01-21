@@ -40,9 +40,12 @@ class LoginView(APIView):
         user = serializer.validated_data["user"]
 
         token_service = TokenService()
-        access_token = token_service.create_access_token(user=user)
+        refresh_token, access_token = token_service.create_token_pair(user=user)
 
-        return Response(
+        response = Response(
             {"access_token": access_token},
             status=status.HTTP_200_OK,
         )
+        response.set_cookie(key="refresh_token", value=refresh_token)
+
+        return response
