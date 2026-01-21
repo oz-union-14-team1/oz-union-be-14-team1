@@ -36,7 +36,7 @@ class UserManagerTestCase(TestCase):
             User.objects.create_user(email=None, password="1234")
 
     def test_create_superuser_defaults(self):
-        #슈퍼유저 생성시 이메일 + 비밀번호가 올바르게 설정되었는지 검증
+        # 슈퍼유저 생성시 이메일 + 비밀번호가 올바르게 설정되었는지 검증
         email = "admin@example.com"
         password = "adminpass"
 
