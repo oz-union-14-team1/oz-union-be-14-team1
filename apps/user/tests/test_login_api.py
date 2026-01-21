@@ -99,7 +99,7 @@ class LoginViewTest(TestCase):
             is_active=True,
         )
 
-    @patch("apps.user.views.LoginView.TokenService.create_access_token")
+    @patch("apps.user.views.LoginView.TokenService.create_token_pair")
     def test_login_success(self, mock_create_access_token):
         """로그인 성공 → access_token 반환"""
         mock_create_access_token.return_value = "fake-access-token"
