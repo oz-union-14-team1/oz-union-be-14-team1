@@ -16,4 +16,4 @@ def get_review_comment_detail(*, review_id: int) -> QuerySet[Review]:
     if not review:
         raise ReviewNotFound()
 
-    return review   # type: ignore
+    return review  # type: ignore
