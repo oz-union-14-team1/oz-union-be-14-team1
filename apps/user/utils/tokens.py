@@ -2,14 +2,10 @@ from __future__ import annotations
 
 import secrets
 from typing import Optional
-from datetime import datetime, timedelta
 
-import jwt
-from django.conf import settings
 from django.core.cache import caches
 from rest_framework_simplejwt.tokens import AccessToken
 
-from apps.user.constants.time import ACCESS_TOKEN_EXPIRE_SECONDS
 from apps.user.utils.verification import TOKEN_BYTES, DEFAULT_TTL_SECONDS
 
 
