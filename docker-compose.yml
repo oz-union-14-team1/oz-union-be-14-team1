@@ -58,6 +58,24 @@ services:
       - app_network
     restart: unless-stopped
 
+  celery_worker:
+      build: .                          # Django와 같은 이미지를 사용 (코드 공유)
+      container_name: PlayType_Celery   # 컨테이너 이름
+      command: celery -A config worker --loglevel=info  # Celery 실행 명령어
+      volumes:
+        - ./:/app                       # 코드 수정 시 반영
+      env_file:
+        - .env                          # 환경변수 파일 공유
+      environment:
+        - POSTGRES_HOST=PlayType_db     # DB 호스트 (backend와 동일하게 맞춤)
+        - REDIS_URL=redis://redis:6379/0
+      depends_on:
+        - redis
+        - db
+      networks:
+        - app_network
+      restart: always                   # 죽으면 자동 재시작
+
 volumes:
   postgres_data:
   static_volume:
