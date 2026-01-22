@@ -4,6 +4,7 @@ services:
     container_name: PlayType_Django     # 컨테이너 이름 지정
     volumes:
       - ./:/app                       # 로컬 코드 수정 시 컨테이너에 즉시 반영
+      - static_volume:/app/staticfiles
     ports:
       - "8000:8000"                   # 포트 연결
     env_file:
@@ -13,6 +14,8 @@ services:
       - POSTGRES_HOST=PlayType_db
     depends_on:
       - db
+    networks:
+      - app_network
     command: >                        # 서버 실행 명령어
       sh -c "python manage.py migrate &&
              python manage.py runserver 0.0.0.0:8000"
@@ -30,12 +33,36 @@ services:
       - postgres_data:/var/lib/postgresql/data
     env_file:
       - .env
+    networks:
+      - app_network
 
   redis:
     image: redis:7
     container_name: PlayType_redis
     ports:
       - "6379:6379"
+    networks:
+      - app_network
+
+  nginx:
+    build: ./nginx
+    container_name: nginx
+    ports:
+      - "80:80"
+    volumes:
+      - static_volume:/app/staticfiles
+      - media_volume:/app/media
+    depends_on:
+      - backend
+    networks:
+      - app_network
+    restart: unless-stopped
 
 volumes:
   postgres_data:
+  static_volume:
+  media_volume:
+
+networks:
+  app_network:
+    driver: bridge
