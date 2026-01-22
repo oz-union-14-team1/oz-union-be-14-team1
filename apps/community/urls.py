@@ -1,9 +1,10 @@
 from django.urls import path
 
-from apps.community.views.comment_api import ReviewCommentAPIView
-from apps.community.views.review_api import ReviewAPIView
-from apps.community.views.review_like_api import ReviewLikeAPIView
-from apps.community.views.review_update_api import ReviewUpdateAPIView
+from apps.community.views.comment.comment_api import ReviewCommentAPIView
+from apps.community.views.comment.comment_update_api import ReviewCommentUpdateAPIView
+from apps.community.views.review.review_api import ReviewAPIView
+from apps.community.views.review.review_like_api import ReviewLikeAPIView
+from apps.community.views.review.review_update_api import ReviewUpdateAPIView
 
 urlpatterns = [
     # review
@@ -20,5 +21,10 @@ urlpatterns = [
         "reviews/<int:review_id>/comments",
         ReviewCommentAPIView.as_view(),
         name="review_comments",
+    ),
+    path(
+        "reviews/comments/<int:comment_id>",
+        ReviewCommentUpdateAPIView.as_view(),
+        name="review_comments_update",
     ),
 ]

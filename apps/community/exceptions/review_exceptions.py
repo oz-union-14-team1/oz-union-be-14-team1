@@ -21,3 +21,10 @@ class GameNotFound(APIException):
     status_code = status.HTTP_404_NOT_FOUND
     default_detail = "존재하지 않는 게임입니다."
     default_code = "game_not_found"
+
+
+# 404 - 댓글 없음 예외
+class CommentNotFound(APIException):
+    status_code = status.HTTP_404_NOT_FOUND
+    default_detail = "존재하지 않는 댓글입니다."
+    default_code = "comment_not_found"
