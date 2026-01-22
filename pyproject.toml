@@ -25,6 +25,18 @@ ruff = "^0.14.11"
 mypy = "^1.19.1"
 django-stubs = "^5.2.8"
 coverage = "^7.13.1"
+djangorestframework-stubs = "^3.16.7"
 
 [tool.poetry]
 package-mode = false
+
+
+
+[tool.mypy]
+plugins = [
+    "mypy_django_plugin.main",
+    "mypy_drf_plugin.main"
+]
+
+[tool.django-stubs]
+django_settings_module = "config.settings"
