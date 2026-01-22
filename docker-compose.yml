@@ -37,5 +37,19 @@ services:
     ports:
       - "6379:6379"
 
+  nginx:
+    build: ./nginx
+    container_name: nginx
+    ports:
+      - "80:80"
+    volumes:
+      - static_volume:/app/staticfiles
+      - media_volume:/app/media
+    depends_on:
+      - web
+    networks:
+      - app_network
+    restart: unless-stopped
+
 volumes:
   postgres_data:
