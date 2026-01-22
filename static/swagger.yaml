@@ -212,8 +212,8 @@ paths:
                       rating: 5
                       like_count: 12
                       created_at: "2025-01-15T14:30:00+09:00"
-        '400':
-          description: Bad Request (유효성 검사 실패)
+        '404':
+          description: Not Found (존재하지 않는 게임)
           content:
             application/json:
               schema:
@@ -221,16 +221,8 @@ paths:
                 properties:
                   error_detail:
                     type: string
-                    description: 에러 요약 메시지
-                  errors:
-                    type: object
-                    description: 필드별 상세 에러 내역
-                    additionalProperties:
-                      type: array
-                      items:
-                        type: string
               example:
-                error_detail: "유효하지 않은 조회 요청입니다."
+                error_detail: "존재하지 않는 게임입니다."
 
   /api/v1/community/reviews/{review_id}:
     patch:
@@ -275,6 +267,43 @@ paths:
                 example:
                   content: "재미있네요"
                   rating: 1
+        '400':
+          description: Bad Request (유효성 검사 실패 또는 잘못된 요청)
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error_detail:
+                    type: string
+                    description: 에러 메시지 (공통)
+                  code:
+                    type: string
+                    description: 에러 코드 (선택 사항)
+                  errors:
+                    type: object
+                    description: 필드별 상세 에러 내역 (유효성 검사 실패 시)
+                    additionalProperties:
+                      type: array
+                      items:
+                        type: string
+                required:
+                  - error_detail
+              examples:
+                GeneralError:
+                  summary: 일반적인 잘못된 요청
+                  value:
+                    error_detail: "유효하지 않은 수정 요청입니다."
+                    code: "invalid_request"
+                ValidationError:
+                  summary: 유효성 검사 실패
+                  value:
+                    error_detail: "입력값이 유효하지 않습니다."
+                    errors:
+                      rating:
+                        - "별점은 1에서 5 사이의 정수여야 합니다."
+                      content:
+                        - "이 필드는 필수 항목입니다."
         '401':
           description: Unauthorized
           content:
@@ -328,6 +357,8 @@ paths:
             application/json:
               schema:
                 type: object
+              example:
+                "message": "리뷰가 삭제되었습니다."
         '401':
           description: Unauthorized
           content:
@@ -452,9 +483,6 @@ paths:
                   rating:
                     type: integer
                     description: 별점
-                  view_count:
-                    type: integer
-                    description: 조회수
                   like_count:
                     type: integer
                     description: 좋아요 수
@@ -497,7 +525,6 @@ paths:
                     profile_image_url: "https://example.com/profile.jpg"
                   content: "이 게임 정말 강추합니다! 스토리랑 그래픽이 미쳤어요."
                   rating: 5
-                  view_count: 120
                   like_count: 45
                   created_at: "2025-01-15T10:00:00+09:00"
                   comments:
@@ -508,8 +535,8 @@ paths:
                         profile_image_url: null
                       content: "저도 동의합니다. 특히 엔딩이 인상 깊었어요."
                       created_at: "2025-01-15T10:30:00+09:00"
-        '400':
-          description: Bad Request
+        '404':
+          description: Not Found (존재하지 않는 리뷰)
           content:
             application/json:
               schema:
@@ -517,10 +544,8 @@ paths:
                 properties:
                   error_detail:
                     type: string
-                  code:
-                    type: string
-                example:
-                  error_detail: "유효하지 않은 조회 요청입니다."
+              example:
+                error_detail: "존재하지 않는 리뷰입니다."
 
 
   /api/v1/community/reviews/comments/{comment_id}:
@@ -560,8 +585,31 @@ paths:
                     type: string
                     format: date-time
                 example:
-                  id: 1
-                  updated_at: "2025-01-15T14:30:00+09:00"
+                  "content": "수정이요"
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error_detail:
+                    type: string
+                  code:
+                    type: string
+                example:
+                  error_detail: "유효하지 않은 수정 요청입니다."
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error_detail:
+                    type: string
+              example:
+                error_detail: "로그인이 필요한 서비스입니다."
         '403':
           description: Forbidden
           content:
@@ -573,6 +621,18 @@ paths:
                     type: string
               example:
                 error_detail: "작성자가 일치하지 않습니다."
+        '404':
+          description: Not Found (존재하지 않는 리뷰)
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error_detail:
+                    type: string
+              example:
+                error_detail: "존재하지 않는 리뷰입니다."
+
 
     delete:
       summary: 댓글 삭제
@@ -597,6 +657,17 @@ paths:
                     type: string
                 example:
                   message: "댓글이 삭제되었습니다."
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error_detail:
+                    type: string
+              example:
+                error_detail: "로그인이 필요한 서비스입니다."
         '403':
           description: Forbidden
           content:
@@ -607,7 +678,18 @@ paths:
                   error_detail:
                     type: string
               example:
-                error_detail: "삭제 권한이 없습니다."
+                error_detail: "작성자가 일치하지 않습니다."
+        '404':
+          description: Not Found (존재하지 않는 댓글)
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error_detail:
+                    type: string
+              example:
+                error_detail: "존재하지 않는 댓글입니다."
 
   /api/v1/community/reviews/{review_id}/like:
       post:
@@ -709,8 +791,9 @@ paths:
                   error_detail: "존재하지 않는 리뷰입니다."
 
   /api/v1/community/{game_id}/reviews/summary:
-    post:
+    get:
       summary: AI 리뷰 요약 생성
+      description: 게임 ID를 받아 AI가 생성한 리뷰 요약(장점, 단점, 한줄평)을 반환합니다.
       tags:
         - AI Summary
       parameters:
@@ -720,17 +803,6 @@ paths:
             type: integer
           required: true
           description: 게임 ID
-      requestBody:
-        required: true
-        content:
-          application/json:
-            schema:
-              type: object
-              properties:
-                game_id:
-                  type: integer
-              example:
-                game_id: 105
       responses:
         '200':
           description: OK
@@ -739,22 +811,50 @@ paths:
               schema:
                 type: object
                 properties:
-                  id:
-                    type: integer
-                  game_id:
-                    type: integer
-                  text:
+                  good_points:
+                    type: array
+                    items:
+                      type: string
+                    description: 긍정적인 요약 포인트 목록
+                  bad_points:
+                    type: array
+                    items:
+                      type: string
+                    description: 부정적인 요약 포인트 목록
+                  total_review:
                     type: string
-                  created_at:
-                    type: string
-                    format: date-time
+                    description: 전체 한줄평
                 example:
-                  id: 12
-                  game_id: 105
-                  text: "그래픽이 매우 훌륭합니다.\n 타격감이 좋으나 스토리가 아쉽습니다."
-                  created_at: "2026-01-07 15:30:00"
+                  good_points:
+                    - "그래픽이 좋아요"
+                    - "타격감이 찰져요"
+                  bad_points:
+                    - "버그가 많아요"
+                  total_review: "그래픽이 매우 훌륭하고 타격감이 좋으나, 버그 수정이 필요합니다."
         '400':
-          description: Bad Request
+          description: Bad Request (유효성 검사 실패 또는 리뷰 부족)
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error_detail:
+                    type: string
+              examples:
+                NotEnoughReviews:
+                  summary: 리뷰 개수 부족
+                  value:
+                    error_detail: "리뷰가 부족하여 요약을 생성할 수 없습니다. (최소 10개 필요)"
+                NotEnoughValidReviews:
+                  summary: 유효 리뷰 부족
+                  value:
+                    error_detail: "요약에 적합한 긴 리뷰가 부족합니다. (최소 3개 필요)"
+                InvalidGameID:
+                  summary: 존재하지 않는 게임
+                  value:
+                    error_detail: "존재하지 않는 게임 ID입니다."
+        '503':
+          description: Service Unavailable (AI 연동 실패)
           content:
             application/json:
               schema:
@@ -763,26 +863,4 @@ paths:
                   error_detail:
                     type: string
               example:
-                error_detail: "부적절 콘텐츠 감지"
-        '408':
-          description: Request Timeout
-          content:
-            application/json:
-              schema:
-                type: object
-                properties:
-                  error_detail:
-                    type: string
-              example:
-                error_detail: "15초 이상 응답 없음"
-        '500':
-          description: Server Error
-          content:
-            application/json:
-              schema:
-                type: object
-                properties:
-                  error_detail:
-                    type: string
-              example:
-                error_detail: "AI 모델 연동 실패"
+                error_detail: "AI 요약 생성 중 일시적인 오류가 발생했습니다."
