@@ -4,6 +4,7 @@ services:
     container_name: PlayType_Django     # 컨테이너 이름 지정
     volumes:
       - ./:/app                       # 로컬 코드 수정 시 컨테이너에 즉시 반영
+      - static_volume:/app/staticfiles
     ports:
       - "8000:8000"                   # 포트 연결
     env_file:
