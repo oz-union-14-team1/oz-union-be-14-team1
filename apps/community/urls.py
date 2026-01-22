@@ -18,6 +18,13 @@ urlpatterns = [
     ),
     # comment
     path(
-        "reviews/<int:review_id>/comments",ReviewCommentAPIView.as_view(),name="review_comments",),
-    path("reviews/comments/<int:comment_id>", ReviewCommentUpdateAPIView.as_view(), name="review_comments_update"),
+        "reviews/<int:review_id>/comments",
+        ReviewCommentAPIView.as_view(),
+        name="review_comments",
+    ),
+    path(
+        "reviews/comments/<int:comment_id>",
+        ReviewCommentUpdateAPIView.as_view(),
+        name="review_comments_update",
+    ),
 ]

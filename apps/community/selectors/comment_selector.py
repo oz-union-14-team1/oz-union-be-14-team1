@@ -20,4 +20,4 @@ def check_and_get_comment_for_update(comment_id: int, user: User) -> Review:
     if comment.user != user:
         raise NotReviewAuthor()
 
-    return comment
+    return comment   # type: ignore
