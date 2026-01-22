@@ -1,5 +1,6 @@
 from typing import cast
 
+from apps.community.services.comment.comment_delete_service import delete_comment
 from apps.community.services.comment.comment_update_service import update_comment
 from apps.user.models import User
 from drf_spectacular.utils import extend_schema
@@ -44,4 +45,13 @@ class ReviewCommentUpdateAPIView(APIView):
         return Response(
             ReviewCommentCreateSerializer(comment).data,
             status=status.HTTP_200_OK,
+        )
+
+    @extend_schema(tags=["댓글"], summary="댓글 삭제 API")
+    def delete(self, request, comment_id):
+        # 1. 서비스 레이어 호출 (존재 여부 및 권한 검증 포함)
+        delete_comment(comment_id=comment_id, user=cast(User, request.user))
+
+        return Response(
+            {"message": "댓글이 삭제되었습니다."}, status=status.HTTP_204_NO_CONTENT
         )
