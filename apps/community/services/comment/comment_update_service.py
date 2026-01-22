@@ -20,4 +20,4 @@ def update_comment(
         # 3. 저장
         comment.save(update_fields=["content"])
 
-    return comment   # type: ignore
+    return comment  # type: ignore

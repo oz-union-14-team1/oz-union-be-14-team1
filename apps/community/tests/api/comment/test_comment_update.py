@@ -93,7 +93,7 @@ class ReviewCommentUpdateAPITest(APITestCase):
         data = {"content": "New Content"}
 
         # When: 없는 댓글 수정 요청
-        response = self.client.patch(wrong_url, data)
+        response = self.client.put(wrong_url, data)
 
         # Then: 404반환 확인
         self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
@@ -108,8 +108,8 @@ class ReviewCommentUpdateAPITest(APITestCase):
         data = {"content": ""}
 
         # When: 댓글 수정 API 호출
-        response = self.client.patch(self.url, data)
+        response = self.client.put(self.url, data)
 
         # Then: 400 에러 확인 및 에러 필드에 content가 있는지 확인
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
-        self.assertIn("content", response.data)
+        self.assertIn("content", response.data["errors"])
