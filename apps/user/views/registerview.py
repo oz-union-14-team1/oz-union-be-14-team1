@@ -9,6 +9,7 @@ from django.db import IntegrityError
 
 from apps.user.serializers.register import SignUpSerializer, RegisterResponseSerializer
 from apps.user.utils.tokens import TokenService
+from apps.user.exceptions.exceptions import DuplicateUserException
 
 
 class RegisterView(APIView):
@@ -61,10 +62,8 @@ class RegisterView(APIView):
                 {"error_detail": e.detail}, status=status.HTTP_400_BAD_REQUEST
             )
         except IntegrityError:
-            return Response(
-                {"error_detail": "이미 중복된 회원가입 내역이 존재합니다."},
-                status=status.HTTP_409_CONFLICT,
-            )
+            raise DuplicateUserException()
+
         return Response(
             {
                 "detail": "회원가입이 완료되었습니다.",
