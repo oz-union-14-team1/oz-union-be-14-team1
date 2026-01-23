@@ -50,27 +50,16 @@ class SignUpSerializer(serializers.Serializer):
         return value
 
     def validate(self, attrs):
-        # 이메일/ 전화번호 중복 체크
         email = attrs.get("email")
         if email and User.objects.filter(email=email).exists():
             raise serializers.ValidationError({"email": ["이미 가입된 이메일입니다."]})
-        if User.objects.filter(phone_number=attrs["phone_number"]).exists():
-            raise serializers.ValidationError(
-                {"phone_number": ["이미 가입된 번호입니다."]}
-            )
-
         return attrs
 
     def create(self, validated_data):
         email = validated_data.pop("email")
-        phone = validated_data.pop("phone_number")
-
-        validated_data.pop("email_token", None)
-        validated_data.pop("sms_token", None)
 
         user = User.objects.create_user(
             email=email,
-            phone_number=phone,
             password=validated_data["password"],
             name=validated_data["name"],
             nickname=validated_data["nickname"],

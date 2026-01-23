@@ -22,34 +22,33 @@ class RegisterView(APIView):
     @extend_schema(
         summary="회원가입",
         description="이메일/ 문자 인증을 완료한 사용자의 회원가입",
-        request = SignUpSerializer,
-        responses = {
-        201: RegisterResponseSerializer,
-        400: OpenApiResponse(description="유효성 검증 실패"),
-        409: OpenApiResponse(description="중복 회원"),
-    },
-    examples = [
-        OpenApiExample(
-            name = "회원가입 요청 예시",
-            value={
-                "email_token":"email_token",
-                "sms_token":"sms_token",
-                "password":"Password1!",
-                "nickname":"김유진",
-                "name":"김본식",
-                "gender":"M",
-            },
-            request_only=True,
-        ),
-        OpenApiExample(
-            name="회원가입 성공 응답",
-            value={
-                "detail":"회원가입이 완료되었습니다.",
-                "access_token":"eyJhbGciOiJIUzI1NiJ9...",
-            },
-            response_only=True,
-        ),
-    ],
+        request=SignUpSerializer,
+        responses={
+            201: RegisterResponseSerializer,
+            400: OpenApiResponse(description="유효성 검증 실패"),
+            409: OpenApiResponse(description="중복 회원"),
+        },
+        examples=[
+            OpenApiExample(
+                name="회원가입 요청 예시",
+                value={
+                    "email": "test@example.com",  # #수정됨
+                    "password": "Password1!",  # #수정됨
+                    "nickname": "김유진",  # #수정됨
+                    "name": "김본식",  # #수정됨
+                    "gender": "M",  # #수정됨
+                },
+                request_only=True,
+            ),
+            OpenApiExample(
+                name="회원가입 성공 응답",
+                value={
+                    "detail": "회원가입이 완료되었습니다.",
+                    "access_token": "eyJhbGciOiJIUzI1NiJ9...",
+                },
+                response_only=True,
+            ),
+        ],
         auth=None,
     )
 
