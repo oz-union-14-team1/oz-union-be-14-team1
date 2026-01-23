@@ -7,9 +7,7 @@ User = get_user_model()
 
 
 class SignUpSerializer(serializers.Serializer):
-    email_token = serializers.CharField(required=True)
-    sms_token = serializers.CharField(required=True)
-
+    email = serializers.EmailField()
     password = serializers.CharField(write_only=True)
     nickname = serializers.CharField()
     name = serializers.CharField()
@@ -25,12 +23,6 @@ class SignUpSerializer(serializers.Serializer):
             "sms_token",
             "gender",
         ]
-        extra_kwargs = {
-            "password": {"write_only": True},
-            "nickname": {"write_only": True},
-            "name": {"write_only": True},
-            "gender": {"write_only": True},
-        }
 
     def validate_password(self, value: str) -> str:
         """비밀번호 유효성 검증"""
@@ -45,22 +37,6 @@ class SignUpSerializer(serializers.Serializer):
             raise serializers.ValidationError("숫자를 최소 1개 포함해야 합니다.")
         if not re.search(r"[!@#$%^&*]", value):
             raise serializers.ValidationError("특수문자를 최소 1개 포함해야 합니다.")
-
-        # 연속된 문자/ 숫자 3개 이상 검사
-        for i in range(len(value) - 2):
-            if (
-                ord(value[i + 1]) == ord(value[i]) + 1
-                and ord(value[i + 2]) == ord(value[i]) + 2
-            ):
-                raise serializers.ValidationError(
-                    "연속된 문자/ 숫자를 3개 이상 사용할 수 없습니다."
-                )
-
-        # 이메일과 동일 불가
-        email_token = getattr(self, "initial_data", {}).get("email_token")
-        if email_token and email_token in value:
-            raise serializers.ValidationError("비밀번호에 이메일을 포함할 수 없습니다.")
-
         return value
 
     def validate_nickname(self, value: str) -> str:
@@ -69,29 +45,11 @@ class SignUpSerializer(serializers.Serializer):
             raise serializers.ValidationError("닉네임은 2~16자여야 합니다.")
         if not re.search(r"^[a-zA-Z0-9가-힣]+$", value):
             raise serializers.ValidationError("닉네임은 한글, 영문, 숫자만 가능합니다.")
-
         if User.objects.filter(nickname=value).exists():
             raise serializers.ValidationError("이미 사용 중인 닉네임입니다.")
-
         return value
 
     def validate(self, attrs):
-        """email_token, sms_token 검증 및 중복 체크"""
-        token_service = TokenService()
-        email_value = token_service.verify(attrs.get("email_token"))
-        if email_value is None:
-            raise serializers.ValidationError(
-                {"email_token": ["유효하지 않거나 만료된 토큰입니다."]}
-            )
-        attrs["email"] = email_value
-
-        phone_value = token_service.verify(attrs.get("sms_token"))
-        if phone_value is None:
-            raise serializers.ValidationError(
-                {"sms_token": ["유효하지 않거나 만료된 토큰입니다."]}
-            )
-        attrs["phone_number"] = phone_value
-
         # 이메일/ 전화번호 중복 체크
         email = attrs.get("email")
         if email and User.objects.filter(email=email).exists():
@@ -104,11 +62,11 @@ class SignUpSerializer(serializers.Serializer):
         return attrs
 
     def create(self, validated_data):
-        email = validated_data.pop("email")  # 수정됨
-        phone = validated_data.pop("phone_number")  # 수정됨
+        email = validated_data.pop("email")
+        phone = validated_data.pop("phone_number")
 
-        validated_data.pop("email_token", None)  # 수정됨
-        validated_data.pop("sms_token", None)  # 수정됨
+        validated_data.pop("email_token", None)
+        validated_data.pop("sms_token", None)
 
         user = User.objects.create_user(
             email=email,
@@ -120,3 +78,7 @@ class SignUpSerializer(serializers.Serializer):
         )
 
         return user
+
+class RegisterResponseSerializer(serializers.Serializer):
+    detail=serializers.CharField()
+    access_token=serializers.CharField()
