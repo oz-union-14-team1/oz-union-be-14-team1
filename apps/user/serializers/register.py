@@ -1,6 +1,5 @@
 from rest_framework import serializers
 from django.contrib.auth import get_user_model
-from apps.user.utils.tokens import TokenService
 import re
 
 User = get_user_model()
@@ -16,11 +15,10 @@ class SignUpSerializer(serializers.Serializer):
     class Meta:
         model = User
         fields = [
+            "email",
             "password",
             "nickname",
             "name",
-            "email_token",
-            "sms_token",
             "gender",
         ]
 
@@ -68,6 +66,6 @@ class SignUpSerializer(serializers.Serializer):
 
         return user
 
+
 class RegisterResponseSerializer(serializers.Serializer):
-    detail=serializers.CharField()
-    access_token=serializers.CharField()
+    detail = serializers.CharField()

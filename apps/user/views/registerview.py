@@ -1,8 +1,4 @@
-from drf_spectacular.utils import (
-    extend_schema,
-    OpenApiResponse,
-    OpenApiExample
-)
+from drf_spectacular.utils import extend_schema, OpenApiResponse, OpenApiExample
 
 from rest_framework.views import APIView
 from rest_framework.response import Response
@@ -11,7 +7,7 @@ from rest_framework.permissions import AllowAny
 from rest_framework.exceptions import ValidationError
 from django.db import IntegrityError
 
-from apps.user.serializers.register import SignUpSerializer , RegisterResponseSerializer
+from apps.user.serializers.register import SignUpSerializer, RegisterResponseSerializer
 from apps.user.utils.tokens import TokenService
 
 
@@ -32,11 +28,11 @@ class RegisterView(APIView):
             OpenApiExample(
                 name="회원가입 요청 예시",
                 value={
-                    "email": "test@example.com",  # #수정됨
-                    "password": "Password1!",  # #수정됨
-                    "nickname": "김유진",  # #수정됨
-                    "name": "김본식",  # #수정됨
-                    "gender": "M",  # #수정됨
+                    "email": "test@example.com",
+                    "password": "Password1!",
+                    "nickname": "김유진",
+                    "name": "김본식",
+                    "gender": "M",
                 },
                 request_only=True,
             ),
@@ -44,14 +40,12 @@ class RegisterView(APIView):
                 name="회원가입 성공 응답",
                 value={
                     "detail": "회원가입이 완료되었습니다.",
-                    "access_token": "eyJhbGciOiJIUzI1NiJ9...",
                 },
                 response_only=True,
             ),
         ],
         auth=None,
     )
-
     def post(self, request):
         serializer = SignUpSerializer(data=request.data)
 
@@ -74,7 +68,6 @@ class RegisterView(APIView):
         return Response(
             {
                 "detail": "회원가입이 완료되었습니다.",
-                "access_token": access_token,
             },
             status=status.HTTP_201_CREATED,
         )
