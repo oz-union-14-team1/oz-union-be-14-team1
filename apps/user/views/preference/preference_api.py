@@ -3,7 +3,9 @@ from rest_framework.permissions import IsAuthenticated
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from apps.user.serializers.preference.preference_create import UserPreferenceSerializer
-from apps.user.serializers.preference.preference_list import UserPreferenceListSerializer
+from apps.user.serializers.preference.preference_list import (
+    UserPreferenceListSerializer,
+)
 from apps.user.services.preference_list_service import get_user_preferences
 from apps.user.services.preference_service import create_user_preferences
 from typing import cast
@@ -53,7 +55,9 @@ class PreferenceAPIView(APIView):
         user = cast(User, request.user)
 
         # 2. 서비스 레이어 호출
-        preferences = get_user_preferences(user=user,)
+        preferences = get_user_preferences(
+            user=user,
+        )
 
         # 3. 응답 데이터 검증
         serializer = UserPreferenceListSerializer(preferences, many=True)
