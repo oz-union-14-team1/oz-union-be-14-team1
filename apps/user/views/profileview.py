@@ -2,7 +2,6 @@ from rest_framework.views import APIView
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from rest_framework import status
-from rest_framework.exceptions import ValidationError
 from drf_spectacular.utils import extend_schema, OpenApiResponse
 
 from apps.user.serializers.profile import MeSerializer, DeleteUserSerializer
@@ -42,13 +41,10 @@ class MeView(APIView):
         """
         내 정보 전체 수정 + 비밀번호 인증
         """
-        password = request.data.get("password")
-        if not password or not request.user.check_password(password):
-            raise ValidationError({"password": "비밀번호가 올바르지 않습니다."})
-
         serializer = MeSerializer(
             request.user,
             data=request.data,
+            context={"request": request},
             partial=False,
         )
         serializer.is_valid(raise_exception=True)
@@ -71,13 +67,10 @@ class MeView(APIView):
         """
         내 정보 부분 수정 + 비밀번호 인증
         """
-        password = request.data.get("password")
-        if not password or not request.user.check_password(password):
-            raise ValidationError({"password": "비밀번호가 올바르지 않습니다."})
-
         serializer = MeSerializer(
             request.user,
             data=request.data,
+            context={"request": request},
             partial=True,
         )
         serializer.is_valid(raise_exception=True)
@@ -96,9 +89,16 @@ class MeView(APIView):
         methods=["DELETE"],
     )
     def delete(self, request):
-        serializer = DeleteUserSerializer(
-            data=request.data, context={"request": request}
-        )
+        import json
+
+        try:
+            data = request.data
+            if not data:
+                data = json.loads(request.body.decode("utf-8"))
+        except Exception:
+            data = {}
+
+        serializer = DeleteUserSerializer(data=data, context={"request": request})
         serializer.is_valid(raise_exception=True)
 
         request.user.is_active = False

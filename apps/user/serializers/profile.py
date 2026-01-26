@@ -1,5 +1,6 @@
 from rest_framework import serializers
 from django.contrib.auth import get_user_model
+from apps.user.validators.validator import validate_user_password
 
 User = get_user_model()
 
@@ -29,6 +30,10 @@ class MeSerializer(serializers.ModelSerializer):
             "updated_at",
         )
 
+    def validate_password(self, value):
+        user = self.context["request"].user
+        return validate_user_password(user, value)
+
     def update(self, instance, validated_data):
         validated_data.pop("email", None)
         validated_data.pop("password", None)
@@ -41,6 +46,4 @@ class DeleteUserSerializer(serializers.Serializer):
 
     def validate_password(self, value):
         user = self.context["request"].user
-        if not user.check_password(value):
-            raise serializers.ValidationError("비밀번호가 올바르지 않습니다.")
-        return value
+        return validate_user_password(user, value)
