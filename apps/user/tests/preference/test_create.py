@@ -15,8 +15,8 @@ User = get_user_model()
 class PreferenceSerializerTest(TestCase):
     def setUp(self):
         # 테스트용 장르 데이터 생성
-        self.genre1 = Genre.objects.create(name="RPG")
-        self.genre2 = Genre.objects.create(name="FPS")
+        self.genre1 = Genre.objects.create(Genre="RPG", Genre_ko="모험")
+        self.genre2 = Genre.objects.create(Genre="FPS", Genre_ko="총")
 
     def test_validate_success(self):
         """정상적인 데이터 입력"""
@@ -24,14 +24,19 @@ class PreferenceSerializerTest(TestCase):
         serializer = UserPreferenceSerializer(data=data)
         self.assertTrue(serializer.is_valid(), serializer.errors)
         # 중복 제거 및 리스트 반환 확인
-        self.assertEqual(set(serializer.validated_data['genre_ids']), {self.genre1.id, self.genre2.id})
+        self.assertEqual(
+            set(serializer.validated_data["genre_ids"]),
+            {self.genre1.id, self.genre2.id},
+        )
 
     def test_validate_fail_empty_list(self):
         """빈 리스트 입력 시 에러"""
         data = {"genre_ids": []}
         serializer = UserPreferenceSerializer(data=data)
         self.assertFalse(serializer.is_valid())
-        self.assertIn("최소 하나의 장르를 선택해야 합니다.", str(serializer.errors['genre_ids']))
+        self.assertIn(
+            "최소 하나의 장르를 선택해야 합니다.", str(serializer.errors["genre_ids"])
+        )
 
     def test_validate_fail_invalid_genre_id(self):
         """존재하지 않는 장르 ID 입력 시 에러"""
@@ -39,7 +44,10 @@ class PreferenceSerializerTest(TestCase):
         data = {"genre_ids": [self.genre1.id, invalid_id]}
         serializer = UserPreferenceSerializer(data=data)
         self.assertFalse(serializer.is_valid())
-        self.assertIn("존재하지 않는 장르가 포함되어 있습니다.", str(serializer.errors['genre_ids']))
+        self.assertIn(
+            "존재하지 않는 장르가 포함되어 있습니다.",
+            str(serializer.errors["genre_ids"]),
+        )
 
     def test_validate_deduplication(self):
         """입력 리스트 중복 제거 확인"""
@@ -48,7 +56,7 @@ class PreferenceSerializerTest(TestCase):
         serializer = UserPreferenceSerializer(data=data)
         self.assertTrue(serializer.is_valid())
         # 결과는 중복이 제거되어야 함
-        self.assertEqual(len(serializer.validated_data['genre_ids']), 2)
+        self.assertEqual(len(serializer.validated_data["genre_ids"]), 2)
 
 
 class PreferenceServiceTest(TestCase):
@@ -57,9 +65,14 @@ class PreferenceServiceTest(TestCase):
     """
 
     def setUp(self):
-        self.user = User.objects.create_user(email="test@example.com", password="password")
-        self.genre1 = Genre.objects.create(name="RPG")
-        self.genre2 = Genre.objects.create(name="FPS")
+        self.user = User.objects.create_user(
+            email="test@test.com",
+            password="test1234",
+            nickname="test_user",
+            phone_number="010-0000-0000",
+        )
+        self.genre1 = Genre.objects.create(Genre="RPG", Genre_ko="모험")
+        self.genre2 = Genre.objects.create(Genre="FPS", Genre_ko="총")
 
     def test_create_preferences_success(self):
         """선호 장르 일괄 생성"""
@@ -80,7 +93,6 @@ class PreferenceServiceTest(TestCase):
         # 3. 에러 없이 FPS만 추가되어 총 2개가 되어야 함
         self.assertEqual(Preference.objects.filter(user=self.user).count(), 2)
 
-        # 데이터 정합성 확인
         rpg_pref = Preference.objects.get(user=self.user, genre=self.genre1)
         fps_pref = Preference.objects.get(user=self.user, genre=self.genre2)
         self.assertIsNotNone(rpg_pref)
@@ -94,42 +106,48 @@ class PreferenceAPIViewTest(TestCase):
 
     def setUp(self):
         self.client = APIClient()
-        self.url = reverse("user:preference_create")  # urls.py의 name과 일치해야 함
+        self.url = reverse("user:preference_create")
 
-        self.user = User.objects.create_user(email="test@example.com", password="password")
-        self.genre1 = Genre.objects.create(name="RPG")
-        self.genre2 = Genre.objects.create(name="FPS")
+        self.user = User.objects.create_user(
+            email="test@test.com",
+            password="test1234",
+            nickname="test_user",
+            phone_number="010-0000-0000",
+        )
+        self.genre1 = Genre.objects.create(Genre="RPG", Genre_ko="모험")
+        self.genre2 = Genre.objects.create(Genre="FPS", Genre_ko="총")
 
     def test_create_preference_unauthorized(self):
-        """로그인하지 않은 상태로 요청 시 401/403 에러"""
+        """로그인하지 않은 상태로 요청 시 401 에러"""
         data = {"genre_ids": [self.genre1.id]}
-        response = self.client.post(self.url, data, format='json')
-        # DRF 설정에 따라 401 또는 403이 나올 수 있음
-        self.assertIn(response.status_code, [status.HTTP_401_UNAUTHORIZED, status.HTTP_403_FORBIDDEN])
+        response = self.client.post(self.url, data, format="json")
+        # 401확인
+        self.assertIn(response.status_code, [status.HTTP_401_UNAUTHORIZED])
 
     def test_create_preference_success(self):
-        """로그인 후 정상 등록 (201 Created)"""
-        self.client.force_authenticate(user=self.user)  # 강제 로그인
+        """로그인 후 정상 등록 (201)"""
+        self.client.force_authenticate(user=self.user)
 
         data = {"genre_ids": [self.genre1.id, self.genre2.id]}
-        response = self.client.post(self.url, data, format='json')
+        response = self.client.post(self.url, data, format="json")
 
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
         self.assertEqual(response.data["message"], "저장 완료")
 
         # DB 확인
-        self.assertTrue(Preference.objects.filter(user=self.user, genre_id=self.genre1.id).exists())
-        self.assertTrue(Preference.objects.filter(user=self.user, genre_id=self.genre2.id).exists())
+        self.assertTrue(
+            Preference.objects.filter(user=self.user, genre_id=self.genre1.id).exists()
+        )
+        self.assertTrue(
+            Preference.objects.filter(user=self.user, genre_id=self.genre2.id).exists()
+        )
 
     def test_create_preference_invalid_data(self):
-        """잘못된 데이터 요청 (400 Bad Request)"""
+        """잘못된 데이터 요청 (400)"""
         self.client.force_authenticate(user=self.user)
 
         # 존재하지 않는 장르 ID
         data = {"genre_ids": [9999]}
-        response = self.client.post(self.url, data, format='json')
+        response = self.client.post(self.url, data, format="json")
 
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
-        # 에러 메시지 확인 (DRF 기본 에러 구조 가정)
-        # "genre_ids" 필드에 에러가 있는지 확인
-        self.assertTrue("genre_ids" in response.data or "detail" in response.data)

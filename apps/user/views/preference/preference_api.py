@@ -8,6 +8,7 @@ from typing import cast
 from apps.user.models import User
 from rest_framework import serializers
 
+
 class PreferenceAPIView(APIView):
     permission_classes = [IsAuthenticated]
 
@@ -35,7 +36,7 @@ class PreferenceAPIView(APIView):
         # 3. 서비스 레이어 호출
         create_user_preferences(
             user=user,
-            genre_ids=serializer.validated_data['genre_ids'],
+            genre_ids=serializer.validated_data["genre_ids"],
         )
 
         return Response({"message": "저장 완료"}, status=201)
