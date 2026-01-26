@@ -9,7 +9,7 @@ from apps.user.models.preference import Preference
 from apps.user.serializers.preference.preference_list import (
     UserPreferenceListSerializer,
 )
-from apps.user.services.preference_list_service import get_user_preferences
+from apps.user.services.preference.preference_list_service import get_user_preferences
 
 User = get_user_model()
 
