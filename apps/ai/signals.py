@@ -13,6 +13,10 @@ def trigger_ai_summary(sender, instance, created, **kwargs):
     """
     리뷰가 저장(post_save)될 때마다 실행되는 함수
     """
+    # 테스트 환경 제어 (설정에 해당 플래그가 True라면 로직을 수행하지 않고 중단)
+    if getattr(settings, "DISABLE_AI_SUMMARY_SIGNAL", False):
+        return
+
     # 1. 수정된 리뷰는 무시하고, 새로 생성된 리뷰일 때만 체크
     if not created:
         return
