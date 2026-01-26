@@ -3,6 +3,7 @@ Django settings for oz_playtype project.
 """
 
 import os
+import sys
 from pathlib import Path
 import environ  # type: ignore
 
@@ -153,6 +154,7 @@ AI_SUMMARY_UPDATE_INTERVAL_DAYS = 30  # 요약 갱신 주기 (일)
 AI_REVIEW_MIN_LENGTH = 10  # 요약에 사용할 리뷰의 최소 글자 수
 AI_SUMMARY_MIN_VALID_REVIEWS = 3  # 유효한 리뷰의 개수
 AI_SUMMARY_REVIEW_COUNT = 5  # AI에게 요약 자료로 보낼 최대 리뷰 개수
+DISABLE_AI_SUMMARY_SIGNAL = False
 
 STATIC_URL = "/static/"
 STATIC_ROOT = os.path.join(BASE_DIR, "staticfiles")
@@ -229,3 +231,6 @@ CELERY_RESULT_SERIALIZER = "json"
 
 USE_X_FORWARDED_HOST = True
 SECURE_PROXY_SSL_HEADER = ("HTTP_X_FORWARDED_PROTO", "https")
+
+if "test" in sys.argv:
+    DISABLE_AI_SUMMARY_SIGNAL = True
