@@ -7,7 +7,7 @@ from rest_framework import status
 from apps.game.models.genre import Genre
 from apps.user.models.preference import Preference
 from apps.user.serializers.preference.preference_create import UserPreferenceSerializer
-from apps.user.services.preference_service import create_user_preferences
+from apps.user.services.preference.preference_service import create_user_preferences
 
 User = get_user_model()
 
