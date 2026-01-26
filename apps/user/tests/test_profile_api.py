@@ -41,7 +41,7 @@ class MeViewTest(TestCase):
         self.assertEqual(response.status_code, status.HTTP_401_UNAUTHORIZED)
 
     def test_patch_me_success(self):
-        """내 정보 부분 수정 성공 """
+        """내 정보 부분 수정 성공"""
         self.authenticate()
 
         response = self.client.patch(
