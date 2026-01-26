@@ -12,7 +12,9 @@ from typing import cast
 from apps.user.models import User
 from rest_framework import serializers, status
 
-from apps.user.services.preference.preference_update_service import update_user_preferences
+from apps.user.services.preference.preference_update_service import (
+    update_user_preferences,
+)
 
 
 class PreferenceAPIView(APIView):
@@ -87,6 +89,6 @@ class PreferenceAPIView(APIView):
         user = cast(User, request.user)
 
         # 3. 서비스 레이어 호출
-        update_user_preferences(user, serializer.validated_data['genre_ids'])
+        update_user_preferences(user, serializer.validated_data["genre_ids"])
 
         return Response({"message": "수정 완료"}, status=status.HTTP_200_OK)
