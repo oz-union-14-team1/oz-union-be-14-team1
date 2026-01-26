@@ -8,7 +8,7 @@ from apps.user.services.preference.preference_service import create_user_prefere
 @transaction.atomic()
 def update_user_preferences(user: User, genre_ids: List[int]):
     # 1. 기존 선호 장르 전체 삭제
-    Preference.objects.filter(user=user).delete() # type: ignore
+    Preference.objects.filter(user=user).delete()  # type: ignore
 
     # 2. 새로운 장르 생성 (create 서비스 재활용)
     create_user_preferences(user, genre_ids)
