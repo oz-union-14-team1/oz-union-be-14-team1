@@ -232,5 +232,5 @@ CELERY_RESULT_SERIALIZER = "json"
 USE_X_FORWARDED_HOST = True
 SECURE_PROXY_SSL_HEADER = ("HTTP_X_FORWARDED_PROTO", "https")
 
-if 'test' in sys.argv:
+if "test" in sys.argv:
     DISABLE_AI_SUMMARY_SIGNAL = True
