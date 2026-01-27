@@ -12,10 +12,16 @@ def update_user_total_preferences(user: User, tag_ids: list[int], genre_ids: lis
 
     # 2. 장르 생성
     if genre_ids:
-        genre_objs = [GenrePreference(user=user, genre_id=gid) for gid in genre_ids]
-        GenrePreference.objects.bulk_create(genre_objs)
+        if genre_ids:
+            GenrePreference.objects.bulk_create(
+                [GenrePreference(user=user, genre_id=gid) for gid in genre_ids]
+            )
 
     # 3. 태그 생성
     if tag_ids:
-        tag_objs = [TagPreference(user=user, tag_id=tid) for tid in tag_ids]
-        TagPreference.objects.bulk_create(tag_objs)
+        TagPreference.objects.bulk_create(
+            [TagPreference(user=user, tag_id=tid) for tid in tag_ids]
+        )
+    from apps.ai.tasks.user_tendency import run_user_tendency_analysis
+
+    transaction.on_commit(lambda: run_user_tendency_analysis.delay(user.id))

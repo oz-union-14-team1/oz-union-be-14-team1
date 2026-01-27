@@ -4,11 +4,11 @@ from django.conf import settings
 from django.db import transaction
 from google import genai
 from google.genai import types
-from apps.ai.tasks.user_tendency import run_user_tendency_analysis
 from apps.ai.models import UserTendency
 from apps.ai.pydantics.user_tendency import UserTendency as PydanticUserTendency
+from django.core.cache import cache
 
-from apps.preference.services.preference_list_service import get_user_total_preferences
+
 
 logger = logging.getLogger(__name__)
 
@@ -33,14 +33,27 @@ class UserTendencyService:
         """
         API View에서 호출: DB 데이터를 우선 반환하고, 없으면 분석 요청
         """
-        # 1. DB 조회 (캐싱되어 있다면 즉시 반환)
+        from apps.ai.tasks.user_tendency import run_user_tendency_analysis
         if hasattr(user, 'ai_tendency'):
             return {
                 "status": "completed",
                 "tendency": user.ai_tendency.tendency
             }
 
-        # 2. 데이터가 없다면 분석 요청 (비동기)
+        # 2. 캐시 확인 (이미 분석 중인지 체크)
+        cache_key = f"debounce_tendency_analysis_{user.id}"
+        if cache.get(cache_key):
+            # 이미 Task가 돌고 있다면 그냥 "처리 중" 메시지만 반환하고 Task는 실행 X
+            return {
+                "status": "processing",
+                "message": "성향 분석이 진행 중입니다. 잠시만 기다려주세요.",
+                "tendency": None
+            }
+
+        # 3. 데이터도 없고, 분석 중도 아니라면 -> 분석 요청 (비동기)
+        # 캐시 설정 (분석 중임을 표시, 10초 쿨타임)
+        cache.set(cache_key, "processing", timeout=10)
+
         run_user_tendency_analysis.delay(user.id)
 
         return {

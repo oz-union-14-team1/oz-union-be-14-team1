@@ -1,7 +1,7 @@
 from celery import shared_task
 from django.contrib.auth import get_user_model
 import logging
-from apps.ai.services.user_tendency_service import UserTendencyService
+
 
 logger = logging.getLogger(__name__)
 
@@ -11,6 +11,7 @@ def run_user_tendency_analysis(user_id: int):
     """
     유저 ID를 받아 성향 분석을 비동기로 수행
     """
+    from apps.ai.services.user_tendency_service import UserTendencyService
 
     User = get_user_model()
     try:
