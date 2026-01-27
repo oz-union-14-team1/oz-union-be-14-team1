@@ -4,7 +4,6 @@ from apps.game.models import Tag
 from apps.user.models.user import User
 
 
-
 class TagPreference(models.Model):
     user = models.ForeignKey(
         User, on_delete=models.CASCADE, db_column="user_id", related_name="user_tags"

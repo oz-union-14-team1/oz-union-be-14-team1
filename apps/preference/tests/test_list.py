@@ -5,11 +5,11 @@ from rest_framework.test import APIClient
 from rest_framework import status
 
 from apps.game.models.genre import Genre
-from apps.preference.models.genre_preference import GenrePreference  # 수정됨
-from apps.preference.serializers.preference_list import GenreInfoSerializer  # 수정됨
+from apps.preference.models.genre_preference import GenrePreference
+from apps.preference.serializers.preference_list import GenreInfoSerializer
 from apps.preference.services.preference_list_service import (
     get_user_total_preferences,
-)  # 수정됨
+)
 
 User = get_user_model()
 
@@ -26,22 +26,20 @@ class PreferenceListServiceTest(TestCase):
             nickname="test_user",
             phone_number="010-0000-0000",
         )
-        self.genre1 = Genre.objects.create(Genre="RPG", Genre_ko="모험")
-        self.genre2 = Genre.objects.create(Genre="FPS", Genre_ko="총")
+        self.genre1 = Genre.objects.create(genre="RPG", slug="rpg")
+        self.genre2 = Genre.objects.create(genre="FPS", slug="fps")
 
-        # 선호 장르 데이터 생성
         GenrePreference.objects.create(user=self.user, genre=self.genre1)
         GenrePreference.objects.create(user=self.user, genre=self.genre2)
 
     def test_get_user_preferences(self):
         """유저의 선호 장르 목록을 정상적으로 조회하는지 확인"""
-        # get_user_total_preferences는 {"Tags": [], "Genres": []} 형태의 dict를 반환함
         preferences = get_user_total_preferences(self.user)
 
         genres = preferences["Genres"]
         self.assertEqual(len(genres), 2)
-        self.assertEqual(genres[0].Genre, "RPG")
-        self.assertEqual(genres[1].Genre, "FPS")
+        self.assertEqual(genres[0].genre, "RPG")
+        self.assertEqual(genres[1].genre, "FPS")
 
 
 class PreferenceListSerializerTest(TestCase):
@@ -50,16 +48,15 @@ class PreferenceListSerializerTest(TestCase):
     """
 
     def setUp(self):
-        self.genre = Genre.objects.create(Genre="RPG", Genre_ko="모험")
+        self.genre = Genre.objects.create(genre="RPG", slug="rpg")
 
     def test_serializer_output_format(self):
         """Serializer가 모델 데이터를 원하는 JSON 필드명으로 변환하는지 확인"""
         serializer = GenreInfoSerializer(instance=self.genre)
         data = serializer.data
 
-        # GenreInfoSerializer는 'id'와 'label' 필드를 가짐
         self.assertEqual(data["id"], self.genre.id)
-        self.assertEqual(data["label"], "RPG")
+        self.assertEqual(data["genre"], "RPG")
 
 
 class PreferenceListAPIViewTest(TestCase):
@@ -77,8 +74,8 @@ class PreferenceListAPIViewTest(TestCase):
             nickname="test_user",
             phone_number="010-0000-0000",
         )
-        self.genre1 = Genre.objects.create(Genre="RPG", Genre_ko="모험")
-        self.genre2 = Genre.objects.create(Genre="FPS", Genre_ko="총")
+        self.genre1 = Genre.objects.create(genre="RPG", slug="rpg")
+        self.genre2 = Genre.objects.create(genre="FPS", slug="fps")
 
     def test_get_preference_list_unauthorized(self):
         """로그인하지 않은 상태로 조회 시 401 에러"""
@@ -95,13 +92,11 @@ class PreferenceListAPIViewTest(TestCase):
 
         self.assertEqual(response.status_code, status.HTTP_200_OK)
 
-        # 응답 구조 확인 {"Tags": [], "Genres": []}
         self.assertIn("Genres", response.data)
         self.assertEqual(len(response.data["Genres"]), 2)
 
-        # 데이터 검증
         rpg_data = next(
-            (item for item in response.data["Genres"] if item["label"] == "RPG"), None
+            (item for item in response.data["Genres"] if item["genre"] == "RPG"), None
         )
         self.assertIsNotNone(rpg_data)
 
