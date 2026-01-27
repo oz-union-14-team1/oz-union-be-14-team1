@@ -5,7 +5,7 @@ from django.utils import timezone
 from datetime import timedelta
 
 from apps.community.models.reviews import Review
-from apps.ai.tasks import run_ai_summary
+from apps.ai.tasks.review_summary import run_ai_summary
 
 
 @receiver(post_save, sender=Review)

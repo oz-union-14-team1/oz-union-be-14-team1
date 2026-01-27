@@ -1,5 +1,5 @@
 from celery import shared_task  # type: ignore
-from apps.ai.services import ReviewSummaryService
+from apps.ai.services.review_summary_service import ReviewSummaryService
 import logging
 
 logger = logging.getLogger(__name__)

@@ -6,7 +6,7 @@ from apps.user.models.user import User
 from apps.game.models.game import Game
 from apps.community.models.reviews import Review
 from apps.ai.models import GameReviewSummary
-from apps.ai.services import ReviewSummaryService
+from apps.ai.services.review_summary_service import ReviewSummaryService
 from apps.ai.exceptions.ai_exceptions import NotEnoughReviews, AiGenerationFailed
 
 

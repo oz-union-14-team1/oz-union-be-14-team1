@@ -1,5 +1,5 @@
 from django.test import TestCase
-from apps.ai.services import ReviewSummaryService
+from apps.ai.services.review_summary_service import ReviewSummaryService
 from unittest.mock import patch
 
 

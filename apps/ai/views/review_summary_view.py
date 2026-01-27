@@ -1,11 +1,12 @@
+
 from drf_spectacular.utils import extend_schema
 from rest_framework.permissions import AllowAny
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework import status
 
-from apps.ai.serializers import SummaryRequestSerializer
-from apps.ai.services import ReviewSummaryService
+from apps.ai.serializers.review_summary import SummaryRequestSerializer
+from apps.ai.services.review_summary_service import ReviewSummaryService
 
 
 class GameReviewSummaryAPIView(APIView):
