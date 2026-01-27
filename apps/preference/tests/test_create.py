@@ -5,7 +5,7 @@ from rest_framework.test import APIClient
 from rest_framework import status
 
 from apps.game.models.genre import Genre
-from apps.preference.models.preference import Preference
+from apps.preference.models.genre_preference import Preference
 from apps.preference.serializers.preference_create import UserPreferenceSerializer
 from apps.preference.services import create_user_preferences
 

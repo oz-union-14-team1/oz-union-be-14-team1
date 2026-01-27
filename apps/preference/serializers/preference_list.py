@@ -1,12 +1,13 @@
 from rest_framework import serializers
-from apps.preference.models.preference import Preference
 
+class TagInfoSerializer(serializers.Serializer):
+    id = serializers.IntegerField()
+    label = serializers.CharField(source="name")
 
-class UserPreferenceListSerializer(serializers.ModelSerializer):
-    id = serializers.IntegerField(source="genre.id")
-    name = serializers.CharField(source="genre.Genre")
-    name_ko = serializers.CharField(source="genre.Genre_ko")
+class GenreInfoSerializer(serializers.Serializer):
+    id = serializers.IntegerField()
+    label = serializers.CharField(source="Genre")
 
-    class Meta:
-        model = Preference
-        fields = ["id", "name", "name_ko"]
+class UserPreferenceResponseSerializer(serializers.Serializer):
+    Tags = TagInfoSerializer(many=True)
+    Genres = GenreInfoSerializer(many=True)

@@ -1,11 +1,22 @@
-from apps.preference.models.preference import Preference
+from django.db import transaction
+
+from apps.preference.models import TagPreference, GenrePreference
+from apps.user.models.user import User
 
 
-def create_user_preferences(user, genre_ids: list[int]):
-    """
-    유저의 선호 장르를 일괄 생성합니다.
-    이 함수는 API와 독립적으로 어디서든 호출 가능합니다.
-    """
-    preferences = [Preference(user=user, genre_id=genre_id) for genre_id in genre_ids]
 
-    return Preference.objects.bulk_create(preferences, ignore_conflicts=True)  # type: ignore
+@transaction.atomic
+def update_user_total_preferences(user: User, tag_ids: list[int], genre_ids: list[int]):
+    # 1. 기존 데이터 삭제 (초기화)
+    GenrePreference.objects.filter(user=user).delete()
+    TagPreference.objects.filter(user=user).delete()
+
+    # 2. 장르 생성
+    if genre_ids:
+        genre_objs = [GenrePreference(user=user, genre_id=gid) for gid in genre_ids]
+        GenrePreference.objects.bulk_create(genre_objs)
+
+    # 3. 태그 생성
+    if tag_ids:
+        tag_objs = [TagPreference(user=user, tag_id=tid) for tid in tag_ids]
+        TagPreference.objects.bulk_create(tag_objs)

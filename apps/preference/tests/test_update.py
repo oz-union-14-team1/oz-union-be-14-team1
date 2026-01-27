@@ -5,7 +5,7 @@ from rest_framework.test import APIClient
 from rest_framework import status
 
 from apps.game.models.genre import Genre
-from apps.preference.models.preference import Preference
+from apps.preference.models.genre_preference import Preference
 from apps.preference.services.preference_update_service import (
     update_user_preferences,
 )

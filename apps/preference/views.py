@@ -1,21 +1,14 @@
-from drf_spectacular.utils import extend_schema, inline_serializer
-from rest_framework.permissions import IsAuthenticated
+from drf_spectacular.utils import extend_schema
 from rest_framework.views import APIView
 from rest_framework.response import Response
+from rest_framework import status
+from rest_framework.permissions import IsAuthenticated
+
 from apps.preference.serializers.preference_create import UserPreferenceSerializer
-from apps.preference.serializers.preference_list import (
-    UserPreferenceListSerializer,
-)
-from apps.preference.services.preference_list_service import get_user_preferences
-
-from typing import cast
-
-from apps.preference.services.preference_service import create_user_preferences
-from apps.user.models import User
-from rest_framework import serializers, status
-
-from apps.preference.services.preference_update_service import (
-    update_user_preferences,
+from apps.preference.serializers.preference_list import UserPreferenceResponseSerializer
+from apps.preference.services.preference_list_service import get_user_total_preferences
+from apps.preference.services.preference_service import (
+    update_user_total_preferences
 )
 
 
@@ -23,74 +16,39 @@ class PreferenceAPIView(APIView):
     permission_classes = [IsAuthenticated]
 
     @extend_schema(
-        tags=["선호 장르"],
-        summary="선호 장르 등록 API",
-        request=UserPreferenceSerializer,
-        responses={
-            201: inline_serializer(
-                name="PreferenceCreateResponse",
-                fields={
-                    "message": serializers.CharField(),
-                },
-            ),
-        },
-    )
-    def post(self, request):
-        # 1. 입력 데이터 검증
-        serializer = UserPreferenceSerializer(data=request.data)
-        serializer.is_valid(raise_exception=True)
-
-        # 2. 유저 타입 캐스팅 (Type Hinting)
-        user = cast(User, request.user)
-
-        # 3. 서비스 레이어 호출
-        create_user_preferences(
-            user=user,
-            genre_ids=serializer.validated_data["genre_ids"],
-        )
-
-        return Response({"message": "저장 완료"}, status=201)
-
-    @extend_schema(
-        tags=["선호 장르"],
-        summary="선호 장르 조회 API",
-        responses=UserPreferenceListSerializer,
+        tags=["선호도"],
+        summary="사용자 선호도(태그/장르) 조회",
+        responses=UserPreferenceResponseSerializer
     )
     def get(self, request):
-        # 1. 유저 타입 캐스팅 (Type Hinting)
-        user = cast(User, request.user)
+        # 1. 서비스 호출
+        data = get_user_total_preferences(request.user)
 
-        # 2. 서비스 레이어 호출
-        preferences = get_user_preferences(
-            user=user,
-        )
+        # 2. 응답 직렬화
+        response_serializer = UserPreferenceResponseSerializer(instance=data)
 
-        # 3. 응답 데이터 검증
-        serializer = UserPreferenceListSerializer(preferences, many=True)
-        return Response(serializer.data, status=status.HTTP_200_OK)
+        return Response(response_serializer.data, status=status.HTTP_200_OK)
 
     @extend_schema(
-        tags=["선호 장르"],
-        summary="선호 장르 수정 API",
+        tags=["선호도"],
+        summary="사용자 선호도(태그/장르) 저장/수정",
         request=UserPreferenceSerializer,
         responses={
-            200: inline_serializer(
-                name="PreferenceCreateResponse",
-                fields={
-                    "message": serializers.CharField(),
-                },
-            ),
-        },
+            200: {"type": "object", "properties": {"success": {"type": "boolean"}, "message": {"type": "string"}}}}
     )
-    def put(self, request):
-        # 1. 입력 데이터 검증
+    def post(self, request):
+        # 1. 입력 검증
         serializer = UserPreferenceSerializer(data=request.data)
         serializer.is_valid(raise_exception=True)
 
-        # 2. 유저 타입 캐스팅 (Type Hinting)
-        user = cast(User, request.user)
+        # 2. 서비스 호출 (저장/수정 통합)
+        update_user_total_preferences(
+            user=request.user,
+            tag_ids=serializer.validated_data.get("Tags", []),
+            genre_ids=serializer.validated_data.get("Genres", [])
+        )
 
-        # 3. 서비스 레이어 호출
-        update_user_preferences(user, serializer.validated_data["genre_ids"])
-
-        return Response({"message": "수정 완료"}, status=status.HTTP_200_OK)
+        return Response({
+            "success": True,
+            "message": "저장 완료"
+        }, status=status.HTTP_200_OK)
