@@ -3,7 +3,6 @@ from apps.game.services.importer import GameImportService
 
 
 class Command(BaseCommand):
-    help = 'RAWG API에서 게임 데이터를 가져옵니다'
 
     def handle(self, *args, **options):
         self.stdout.write('게임 데이터 가져오기 시작...')

@@ -6,6 +6,7 @@ class Game(models.Model):
     intro = models.TextField()
     released_at = models.DateField(null=True, blank=True)
     developer = models.CharField(max_length=255)
+    publisher = models.CharField(max_length=255)
     created_at = models.DateTimeField(auto_now_add=True)
     id_deleted = models.BooleanField(default=False)
     avg_score = models.FloatField(default=0)
