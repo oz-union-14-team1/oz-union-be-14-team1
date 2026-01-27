@@ -2,6 +2,7 @@ from rest_framework.views import APIView
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from rest_framework import status
+from rest_framework_simplejwt.tokens import RefreshToken
 from drf_spectacular.utils import extend_schema, OpenApiResponse
 
 from apps.user.serializers.profile import MeSerializer, DeleteUserSerializer
@@ -77,34 +78,45 @@ class MeView(APIView):
         serializer.save()
         return Response(serializer.data, status=status.HTTP_200_OK)
 
+
+class WithdrawView(APIView):
+    permission_classes = [IsAuthenticated]
+
     @extend_schema(
         summary="회원 탈퇴",
-        description="로그인한 사용자의 비밀번호 확인 후 soft delete 처리합니다.",
+        description="비밀번호를 입력하면 회원 탈퇴 처리됩니다.",
         request=DeleteUserSerializer,
         responses={
-            204: OpenApiResponse(description="회원 탈퇴 완료"),
+            200: OpenApiResponse(description="회원 탈퇴 완료"),
             400: OpenApiResponse(description="비밀번호 불일치"),
             401: OpenApiResponse(description="인증되지 않은 사용자"),
         },
-        methods=["DELETE"],
     )
-    def delete(self, request):
-        import json
-
-        try:
-            data = request.data
-            if not data:
-                data = json.loads(request.body.decode("utf-8"))
-        except Exception:
-            data = {}
-
-        serializer = DeleteUserSerializer(data=data, context={"request": request})
+    def post(self, request):
+        serializer = DeleteUserSerializer(
+            data=request.data,
+            context={"request": request},
+        )
         serializer.is_valid(raise_exception=True)
 
-        request.user.is_active = False
-        request.user.save(update_fields=["is_active"])
+        user = request.user
+
+        # refresh token 블랙리스트
+        refresh_token = request.COOKIES.get("refresh_token")
+        if refresh_token:
+            try:
+                token = RefreshToken(refresh_token)
+                token.blacklist()
+            except Exception:
+                pass
+
+        # 개인정보 제거 + soft 삭제
+        user.email = f"deleted_{user.id}@withdrawn.local"
+        user.set_unusable_password()
+        user.is_active = False
+        user.save(update_fields=["email", "password", "is_active"])
 
         return Response(
             {"message": "회원 탈퇴가 완료되었습니다."},
-            status=status.HTTP_204_NO_CONTENT,
+            status=status.HTTP_200_OK,
         )

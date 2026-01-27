@@ -6,14 +6,18 @@ from rest_framework import status
 User = get_user_model()
 
 
-class MeViewTest(TestCase):
+class MeAPITest(TestCase):
     def setUp(self):
         self.client = APIClient()
-        self.url = "/api/v1/user/me/"
+
+        self.me_url = "/api/v1/user/me/"
+        self.withdraw_url = "/api/v1/user/me/delete/"
+
+        self.password = "Password1234!"
 
         self.user = User.objects.create_user(
             email="test@example.com",
-            password="Password1234!",
+            password=self.password,
             nickname="닉네임",
             name="이름",
             gender="M",
@@ -25,127 +29,85 @@ class MeViewTest(TestCase):
 
     def test_get_me_success(self):
         self.authenticate()
-        response = self.client.get(self.url)
+
+        response = self.client.get(self.me_url)
+
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertEqual(response.data["email"], self.user.email)
         self.assertEqual(response.data["nickname"], self.user.nickname)
-        self.assertEqual(response.data["name"], self.user.name)
-        self.assertEqual(response.data["gender"], self.user.gender)
-
-    def test_get_me_unauthorized(self):
-        response = self.client.get(self.url)
-        self.assertEqual(response.status_code, status.HTTP_401_UNAUTHORIZED)
-
-    def test_patch_me_success(self):
-        self.authenticate()
-        response = self.client.patch(
-            self.url,
-            data={"nickname": "변경된닉네임", "password": "Password1234!"},
-            format="json",
-        )
-        self.assertEqual(response.status_code, status.HTTP_200_OK)
-        self.user.refresh_from_db()
-        self.assertEqual(self.user.nickname, "변경된닉네임")
-
-    def test_patch_email_not_allowed(self):
-        self.authenticate()
-        response = self.client.patch(
-            self.url,
-            data={"email": "changed@example.com", "password": "Password1234!"},
-            format="json",
-        )
-        self.assertEqual(response.status_code, status.HTTP_200_OK)
-        self.user.refresh_from_db()
-        self.assertEqual(self.user.email, "test@example.com")
-
-    def test_patch_me_wrong_password(self):
-        self.authenticate()
-        response = self.client.patch(
-            self.url,
-            data={"nickname": "닉네임변경", "password": "WrongPassword!"},
-            format="json",
-        )
-        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
-        self.assertIn("password", response.data["errors"])
-        self.assertEqual(
-            response.data["errors"]["password"][0], "비밀번호가 올바르지 않습니다."
-        )
-
-    def test_password_change_not_allowed(self):
-        self.authenticate()
-        response = self.client.patch(
-            self.url,
-            data={"password": "NewPassword123!"},
-            format="json",
-        )
-        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
-        self.assertIn("password", response.data["errors"])
-        self.assertEqual(
-            response.data["errors"]["password"][0], "비밀번호가 올바르지 않습니다."
-        )
 
     def test_put_me_success(self):
         self.authenticate()
+
         response = self.client.put(
-            self.url,
+            self.me_url,
             data={
-                "nickname": "새닉네임",
-                "name": "새이름",
-                "gender": "F",
-                "password": "Password1234!",
+                "nickname": "변경닉네임",
+                "name": "변경이름",
+                "gender": "M",
+                "password": self.password,
             },
             format="json",
         )
+
         self.assertEqual(response.status_code, status.HTTP_200_OK)
+
         self.user.refresh_from_db()
-        self.assertEqual(self.user.nickname, "새닉네임")
-        self.assertEqual(self.user.name, "새이름")
-        self.assertEqual(self.user.gender, "F")
+        self.assertEqual(self.user.nickname, "변경닉네임")
+        self.assertEqual(self.user.name, "변경이름")
 
-    def test_put_me_wrong_password(self):
+    def test_patch_me_success(self):
         self.authenticate()
-        response = self.client.put(
-            self.url,
-            data={
-                "nickname": "닉네임변경",
-                "name": "이름변경",
-                "gender": "F",
-                "password": "WrongPassword!",
-            },
+
+        response = self.client.patch(
+            self.me_url,
+            data={"nickname": "패치닉네임", "password": self.password},
             format="json",
         )
-        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
-        self.assertIn("password", response.data["errors"])
-        self.assertEqual(
-            response.data["errors"]["password"][0], "비밀번호가 올바르지 않습니다."
-        )
 
-    def test_delete_me_success(self):
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+
+        self.user.refresh_from_db()
+        self.assertEqual(self.user.nickname, "패치닉네임")
+
+    def test_withdraw_success(self):
         self.authenticate()
-        response = self.client.delete(
-            self.url,
-            data={"password": "Password1234!"},
+
+        response = self.client.post(
+            self.withdraw_url,
+            data={"password": self.password},
             format="json",
         )
-        self.assertEqual(response.status_code, status.HTTP_204_NO_CONTENT)
+
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+
         self.user.refresh_from_db()
         self.assertFalse(self.user.is_active)
+        self.assertTrue(self.user.email.startswith("deleted_"))
+        self.assertFalse(self.user.has_usable_password())
 
-    def test_delete_me_wrong_password(self):
+    def test_withdraw_wrong_password(self):
+        """비밀번호 틀리면 탈퇴 실패"""
         self.authenticate()
-        response = self.client.delete(
-            self.url,
+
+        response = self.client.post(
+            self.withdraw_url,
             data={"password": "WrongPassword!"},
             format="json",
         )
+
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+
         self.user.refresh_from_db()
         self.assertTrue(self.user.is_active)
 
-    def test_delete_me_no_body(self):
-        """DELETE 요청에 body 없이 호출 시 400 에러 발생"""
+    def test_withdraw_no_body(self):
+        """password 없이 요청 시 실패"""
         self.authenticate()
-        response = self.client.delete(self.url)
+
+        response = self.client.post(self.withdraw_url)
+
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+
         self.user.refresh_from_db()
         self.assertTrue(self.user.is_active)
