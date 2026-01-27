@@ -5,8 +5,10 @@ from rest_framework.test import APIClient
 from rest_framework import status
 
 from apps.game.models.genre import Genre
-from apps.preference.models.genre_preference import GenrePreference # 수정됨
-from apps.preference.services.preference_service import update_user_total_preferences # 수정됨
+from apps.preference.models.genre_preference import GenrePreference  # 수정됨
+from apps.preference.services.preference_service import (
+    update_user_total_preferences,
+)  # 수정됨
 
 User = get_user_model()
 
@@ -44,11 +46,15 @@ class PreferenceUpdateServiceTest(TestCase):
         self.assertEqual(GenrePreference.objects.filter(user=self.user).count(), 2)
         # - 기존 RPG는 삭제되어야 함
         self.assertFalse(
-            GenrePreference.objects.filter(user=self.user, genre=self.genre_rpg).exists()
+            GenrePreference.objects.filter(
+                user=self.user, genre=self.genre_rpg
+            ).exists()
         )
         # - 새로운 FPS, Action은 존재해야 함
         self.assertTrue(
-            GenrePreference.objects.filter(user=self.user, genre=self.genre_fps).exists()
+            GenrePreference.objects.filter(
+                user=self.user, genre=self.genre_fps
+            ).exists()
         )
 
     def test_update_preferences_empty(self):

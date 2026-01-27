@@ -7,7 +7,9 @@ from rest_framework import status
 from apps.game.models.genre import Genre
 from apps.preference.models.genre_preference import GenrePreference  # 수정됨
 from apps.preference.serializers.preference_create import UserPreferenceSerializer
-from apps.preference.services.preference_service import update_user_total_preferences  # 수정됨
+from apps.preference.services.preference_service import (
+    update_user_total_preferences,
+)  # 수정됨
 
 User = get_user_model()
 
@@ -108,10 +110,14 @@ class PreferenceAPIViewTest(TestCase):
 
         # DB 확인
         self.assertTrue(
-            GenrePreference.objects.filter(user=self.user, genre_id=self.genre1.id).exists()
+            GenrePreference.objects.filter(
+                user=self.user, genre_id=self.genre1.id
+            ).exists()
         )
         self.assertTrue(
-            GenrePreference.objects.filter(user=self.user, genre_id=self.genre2.id).exists()
+            GenrePreference.objects.filter(
+                user=self.user, genre_id=self.genre2.id
+            ).exists()
         )
 
     def test_create_preference_invalid_data(self):

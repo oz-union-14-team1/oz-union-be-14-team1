@@ -4,7 +4,6 @@ from apps.preference.models import TagPreference, GenrePreference
 from apps.user.models.user import User
 
 
-
 @transaction.atomic
 def update_user_total_preferences(user: User, tag_ids: list[int], genre_ids: list[int]):
     # 1. 기존 데이터 삭제 (초기화)

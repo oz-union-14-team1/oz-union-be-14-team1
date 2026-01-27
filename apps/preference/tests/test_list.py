@@ -7,7 +7,9 @@ from rest_framework import status
 from apps.game.models.genre import Genre
 from apps.preference.models.genre_preference import GenrePreference  # 수정됨
 from apps.preference.serializers.preference_list import GenreInfoSerializer  # 수정됨
-from apps.preference.services.preference_list_service import get_user_total_preferences  # 수정됨
+from apps.preference.services.preference_list_service import (
+    get_user_total_preferences,
+)  # 수정됨
 
 User = get_user_model()
 
@@ -98,7 +100,9 @@ class PreferenceListAPIViewTest(TestCase):
         self.assertEqual(len(response.data["Genres"]), 2)
 
         # 데이터 검증
-        rpg_data = next((item for item in response.data["Genres"] if item["label"] == "RPG"), None)
+        rpg_data = next(
+            (item for item in response.data["Genres"] if item["label"] == "RPG"), None
+        )
         self.assertIsNotNone(rpg_data)
 
     def test_get_preference_list_empty(self):

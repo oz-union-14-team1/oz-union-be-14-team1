@@ -7,9 +7,7 @@ from rest_framework.permissions import IsAuthenticated
 from apps.preference.serializers.preference_create import UserPreferenceSerializer
 from apps.preference.serializers.preference_list import UserPreferenceResponseSerializer
 from apps.preference.services.preference_list_service import get_user_total_preferences
-from apps.preference.services.preference_service import (
-    update_user_total_preferences
-)
+from apps.preference.services.preference_service import update_user_total_preferences
 
 
 class PreferenceAPIView(APIView):
@@ -18,7 +16,7 @@ class PreferenceAPIView(APIView):
     @extend_schema(
         tags=["선호도"],
         summary="사용자 선호도(태그/장르) 조회",
-        responses=UserPreferenceResponseSerializer
+        responses=UserPreferenceResponseSerializer,
     )
     def get(self, request):
         # 1. 서비스 호출
@@ -34,7 +32,14 @@ class PreferenceAPIView(APIView):
         summary="사용자 선호도(태그/장르) 저장/수정",
         request=UserPreferenceSerializer,
         responses={
-            200: {"type": "object", "properties": {"success": {"type": "boolean"}, "message": {"type": "string"}}}}
+            200: {
+                "type": "object",
+                "properties": {
+                    "success": {"type": "boolean"},
+                    "message": {"type": "string"},
+                },
+            }
+        },
     )
     def post(self, request):
         # 1. 입력 검증
@@ -45,10 +50,9 @@ class PreferenceAPIView(APIView):
         update_user_total_preferences(
             user=request.user,
             tag_ids=serializer.validated_data.get("Tags", []),
-            genre_ids=serializer.validated_data.get("Genres", [])
+            genre_ids=serializer.validated_data.get("Genres", []),
         )
 
-        return Response({
-            "success": True,
-            "message": "저장 완료"
-        }, status=status.HTTP_200_OK)
+        return Response(
+            {"success": True, "message": "저장 완료"}, status=status.HTTP_200_OK
+        )
