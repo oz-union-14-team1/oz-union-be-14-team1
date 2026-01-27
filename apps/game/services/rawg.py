@@ -3,7 +3,7 @@ from django.conf import settings
 
 RAWG_BASE_URL = "https://api.rawg.io/api"
 PAGE_SIZE = 40  # rawg api에서 제공하는 최대 페이지 사이즈가 40
-MAX_PAGE = 3  # 120개만 긁어오기
+MAX_PAGE = 2  # 80개만 긁어오기
 
 
 class RawgClient:
