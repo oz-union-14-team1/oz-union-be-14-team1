@@ -17,6 +17,7 @@ environ.Env.read_env(os.path.join(BASE_DIR, ".env"))
 # 3. 시크릿 키 & 디버그 (.env 사용)
 SECRET_KEY = env("SECRET_KEY")
 DEBUG = env("DEBUG")
+RAWG_API_KEY = env("RAWG_API_KEY")
 
 ALLOWED_HOSTS = ["*"]
 
