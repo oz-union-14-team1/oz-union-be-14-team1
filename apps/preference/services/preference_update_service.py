@@ -1,8 +1,8 @@
 from django.db import transaction
 from typing import List
 from apps.user.models.user import User
-from apps.user.models.preference import Preference
-from apps.user.services.preference.preference_service import create_user_preferences
+from apps.preference.models.preference import Preference
+from apps.preference.services.preference_service import create_user_preferences
 
 
 @transaction.atomic()

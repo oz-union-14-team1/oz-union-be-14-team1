@@ -1,4 +1,4 @@
-from apps.user.models.preference import Preference
+from apps.preference.models.preference import Preference
 
 
 def create_user_preferences(user, genre_ids: list[int]):

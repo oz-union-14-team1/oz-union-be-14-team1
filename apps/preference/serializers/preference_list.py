@@ -1,5 +1,5 @@
 from rest_framework import serializers
-from apps.user.models.preference import Preference
+from apps.preference.models.preference import Preference
 
 
 class UserPreferenceListSerializer(serializers.ModelSerializer):

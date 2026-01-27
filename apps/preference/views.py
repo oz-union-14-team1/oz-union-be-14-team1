@@ -2,17 +2,19 @@ from drf_spectacular.utils import extend_schema, inline_serializer
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.views import APIView
 from rest_framework.response import Response
-from apps.user.serializers.preference.preference_create import UserPreferenceSerializer
-from apps.user.serializers.preference.preference_list import (
+from apps.preference.serializers.preference_create import UserPreferenceSerializer
+from apps.preference.serializers.preference_list import (
     UserPreferenceListSerializer,
 )
-from apps.user.services.preference.preference_list_service import get_user_preferences
-from apps.user.services.preference.preference_service import create_user_preferences
+from apps.preference.services.preference_list_service import get_user_preferences
+
 from typing import cast
+
+from apps.preference.services.preference_service import create_user_preferences
 from apps.user.models import User
 from rest_framework import serializers, status
 
-from apps.user.services.preference.preference_update_service import (
+from apps.preference.services.preference_update_service import (
     update_user_preferences,
 )
 

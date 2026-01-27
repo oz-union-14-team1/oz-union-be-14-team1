@@ -5,8 +5,8 @@ from rest_framework.test import APIClient
 from rest_framework import status
 
 from apps.game.models.genre import Genre
-from apps.user.models.preference import Preference
-from apps.user.services.preference.preference_update_service import (
+from apps.preference.models.preference import Preference
+from apps.preference.services.preference_update_service import (
     update_user_preferences,
 )
 
@@ -72,7 +72,7 @@ class PreferenceUpdateAPIViewTest(TestCase):
 
     def setUp(self):
         self.client = APIClient()
-        self.url = reverse("user:preference_create")
+        self.url = reverse("preference_create")
 
         self.user = User.objects.create_user(
             email="test@test.com",

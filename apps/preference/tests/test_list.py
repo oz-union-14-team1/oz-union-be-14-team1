@@ -5,11 +5,11 @@ from rest_framework.test import APIClient
 from rest_framework import status
 
 from apps.game.models.genre import Genre
-from apps.user.models.preference import Preference
-from apps.user.serializers.preference.preference_list import (
+from apps.preference.models.preference import Preference
+from apps.preference.serializers.preference_list import (
     UserPreferenceListSerializer,
 )
-from apps.user.services.preference.preference_list_service import get_user_preferences
+from apps.preference.services.preference_list_service import get_user_preferences
 
 User = get_user_model()
 
@@ -76,7 +76,7 @@ class PreferenceListAPIViewTest(TestCase):
     def setUp(self):
         self.client = APIClient()
         # 주의: urls.py에서 name="preference_create" 하나로 등록되어 있어 GET 요청도 같은 URL 이름을 사용합니다.
-        self.url = reverse("user:preference_create")
+        self.url = reverse("preference_create")
 
         self.user = User.objects.create_user(
             email="test@test.com",

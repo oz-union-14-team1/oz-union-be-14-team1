@@ -5,9 +5,9 @@ from rest_framework.test import APIClient
 from rest_framework import status
 
 from apps.game.models.genre import Genre
-from apps.user.models.preference import Preference
-from apps.user.serializers.preference.preference_create import UserPreferenceSerializer
-from apps.user.services.preference.preference_service import create_user_preferences
+from apps.preference.models.preference import Preference
+from apps.preference.serializers.preference_create import UserPreferenceSerializer
+from apps.preference.services import create_user_preferences
 
 User = get_user_model()
 
@@ -106,7 +106,7 @@ class PreferenceAPIViewTest(TestCase):
 
     def setUp(self):
         self.client = APIClient()
-        self.url = reverse("user:preference_create")
+        self.url = reverse("preference_create")
 
         self.user = User.objects.create_user(
             email="test@test.com",

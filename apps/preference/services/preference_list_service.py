@@ -1,6 +1,6 @@
 from apps.user.models.user import User
 
-from apps.user.models.preference import Preference
+from apps.preference.models.preference import Preference
 
 
 def get_user_preferences(user: User):
