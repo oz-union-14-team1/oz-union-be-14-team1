@@ -94,7 +94,9 @@ class GameImportService:
 
             game_tags_data.append({"game_name": g["name"], "tags": tags_info})
 
-            game_platforms_data.append({"game_name": g["name"], "platforms": platforms_info})
+            game_platforms_data.append(
+                {"game_name": g["name"], "platforms": platforms_info}
+            )
 
             game_images_data.append({"game_name": g["name"], "images": images_info})
 

@@ -1,6 +1,6 @@
 from rest_framework import serializers
 from apps.game.models.genre import Genre
-from apps.preference.models.tag import Tag
+from apps.game.models import Tag
 
 
 class UserPreferenceSerializer(serializers.Serializer):
