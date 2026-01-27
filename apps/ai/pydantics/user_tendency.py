@@ -5,4 +5,4 @@ class UserTendency(BaseModel):
     """
     유저 성향 분석 결과 구조
     """
-    tendency: str = Field(description="유저의 성향을 나타내는 10자 이내의 짧은 문구 (예: '하드코어 RPG 러버')")
+    tendency: str = Field(description="유저의 성향을 나타내는 10자 이내의 짧은 문구")

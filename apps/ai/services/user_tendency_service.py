@@ -4,7 +4,7 @@ from django.conf import settings
 from django.db import transaction
 from google import genai
 from google.genai import types
-
+from apps.ai.tasks.user_tendency import run_user_tendency_analysis
 from apps.ai.models import UserTendency
 from apps.ai.pydantics.user_tendency import UserTendency as PydanticUserTendency
 
@@ -15,7 +15,6 @@ logger = logging.getLogger(__name__)
 
 class UserTendencyService:
     def __init__(self):
-        # API Key가 없는 경우에 대한 방어 로직 (선택 사항)
         api_key = getattr(settings, "GEMINI_API_KEY", None)
         if not api_key:
             logger.critical("GEMINI_API_KEY is missing in settings.")
@@ -32,19 +31,33 @@ class UserTendencyService:
 
     def get_or_create_tendency(self, user) -> dict:
         """
-        DB에 성향이 있으면 반환하고, 없으면 AI 분석 후 저장하여 반환
+        API View에서 호출: DB 데이터를 우선 반환하고, 없으면 분석 요청
         """
-        # 1. DB 조회 (캐싱) - related_name 활용
+        # 1. DB 조회 (캐싱되어 있다면 즉시 반환)
         if hasattr(user, 'ai_tendency'):
-            return {"tendency": user.ai_tendency.tendency}
+            return {
+                "status": "completed",
+                "tendency": user.ai_tendency.tendency
+            }
 
-        # 2. AI 분석 및 저장
-        return self._analyze_and_save(user)
+        # 2. 데이터가 없다면 분석 요청 (비동기)
+        run_user_tendency_analysis.delay(user.id)
 
-    def _analyze_and_save(self, user) -> dict:
+        return {
+            "status": "processing",
+            "message": "성향 분석이 시작되었습니다.",
+            "tendency": None
+        }
+
+    def analyze_and_save(self, user) -> dict:
+        """
+        실제 분석 및 DB 저장
+        """
+        # 순환 참조 방지용 내부 import (필요 시)
+        from apps.preference.services.preference_list_service import get_user_total_preferences
+
         preferences = get_user_total_preferences(user)
 
-        # 데이터 전처리: 빈 리스트 방어 로직 강화
         genres = preferences.get("Genres", [])
         tags = preferences.get("Tags", [])
 
@@ -52,7 +65,7 @@ class UserTendencyService:
         tag_names = ", ".join([str(t.tag) for t in tags])
 
         if not genre_names and not tag_names:
-            return {"tendency": "아직 모르는 게이머"}
+            return self._save_default(user, "아직 모르는 게이머")
 
         user_prompt = f"""
         이 유저의 게이머 성향을 10글자 이내로 요약해줘.
@@ -75,17 +88,20 @@ class UserTendencyService:
             result = json.loads(response.text)
             tendency_text = result.get("tendency", "알 수 없는 모험가")
 
-            # 3. DB 저장 (Atomic Transaction 적용)
-            # 동시 요청 시 데이터 무결성을 보장합니다.
-            with transaction.atomic():
-                UserTendency.objects.update_or_create(
-                    user=user,
-                    defaults={"tendency": tendency_text}
-                )
-
-            return {"tendency": tendency_text}
+            return self._save_to_db(user, tendency_text)
 
         except Exception as e:
-            # 구체적인 에러 내용을 로그에 남김
             logger.error(f"User({user.id}) Tendency Analysis Failed: {e}", exc_info=True)
-            return {"tendency": "알 수 없는 모험가"}
+            # 실패 시 에러를 raise 하지 않고 로깅만 남김 (재시도 정책에 따라 변경 가능)
+            return {"tendency": "분석 실패"}
+
+    def _save_to_db(self, user, tendency_text: str) -> dict:
+        with transaction.atomic():
+            UserTendency.objects.update_or_create(
+                user=user,
+                defaults={"tendency": tendency_text}
+            )
+        return {"tendency": tendency_text}
+
+    def _save_default(self, user, text: str) -> dict:
+        return self._save_to_db(user, text)

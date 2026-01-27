@@ -4,7 +4,7 @@ from rest_framework.response import Response
 from rest_framework import status
 from drf_spectacular.utils import extend_schema
 
-from apps.ai.services.user_tendency import UserTendencyService
+from apps.ai.services.user_tendency_service import UserTendencyService
 
 
 class UserTendencyAPIView(APIView):
