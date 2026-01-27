@@ -2,11 +2,14 @@ from django.urls import path
 
 from apps.community.views.comment.comment_api import ReviewCommentAPIView
 from apps.community.views.comment.comment_update_api import ReviewCommentUpdateAPIView
+from apps.community.views.community_api import CommunityReviewListAPIView
 from apps.community.views.review.review_api import ReviewAPIView
 from apps.community.views.review.review_like_api import ReviewLikeAPIView
 from apps.community.views.review.review_update_api import ReviewUpdateAPIView
 
 urlpatterns = [
+    # community
+    path("reviews", CommunityReviewListAPIView.as_view(), name="community_review_all"),
     # review
     path("<int:game_id>/reviews", ReviewAPIView.as_view(), name="game_review_create"),
     path(
