@@ -17,6 +17,8 @@ class UserTendency(TimeStampedModel):
         max_length=20,
         help_text="AI가 분석한 10자 이내의 게이머 성향"
     )
+    class Meta:
+        db_table = "user_tendency"
 
     def __str__(self):
         return f"{self.user} - {self.tendency}"
