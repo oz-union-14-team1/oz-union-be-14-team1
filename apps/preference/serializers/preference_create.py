@@ -25,14 +25,14 @@ class UserPreferenceSerializer(serializers.Serializer):
 
         return list(unique_ids)
 
-    def validate_selectedTagIds(self, value):
+    def validate_Tags(self, value):
         return self._validate_ids(
             value,
             Tag,
             "존재하지 않는 태그가 포함되어 있습니다."
         )
 
-    def validate_selectedGenreIds(self, value):
+    def validate_Genres(self, value):
         return self._validate_ids(
             value,
             Genre,
