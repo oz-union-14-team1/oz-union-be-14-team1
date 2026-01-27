@@ -6,19 +6,19 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('game', '0003_delete_genre'),
+        ("game", "0003_delete_genre"),
     ]
 
     operations = [
         migrations.AddField(
-            model_name='game',
-            name='publisher',
-            field=models.CharField(default='Unknown', max_length=255),
+            model_name="game",
+            name="publisher",
+            field=models.CharField(default="Unknown", max_length=255),
             preserve_default=False,
         ),
         migrations.AlterField(
-            model_name='game',
-            name='released_at',
+            model_name="game",
+            name="released_at",
             field=models.DateField(blank=True, null=True),
         ),
     ]

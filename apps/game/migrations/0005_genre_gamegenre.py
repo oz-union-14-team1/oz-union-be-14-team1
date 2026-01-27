@@ -7,32 +7,62 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('game', '0004_game_publisher_alter_game_released_at'),
+        ("game", "0004_game_publisher_alter_game_released_at"),
     ]
 
     operations = [
         migrations.CreateModel(
-            name='Genre',
+            name="Genre",
             fields=[
-                ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('genre', models.CharField(max_length=255, unique=True)),
-                ('slug', models.SlugField(max_length=255, unique=True)),
-                ('genre_ko', models.CharField(max_length=255)),
+                (
+                    "id",
+                    models.BigAutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                ("genre", models.CharField(max_length=255, unique=True)),
+                ("slug", models.SlugField(max_length=255, unique=True)),
+                ("genre_ko", models.CharField(max_length=255)),
             ],
             options={
-                'db_table': 'genre',
+                "db_table": "genre",
             },
         ),
         migrations.CreateModel(
-            name='GameGenre',
+            name="GameGenre",
             fields=[
-                ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('game', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='game_genres', to='game.game')),
-                ('genre', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='game_genres', to='game.genre')),
+                (
+                    "id",
+                    models.BigAutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                (
+                    "game",
+                    models.ForeignKey(
+                        on_delete=django.db.models.deletion.CASCADE,
+                        related_name="game_genres",
+                        to="game.game",
+                    ),
+                ),
+                (
+                    "genre",
+                    models.ForeignKey(
+                        on_delete=django.db.models.deletion.CASCADE,
+                        related_name="game_genres",
+                        to="game.genre",
+                    ),
+                ),
             ],
             options={
-                'db_table': 'game_genres',
-                'unique_together': {('game', 'genre')},
+                "db_table": "game_genres",
+                "unique_together": {("game", "genre")},
             },
         ),
     ]

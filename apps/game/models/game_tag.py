@@ -9,4 +9,4 @@ class GameTag(models.Model):
 
     class Meta:
         db_table = "game_tags"
-        unique_together = [['game', 'tag']]
+        unique_together = [["game", "tag"]]
