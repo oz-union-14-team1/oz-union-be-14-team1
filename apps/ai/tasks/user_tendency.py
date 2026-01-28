@@ -1,4 +1,4 @@
-from celery import shared_task
+from celery import shared_task  # type: ignore
 from django.contrib.auth import get_user_model
 import logging
 

@@ -9,7 +9,6 @@ from apps.ai.pydantics.user_tendency import UserTendency as PydanticUserTendency
 from django.core.cache import cache
 
 
-
 logger = logging.getLogger(__name__)
 
 
@@ -34,11 +33,9 @@ class UserTendencyService:
         API View에서 호출: DB 데이터를 우선 반환하고, 없으면 분석 요청
         """
         from apps.ai.tasks.user_tendency import run_user_tendency_analysis
-        if hasattr(user, 'ai_tendency'):
-            return {
-                "status": "completed",
-                "tendency": user.ai_tendency.tendency
-            }
+
+        if hasattr(user, "ai_tendency"):
+            return {"status": "completed", "tendency": user.ai_tendency.tendency}
 
         # 2. 캐시 확인 (이미 분석 중인지 체크)
         cache_key = f"debounce_tendency_analysis_{user.id}"
@@ -47,7 +44,7 @@ class UserTendencyService:
             return {
                 "status": "processing",
                 "message": "성향 분석이 진행 중입니다. 잠시만 기다려주세요.",
-                "tendency": None
+                "tendency": None,
             }
 
         # 3. 데이터도 없고, 분석 중도 아니라면 -> 분석 요청 (비동기)
@@ -59,7 +56,7 @@ class UserTendencyService:
         return {
             "status": "processing",
             "message": "성향 분석이 시작되었습니다.",
-            "tendency": None
+            "tendency": None,
         }
 
     def analyze_and_save(self, user) -> dict:
@@ -67,7 +64,9 @@ class UserTendencyService:
         실제 분석 및 DB 저장
         """
         # 순환 참조 방지용 내부 import (필요 시)
-        from apps.preference.services.preference_list_service import get_user_total_preferences
+        from apps.preference.services.preference_list_service import (
+            get_user_total_preferences,
+        )
 
         preferences = get_user_total_preferences(user)
 
@@ -104,15 +103,16 @@ class UserTendencyService:
             return self._save_to_db(user, tendency_text)
 
         except Exception as e:
-            logger.error(f"User({user.id}) Tendency Analysis Failed: {e}", exc_info=True)
+            logger.error(
+                f"User({user.id}) Tendency Analysis Failed: {e}", exc_info=True
+            )
             # 실패 시 에러를 raise 하지 않고 로깅만 남김 (재시도 정책에 따라 변경 가능)
             return {"tendency": "분석 실패"}
 
     def _save_to_db(self, user, tendency_text: str) -> dict:
         with transaction.atomic():
             UserTendency.objects.update_or_create(
-                user=user,
-                defaults={"tendency": tendency_text}
+                user=user, defaults={"tendency": tendency_text}
             )
         return {"tendency": tendency_text}
 

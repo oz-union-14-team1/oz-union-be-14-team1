@@ -19,9 +19,9 @@ class UserTendencyAPIView(APIView):
                 "type": "object",
                 "properties": {
                     "tendency": {"type": "string", "example": "낭만파 RPG 전사"}
-                }
+                },
             }
-        }
+        },
     )
     def get(self, request):
         # 1. 서비스 호출

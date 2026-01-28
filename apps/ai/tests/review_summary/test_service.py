@@ -33,7 +33,7 @@ class ReviewSummaryServiceTest(TestCase):
                 game=self.game, user=self.user, content=f"Review content {i}", rating=5
             )
 
-    @patch("apps.ai.services.genai.Client")
+    @patch("apps.ai.services.review_summary_service.genai.Client")
     def test_get_summary_success_create_new(self, mock_client_class):
         """
         리뷰가 10개 이상일때, AI가 호출되어 새로운 요약이 생성되는지 테스트
@@ -58,7 +58,7 @@ class ReviewSummaryServiceTest(TestCase):
         self.assertTrue(GameReviewSummary.objects.filter(game=self.game).exists())
         mock_instance.models.generate_content.assert_called_once()
 
-    @patch("apps.ai.services.genai.Client")
+    @patch("apps.ai.services.review_summary_service.genai.Client")
     def test_get_summary_return_cached_data(self, mock_client_class):
         """
         이미 최신 요약이 DB에 있다면, API 호출 없이 DB 데이터를 반환하는지 테스트
@@ -79,7 +79,7 @@ class ReviewSummaryServiceTest(TestCase):
         self.assertEqual(result["good_points"][0], "Cached")
         mock_instance.models.generate_content.assert_not_called()
 
-    @patch("apps.ai.services.genai.Client")
+    @patch("apps.ai.services.review_summary_service.genai.Client")
     def test_not_enough_reviews_exception(self, mock_client_class):
         """
         리뷰가 10개 미만일 때 NotEnoughReviews 예외가 발생하는지 테스트
@@ -92,7 +92,7 @@ class ReviewSummaryServiceTest(TestCase):
         with self.assertRaises(NotEnoughReviews):
             service.get_summary(self.game.id)
 
-    @patch("apps.ai.services.genai.Client")
+    @patch("apps.ai.services.review_summary_service.genai.Client")
     def test_ai_generation_failed(self, mock_client_class):
         """
         AI API 호출 중 에러 발생 시 AiGenerationFailed 예외 처리 테스트
@@ -109,7 +109,7 @@ class ReviewSummaryServiceTest(TestCase):
         with self.assertRaises(AiGenerationFailed):
             service.get_summary(self.game.id)
 
-    @patch("apps.ai.services.genai.Client")
+    @patch("apps.ai.services.review_summary_service.genai.Client")
     def test_filter_profanity_before_ai_call(self, mock_client_class):
         """
         욕설이 포함된 리뷰는 AI 요약 요청 데이터에서 제외되는지 테스트
