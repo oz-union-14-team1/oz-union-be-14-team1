@@ -9,7 +9,7 @@ def get_review_detail_queryset(review_id: int) -> Review | None:
     """
     return (
         Review.objects.filter(id=review_id, is_deleted=False)
-        .select_related("user","game")
+        .select_related("user", "game")
         .prefetch_related(
             Prefetch(
                 "comments",  # ReviewComment 역참조 이름
