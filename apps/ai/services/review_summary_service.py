@@ -6,10 +6,13 @@ from django.db import transaction
 from django.conf import settings
 from google import genai
 from google.genai import types
-from apps.ai.pydantics import GameSummary
+
+from apps.ai.models.game_review_summary import GameReviewSummary
+from apps.ai.pydantics.review_summary import GameSummary
+
 from apps.ai.utils import BAD_PATTERNS, SAFETY_SETTINGS
 from apps.game.models.game import Game
-from apps.ai.models import GameReviewSummary
+
 from apps.ai.exceptions.ai_exceptions import (
     GameNotFound,
     NotEnoughReviews,

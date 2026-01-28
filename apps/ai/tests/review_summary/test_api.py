@@ -27,7 +27,7 @@ class GameReviewSummaryAPIViewTest(APITestCase):
         # URL 이름은 urls.py에 정의된 name과 일치해야 함
         self.url = reverse("game_summary", kwargs={"game_id": self.game.id})
 
-    @patch("apps.ai.views.ReviewSummaryService")
+    @patch("apps.ai.views.review_summary_view.ReviewSummaryService")
     def test_api_success_200(self, mock_service_class):
         """
         정상적인 요청 시 200 OK와 JSON 데이터를 반환하는지 테스트
@@ -60,7 +60,7 @@ class GameReviewSummaryAPIViewTest(APITestCase):
         # Then: 404 에러 반환 검증
         self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
 
-    @patch("apps.ai.views.ReviewSummaryService")
+    @patch("apps.ai.views.review_summary_view.ReviewSummaryService")
     def test_api_service_error_503(self, mock_service_class):
         """
         서비스에서 AiGenerationFailed 발생 시 503 에러 반환 테스트

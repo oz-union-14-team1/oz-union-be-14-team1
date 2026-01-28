@@ -1,11 +1,11 @@
 from django.test import TestCase
-from apps.ai.services import ReviewSummaryService
+from apps.ai.services.review_summary_service import ReviewSummaryService
 from unittest.mock import patch
 
 
 class ProfanityFilterTest(TestCase):
     def setUp(self):
-        with patch("apps.ai.services.genai.Client"):
+        with patch("apps.ai.services.review_summary_service.genai.Client"):
             self.service = ReviewSummaryService()
             self.pattern = self.service.profanity_pattern
 
