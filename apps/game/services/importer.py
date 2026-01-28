@@ -1,6 +1,7 @@
 from datetime import datetime
 import time
 from django.db import transaction
+from deep_translator import GoogleTranslator
 from apps.game.models.game import Game
 from apps.game.models.genre import Genre
 from apps.game.models.game_genre import GameGenre
@@ -13,6 +14,9 @@ from apps.game.services.rawg import RawgClient
 
 
 class GameImportService:
+    def __init__(self):
+        self.translator = GoogleTranslator(source="en", target="ko")
+
     @transaction.atomic
     def import_games(self):
         raw_games = RawgClient().fetch_games()
@@ -39,6 +43,16 @@ class GameImportService:
                     publisher = detail["publishers"][0]["name"]
 
                 intro = detail.get("description", "") or ""
+
+                intro_ko = ""
+                if intro:
+                    try:
+                        text_to_translate = intro[:500]
+                        intro_ko = self.translator.translate(text_to_translate)
+                        time.sleep(0.5)
+                    except Exception as translate_error:
+                        print(f"번역 실패: {g['name']} - {translate_error}")
+                        intro_ko = intro[:500]
 
                 genres_info = detail.get("genres", [])
 
@@ -67,7 +81,7 @@ class GameImportService:
                 print(f"오류 발생: {g['name']} - {e}")
                 developer = "Unknown"
                 publisher = "Unknown"
-                intro = ""
+                intro_ko = ""
                 genres_info = []
                 tags_info = []
                 platforms_info = []
@@ -83,7 +97,7 @@ class GameImportService:
             games.append(
                 Game(
                     name=g["name"],
-                    intro=intro[:500] if intro else "",
+                    intro=intro_ko,
                     released_at=released_at,
                     developer=developer,
                     publisher=publisher,
@@ -94,9 +108,7 @@ class GameImportService:
 
             game_tags_data.append({"game_name": g["name"], "tags": tags_info})
 
-            game_platforms_data.append(
-                {"game_name": g["name"], "platforms": platforms_info}
-            )
+            game_platforms_data.append({"game_name": g["name"], "platforms": platforms_info})
 
             game_images_data.append({"game_name": g["name"], "images": images_info})
 
