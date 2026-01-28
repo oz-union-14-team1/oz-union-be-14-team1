@@ -3,7 +3,6 @@ from apps.game.models.wishlist import Wishlist
 
 
 class WishlistCreateSerializer(serializers.ModelSerializer):
-
     class Meta:
         model = Wishlist
         fields = ["game"]
@@ -12,15 +11,12 @@ class WishlistCreateSerializer(serializers.ModelSerializer):
         user = self.context["request"].user
         game = validated_data["game"]
 
-        # 이미 위시리스트에 있는지 확인
         wishlist, created = Wishlist.objects.get_or_create(user=user, game=game)
 
         return wishlist
 
 
 class WishlistSerializer(serializers.ModelSerializer):
-    """위시리스트 조회용 Serializer"""
-
     game_name = serializers.CharField(source="game.name", read_only=True)
     game_image = serializers.SerializerMethodField()
 
