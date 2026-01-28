@@ -47,8 +47,6 @@ services:
   nginx:
     build: ./nginx
     container_name: nginx
-    ports:
-      - "80:80"
     volumes:
       - static_volume:/app/staticfiles
       - media_volume:/app/media
