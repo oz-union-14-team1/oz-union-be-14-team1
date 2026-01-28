@@ -14,6 +14,7 @@ urlpatterns: list[URLPattern | URLResolver] = [
     path("api/v1/user/preference/", include("apps.preference.urls")),
     path("api/v1/community/", include("apps.community.urls")),
     path("api/v1/community/summary/", include("apps.ai.urls")),
+    path("api/v1/game/", include("apps.game.urls")),
 ]
 
 if settings.DEBUG:
