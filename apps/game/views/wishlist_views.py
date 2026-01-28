@@ -26,7 +26,7 @@ class WishlistView(APIView):
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
-class WishlistDetailView(APIView):
+class WishlistDestroyView(APIView):
     permission_classes = [IsAuthenticated]
 
     def delete(self, request, pk):
