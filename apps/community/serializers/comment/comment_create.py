@@ -8,7 +8,7 @@ class ReviewCommentCreateSerializer(serializers.ModelSerializer):
         model = ReviewComment
         fields = ["content"]
         extra_kwargs = {
-            'content': {
-                'max_length': 150,
+            "content": {
+                "max_length": 150,
             }
         }

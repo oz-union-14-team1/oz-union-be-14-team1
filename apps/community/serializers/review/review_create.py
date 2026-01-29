@@ -15,6 +15,6 @@ class ReviewCreateSerializer(serializers.ModelSerializer):
                 }
             },
             "content": {
-                'max_length' : 300,
-            }
+                "max_length": 300,
+            },
         }
