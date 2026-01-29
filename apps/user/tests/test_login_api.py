@@ -90,7 +90,7 @@ class LoginViewTest(TestCase):
 
     def setUp(self):
         self.client = APIClient()
-        self.url = "/api/v1/user/login/"  # 실제 URL에 맞게 수정
+        self.url = "/api/v1/user/login"
 
         self.password = "Password1234!!"
         self.user = User.objects.create_user(

@@ -11,7 +11,7 @@ User = get_user_model()
 class RegisterTest(TestCase):
     def setUp(self):
         self.client = APIClient()
-        self.url = "/api/v1/user/signup/"
+        self.url = "/api/v1/user/signup"
         self.valid_data = {
             "email": "test@example.com",
             "password": "Password1!",
