@@ -5,13 +5,13 @@ from apps.game.models import Game, Genre, Tag, Platform, GameImg
 class GenreSerializer(serializers.ModelSerializer):
     class Meta:
         model = Genre
-        fields = ["id", "genre", "slug", "genre_ko"]
+        fields = ["id", "genre", "slug",]
 
 
 class TagSerializer(serializers.ModelSerializer):
     class Meta:
         model = Tag
-        fields = ["id", "tag", "slug", "tag_ko"]
+        fields = ["id", "tag", "slug", ]
 
 
 class PlatformSerializer(serializers.ModelSerializer):
