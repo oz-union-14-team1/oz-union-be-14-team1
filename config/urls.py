@@ -21,7 +21,11 @@ if settings.DEBUG:
     urlpatterns += static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)
 
     if "debug_toolbar" in settings.INSTALLED_APPS:
-        urlpatterns += [path("__debug__/", include("debug_toolbar.urls"))]
+        # import를 이 블록 안에서 함으로써, 배포 환경에서는 불필요한 import를 막음
+        import debug_toolbar
+        urlpatterns += [
+            path("__debug__/", include(debug_toolbar.urls)),
+        ]
     if "drf_spectacular" in settings.INSTALLED_APPS:
         urlpatterns += [
             # 1. 코드를 읽고 자동으로 스키마를 생성하는 뷰
