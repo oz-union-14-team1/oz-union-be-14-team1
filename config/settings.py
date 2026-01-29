@@ -236,8 +236,13 @@ CELERY_RESULT_SERIALIZER = "json"
 USE_X_FORWARDED_HOST = True
 SECURE_PROXY_SSL_HEADER = ("HTTP_X_FORWARDED_PROTO", "https")
 
-CORS_ALLOW_ALL_ORIGINS = True
-# CORS_ALLOW_ORIGINS = "*" 같은 의미
+CORS_ALLOWED_ORIGINS = [
+    "http://localhost:3000",
+]
+CORS_ALLOW_CREDENTIALS = True
+CSRF_TRUSTED_ORIGINS = [
+    "http://localhost:3000",
+]
 
 if "test" in sys.argv:
     DISABLE_AI_SUMMARY_SIGNAL = True
