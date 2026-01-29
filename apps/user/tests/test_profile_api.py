@@ -10,8 +10,8 @@ class MeAPITest(TestCase):
     def setUp(self):
         self.client = APIClient()
 
-        self.me_url = "/api/v1/user/me/"
-        self.withdraw_url = "/api/v1/user/me/delete/"
+        self.me_url = "/api/v1/user/me"
+        self.withdraw_url = "/api/v1/user/me/delete"
 
         self.password = "Password1234!"
 

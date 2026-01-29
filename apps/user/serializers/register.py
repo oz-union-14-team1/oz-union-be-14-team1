@@ -2,6 +2,8 @@ from rest_framework import serializers
 from django.contrib.auth import get_user_model
 import re
 
+from apps.user.validators.validator import validate_phone_format
+
 User = get_user_model()
 
 
@@ -11,6 +13,7 @@ class SignUpSerializer(serializers.Serializer):
     nickname = serializers.CharField()
     name = serializers.CharField()
     gender = serializers.ChoiceField(choices=("M", "F"))
+    phone_number = serializers.CharField()
 
     class Meta:
         model = User
@@ -20,6 +23,7 @@ class SignUpSerializer(serializers.Serializer):
             "nickname",
             "name",
             "gender",
+            "phone_number",
         ]
 
     def validate_password(self, value: str) -> str:
@@ -47,6 +51,15 @@ class SignUpSerializer(serializers.Serializer):
             raise serializers.ValidationError("이미 사용 중인 닉네임입니다.")
         return value
 
+    def validate_phone_number(self, value: str) -> str:
+        normalized = re.sub(r"\D", "", value or "")
+        validate_phone_format(normalized)
+
+        if User.objects.filter(phone_number=normalized, is_active=True).exists():
+            raise serializers.ValidationError("이미 가입된 휴대폰 번호입니다.")
+
+        return normalized
+
     def validate(self, attrs):
         email = attrs.get("email")
         if email and User.objects.filter(email=email).exists():
@@ -62,6 +75,7 @@ class SignUpSerializer(serializers.Serializer):
             name=validated_data["name"],
             nickname=validated_data["nickname"],
             gender=validated_data["gender"],
+            phone_number=validated_data["phone_number"],
         )
 
         return user

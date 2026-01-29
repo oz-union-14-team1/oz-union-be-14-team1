@@ -34,6 +34,7 @@ class RegisterView(APIView):
                     "nickname": "김유진",
                     "name": "김본식",
                     "gender": "M",
+                    "phone_number": "01012345678",
                 },
                 request_only=True,
             ),
