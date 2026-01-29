@@ -141,7 +141,7 @@ class GameImportService:
                     except Exception:
                         genre_ko = genre_info["name"]
 
-                    genre = Genre.objects.create(
+                    genre = Genre.objects.get_or_create(
                         slug=genre_info["slug"],
                         genre=genre_info["name"],
                         genre_ko=genre_ko,
@@ -171,7 +171,7 @@ class GameImportService:
                     except Exception:
                         tag_ko = tag_info["name"]
 
-                    tag = Tag.objects.create(
+                    tag = Tag.objects.get_or_create(
                         slug=tag_info["slug"], tag=tag_info["name"], tag_ko=tag_ko
                     )
 
