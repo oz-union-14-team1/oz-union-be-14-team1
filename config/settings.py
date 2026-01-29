@@ -36,6 +36,7 @@ DJANGO_APPS = [
 THIRD_PARTY_APPS = [
     "rest_framework",
     "drf_spectacular",
+    "corsheaders",
 ]
 
 CUSTOM_APPS: list[str] = [
@@ -49,6 +50,7 @@ CUSTOM_APPS: list[str] = [
 INSTALLED_APPS = DJANGO_APPS + THIRD_PARTY_APPS + CUSTOM_APPS
 
 MIDDLEWARE = [
+    "corsheaders.middleware.CorsMiddleware",
     "django.middleware.security.SecurityMiddleware",
     "django.contrib.sessions.middleware.SessionMiddleware",
     "django.middleware.common.CommonMiddleware",
@@ -233,6 +235,9 @@ CELERY_RESULT_SERIALIZER = "json"
 
 USE_X_FORWARDED_HOST = True
 SECURE_PROXY_SSL_HEADER = ("HTTP_X_FORWARDED_PROTO", "https")
+
+CORS_ALLOW_ALL_ORIGINS = True
+# CORS_ALLOW_ORIGINS = "*" 같은 의미
 
 if "test" in sys.argv:
     DISABLE_AI_SUMMARY_SIGNAL = True
