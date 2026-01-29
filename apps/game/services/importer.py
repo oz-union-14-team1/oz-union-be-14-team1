@@ -1,6 +1,7 @@
 from datetime import datetime
 import time
 from django.db import transaction
+from deep_translator import GoogleTranslator  # type: ignore
 from apps.game.models.game import Game
 from apps.game.models.genre import Genre
 from apps.game.models.game_genre import GameGenre
@@ -13,6 +14,9 @@ from apps.game.services.rawg import RawgClient
 
 
 class GameImportService:
+    def __init__(self):
+        self.translator = GoogleTranslator(source="en", target="ko")
+
     @transaction.atomic
     def import_games(self):
         raw_games = RawgClient().fetch_games()
@@ -39,6 +43,15 @@ class GameImportService:
                     publisher = detail["publishers"][0]["name"]
 
                 intro = detail.get("description", "") or ""
+
+                intro_ko = ""
+                if intro:
+                    try:
+                        text_to_translate = intro[:500]
+                        intro_ko = self.translator.translate(text_to_translate)
+                        time.sleep(0.5)
+                    except Exception:
+                        intro_ko = intro[:500]
 
                 genres_info = detail.get("genres", [])
 
@@ -67,7 +80,7 @@ class GameImportService:
                 print(f"오류 발생: {g['name']} - {e}")
                 developer = "Unknown"
                 publisher = "Unknown"
-                intro = ""
+                intro_ko = ""
                 genres_info = []
                 tags_info = []
                 platforms_info = []
@@ -83,7 +96,7 @@ class GameImportService:
             games.append(
                 Game(
                     name=g["name"],
-                    intro=intro[:500] if intro else "",
+                    intro=intro_ko,
                     released_at=released_at,
                     developer=developer,
                     publisher=publisher,
@@ -119,15 +132,25 @@ class GameImportService:
                 continue
 
             for genre_info in data["genres"]:
-                genre, created = Genre.objects.get_or_create(
-                    slug=genre_info["slug"],
-                    genre=genre_info["name"],
-                )
+                genre = Genre.objects.filter(slug=genre_info["slug"]).first()
+
+                if not genre:
+                    try:
+                        genre_ko = self.translator.translate(genre_info["name"])
+                        time.sleep(0.3)
+                    except Exception:
+                        genre_ko = genre_info["name"]
+
+                    genre = Genre.objects.get_or_create(
+                        slug=genre_info["slug"],
+                        genre=genre_info["name"],
+                        genre_ko=genre_ko,
+                    )
 
                 game_genre_relation.append(GameGenre(game=game, genre=genre))
 
         GameGenre.objects.bulk_create(game_genre_relation, ignore_conflicts=True)
-        print(f"장르 관계 {len(game_genre_relation)}개 저장 완료!")
+        print(f"장르 관계 {len(game_genre_relation)}개 저장 완료")
 
     def import_tags(self, game_tags_data):
         game_tag_relation = []
@@ -139,15 +162,23 @@ class GameImportService:
                 continue
 
             for tag_info in data["tags"]:
-                tag, created = Tag.objects.get_or_create(
-                    slug=tag_info["slug"],
-                    tag=tag_info["name"],
-                )
+                tag = Tag.objects.filter(slug=tag_info["slug"]).first()
+
+                if not tag:
+                    try:
+                        tag_ko = self.translator.translate(tag_info["name"])
+                        time.sleep(0.3)
+                    except Exception:
+                        tag_ko = tag_info["name"]
+
+                    tag = Tag.objects.get_or_create(
+                        slug=tag_info["slug"], tag=tag_info["name"], tag_ko=tag_ko
+                    )
 
                 game_tag_relation.append(GameTag(game=game, tag=tag))
 
         GameTag.objects.bulk_create(game_tag_relation, ignore_conflicts=True)
-        print(f"태그 관계 {len(game_tag_relation)}개 저장 완료!")
+        print(f"태그 관계 {len(game_tag_relation)}개 저장 완료")
 
     def import_platforms(self, game_platforms_data):
         game_platform_relation = []
@@ -171,7 +202,7 @@ class GameImportService:
                 )
 
         GamePlatform.objects.bulk_create(game_platform_relation, ignore_conflicts=True)
-        print(f"플랫폼 관계 {len(game_platform_relation)}개 저장 완료!")
+        print(f"플랫폼 관계 {len(game_platform_relation)}개 저장 완료")
 
     def import_images(self, game_images_data):
         game_images = []
@@ -186,4 +217,4 @@ class GameImportService:
                 game_images.append(GameImg(game=game, img_url=img_url))
 
         GameImg.objects.bulk_create(game_images)
-        print(f"이미지 {len(game_images)}개 저장 완료!")
+        print(f"이미지 {len(game_images)}개 저장 완료")
