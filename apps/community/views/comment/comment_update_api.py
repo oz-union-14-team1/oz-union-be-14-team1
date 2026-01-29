@@ -1,5 +1,8 @@
 from typing import cast
 
+from apps.community.exceptions.review_exceptions import CommentNotFound
+from apps.community.models import ReviewComment
+from apps.community.permissions.review_permissions import IsReviewAuthor
 from apps.community.services.comment.comment_delete_service import delete_comment
 from apps.community.services.comment.comment_update_service import update_comment
 from apps.user.models import User
@@ -15,7 +18,7 @@ from apps.community.serializers.comment.comment_create import (
 
 
 class ReviewCommentUpdateAPIView(APIView):
-    permission_classes = [IsAuthenticated]
+    permission_classes = [IsAuthenticated, IsReviewAuthor]
     validation_error_message = "이 필드는 필수 항목입니다."
 
     @extend_schema(
@@ -26,19 +29,22 @@ class ReviewCommentUpdateAPIView(APIView):
     )
     def put(self, request, comment_id):
         self.validation_error_message = "유효하지 않은 수정 요청입니다."
+        # 1. 존재 여부 확인
+        try:
+            comment = ReviewComment.objects.get(id=comment_id)
+        except ReviewComment.DoesNotExist:
+            raise CommentNotFound()
 
-        # 1. 수정할 데이터 검증
+        # 2. 권한 검사(이걸 호출해야 has_object_permission가 작동함)
+        self.check_object_permissions(request, comment)
+
+        # 3. 데이터 검증
         serializer = ReviewCommentCreateSerializer(data=request.data, partial=True)
         serializer.is_valid(raise_exception=True)
 
-        # 2. 유저 타입 캐스팅 (Type Hinting)
-        user = cast(User, request.user)
-
-        # 3. 서비스 레이어 호출 (존재 여부 및 권한 검증 포함)
+        # 4. 서비스 레이어 호출
         comment = update_comment(
-            user=user,
-            comment_id=comment_id,
-            validated_data=serializer.validated_data,
+            comment=comment, validated_data=serializer.validated_data
         )
 
         # 4. 수정된 데이터 반환
@@ -49,8 +55,17 @@ class ReviewCommentUpdateAPIView(APIView):
 
     @extend_schema(tags=["댓글"], summary="댓글 삭제 API")
     def delete(self, request, comment_id):
-        # 1. 서비스 레이어 호출 (존재 여부 및 권한 검증 포함)
-        delete_comment(comment_id=comment_id, user=cast(User, request.user))
+        # 1. 존재 여부 확인
+        try:
+            comment = ReviewComment.objects.get(id=comment_id)
+        except ReviewComment.DoesNotExist:
+            raise CommentNotFound()
+
+        # 2. 권한 검사
+        self.check_object_permissions(request, comment)
+
+        # 3. 서비스 레이어 호출
+        delete_comment(comment=comment)
 
         return Response(
             {"message": "댓글이 삭제되었습니다."}, status=status.HTTP_204_NO_CONTENT
