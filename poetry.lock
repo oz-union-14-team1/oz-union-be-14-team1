@@ -556,7 +556,7 @@ version = "6.2.0"
 description = "A configurable set of panels that display various debug information about the current request/response."
 optional = false
 python-versions = ">=3.10"
-groups = ["main"]
+groups = ["main", "dev"]
 files = [
     {file = "django_debug_toolbar-6.2.0-py3-none-any.whl", hash = "sha256:1575461954e6befa720e999dec13fe4f1cc8baf40b6c3ac2aec5f340c0f9c85f"},
     {file = "django_debug_toolbar-6.2.0.tar.gz", hash = "sha256:dc1c174d8fb0ea01435e02d9ceef735cf62daf37c1a6a5692d33b4127327679b"},
@@ -2142,5 +2142,6 @@ files = [
 [metadata]
 lock-version = "2.1"
 python-versions = ">=3.12,<4.0"
+content-hash = "ad4296ba2b432538a7fdecb9810267b7ba559ed78d45456e4971c7a571fc618d"
 content-hash = "35d85365f51d4b71fb940073d1a635c346460c91d3889928591b98fd1e22290b"
 content-hash = "410210c1a796479695c830c204e484a10852a6de3197de0c5bf5e12e6c59035d"

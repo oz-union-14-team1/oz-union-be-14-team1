@@ -22,7 +22,8 @@ if settings.DEBUG:
 
     if "debug_toolbar" in settings.INSTALLED_APPS:
         # import를 이 블록 안에서 함으로써, 배포 환경에서는 불필요한 import를 막음
-        import debug_toolbar
+        import debug_toolbar  # type: ignore
+
         urlpatterns += [
             path("__debug__/", include(debug_toolbar.urls)),
         ]

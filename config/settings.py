@@ -253,10 +253,21 @@ INTERNAL_IPS = [
     "127.0.0.1",
 ]
 
-import socket
+# import socket
+#
+# try:
+#     hostname, _, ips = socket.gethostbyname_ex(socket.gethostname())
+#     INTERNAL_IPS += [ip[:-1] + "1" for ip in ips]
+# except Exception:
+#     pass
 
-try:
-    hostname, _, ips = socket.gethostbyname_ex(socket.gethostname())
-    INTERNAL_IPS += [ip[:-1] + "1" for ip in ips]
-except Exception:
-    pass
+if DEBUG:
+    import mimetypes
+
+    mimetypes.add_type("application/javascript", ".js", True)
+
+    DEBUG_TOOLBAR_CONFIG = {
+        "SHOW_TOOLBAR_CALLBACK": lambda request: "test" not in sys.argv,
+        # 테스트 실행 중일 때 툴바 에러 무시하기
+        "IS_RUNNING_TESTS": False,
+    }
