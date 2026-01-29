@@ -1,7 +1,7 @@
 from datetime import datetime
 import time
 from django.db import transaction
-from deep_translator import GoogleTranslator
+from deep_translator import GoogleTranslator  # type: ignore
 from apps.game.models.game import Game
 from apps.game.models.genre import Genre
 from apps.game.models.game_genre import GameGenre
@@ -108,7 +108,9 @@ class GameImportService:
 
             game_tags_data.append({"game_name": g["name"], "tags": tags_info})
 
-            game_platforms_data.append({"game_name": g["name"], "platforms": platforms_info})
+            game_platforms_data.append(
+                {"game_name": g["name"], "platforms": platforms_info}
+            )
 
             game_images_data.append({"game_name": g["name"], "images": images_info})
 
@@ -137,7 +139,7 @@ class GameImportService:
                     try:
                         genre_ko = self.translator.translate(genre_info["name"])
                         time.sleep(0.3)
-                    except Exception as e:
+                    except Exception:
                         genre_ko = genre_info["name"]
 
                     genre = Genre.objects.create(
@@ -161,18 +163,18 @@ class GameImportService:
                 continue
 
             for tag_info in data["tags"]:
+                tag = Tag.objects.filter(slug=tag_info["slug"]).first()
 
-                try:
-                    tag_ko = self.translator.translate(tag_info["name"])
-                    time.sleep(0.3)
-                except Exception as e:
-                    tag_ko = tag_info["name"]
+                if not tag:
+                    try:
+                        tag_ko = self.translator.translate(tag_info["name"])
+                        time.sleep(0.3)
+                    except Exception:
+                        tag_ko = tag_info["name"]
 
-                tag, created = Tag.objects.get_or_create(
-                    slug=tag_info["slug"],
-                    tag=tag_info["name"],
-                    tag_ko=tag_ko,
-                )
+                    tag = Tag.objects.create(
+                        slug=tag_info["slug"], tag=tag_info["name"], tag_ko=tag_ko
+                    )
 
                 game_tag_relation.append(GameTag(game=game, tag=tag))
 

@@ -71,9 +71,7 @@ class GameDetailSerializer(serializers.ModelSerializer):
 
     def get_platforms(self, obj):
         platforms = Platform.objects.filter(game_platforms__game=obj)
-        return [
-            platform.platform for platform in platforms
-        ]
+        return [platform.platform for platform in platforms]
 
     def get_images(self, obj):
         images = obj.game_images.all()
