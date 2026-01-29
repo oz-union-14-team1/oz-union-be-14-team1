@@ -62,7 +62,6 @@ class GameDetailSerializer(serializers.ModelSerializer):
             "publisher",
             "released_at",
             "avg_score",
-            "created_at",
             "genres",
             "tags",
             "platforms",
