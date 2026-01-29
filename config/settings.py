@@ -36,6 +36,7 @@ DJANGO_APPS = [
 THIRD_PARTY_APPS = [
     "rest_framework",
     "drf_spectacular",
+    "debug_toolbar",
     "corsheaders",
 ]
 
@@ -52,6 +53,7 @@ INSTALLED_APPS = DJANGO_APPS + THIRD_PARTY_APPS + CUSTOM_APPS
 MIDDLEWARE = [
     "corsheaders.middleware.CorsMiddleware",
     "django.middleware.security.SecurityMiddleware",
+    "debug_toolbar.middleware.DebugToolbarMiddleware",
     "django.contrib.sessions.middleware.SessionMiddleware",
     "django.middleware.common.CommonMiddleware",
     "django.middleware.csrf.CsrfViewMiddleware",
@@ -246,3 +248,15 @@ CSRF_TRUSTED_ORIGINS = [
 
 if "test" in sys.argv:
     DISABLE_AI_SUMMARY_SIGNAL = True
+
+INTERNAL_IPS = [
+    "127.0.0.1",
+]
+
+import socket
+
+try:
+    hostname, _, ips = socket.gethostbyname_ex(socket.gethostname())
+    INTERNAL_IPS += [ip[:-1] + "1" for ip in ips]
+except Exception:
+    pass
