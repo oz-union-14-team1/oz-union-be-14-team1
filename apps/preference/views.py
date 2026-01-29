@@ -2,8 +2,10 @@ from drf_spectacular.utils import extend_schema
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework import status
-from rest_framework.permissions import IsAuthenticated
-
+from rest_framework.permissions import IsAuthenticated, AllowAny
+from apps.game.models import Tag
+from apps.game.models import Genre
+from apps.game.serializers.game_serializer import GenreSerializer, TagSerializer
 from apps.preference.serializers.preference_create import UserPreferenceSerializer
 from apps.preference.serializers.preference_list import UserPreferenceResponseSerializer
 from apps.preference.services.preference_list_service import get_user_total_preferences
@@ -56,3 +58,29 @@ class PreferenceAPIView(APIView):
         return Response(
             {"success": True, "message": "저장 완료"}, status=status.HTTP_200_OK
         )
+
+
+class GenreListAPIView(APIView):
+    permission_classes = [AllowAny]
+
+    @extend_schema(
+        tags=["선호도"],
+        summary="전체 장르 목록 조회",
+    )
+    def get(self, request):
+        genres = Genre.objects.all()
+        serializer = GenreSerializer(genres, many=True)
+        return Response(serializer.data, status=status.HTTP_200_OK)
+
+
+class TagListAPIView(APIView):
+    permission_classes = [AllowAny]
+
+    @extend_schema(
+        tags=["선호도"],
+        summary="전체 태그 목록 조회",
+    )
+    def get(self, request):
+        tags = Tag.objects.all()
+        serializer = TagSerializer(tags, many=True)
+        return Response(serializer.data, status=status.HTTP_200_OK)
