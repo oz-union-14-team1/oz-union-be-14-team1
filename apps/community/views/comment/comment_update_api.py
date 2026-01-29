@@ -21,6 +21,20 @@ class ReviewCommentUpdateAPIView(APIView):
     permission_classes = [IsAuthenticated, IsReviewAuthor]
     validation_error_message = "이 필드는 필수 항목입니다."
 
+    def get_comment(self, request, comment_id) -> ReviewComment:
+        """
+        댓글 조회 및 권한 검증을 수행
+        """
+        try:
+            comment = ReviewComment.objects.get(id=comment_id)
+        except ReviewComment.DoesNotExist:
+            raise CommentNotFound()
+
+        # 권한 검사
+        self.check_object_permissions(request, comment)
+
+        return comment
+
     @extend_schema(
         tags=["댓글"],
         summary="댓글 수정 API",
@@ -29,16 +43,10 @@ class ReviewCommentUpdateAPIView(APIView):
     )
     def put(self, request, comment_id):
         self.validation_error_message = "유효하지 않은 수정 요청입니다."
-        # 1. 존재 여부 확인
-        try:
-            comment = ReviewComment.objects.get(id=comment_id)
-        except ReviewComment.DoesNotExist:
-            raise CommentNotFound()
+        # 1. 조회 & 검증
+        comment = self.get_comment(request, comment_id)
 
-        # 2. 권한 검사(이걸 호출해야 has_object_permission가 작동함)
-        self.check_object_permissions(request, comment)
-
-        # 3. 데이터 검증
+        # 2. 데이터 검증
         serializer = ReviewCommentCreateSerializer(data=request.data, partial=True)
         serializer.is_valid(raise_exception=True)
 
@@ -55,16 +63,10 @@ class ReviewCommentUpdateAPIView(APIView):
 
     @extend_schema(tags=["댓글"], summary="댓글 삭제 API")
     def delete(self, request, comment_id):
-        # 1. 존재 여부 확인
-        try:
-            comment = ReviewComment.objects.get(id=comment_id)
-        except ReviewComment.DoesNotExist:
-            raise CommentNotFound()
+        # 1. 조회 & 검증
+        comment = self.get_comment(request, comment_id)
 
-        # 2. 권한 검사
-        self.check_object_permissions(request, comment)
-
-        # 3. 서비스 레이어 호출
+        # 2. 서비스 레이어 호출
         delete_comment(comment=comment)
 
         return Response(

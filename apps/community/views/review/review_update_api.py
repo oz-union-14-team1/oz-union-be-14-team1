@@ -17,6 +17,20 @@ class ReviewUpdateAPIView(APIView):
     permission_classes = [IsAuthenticated, IsReviewAuthor]
     validation_error_message = "이 필드는 필수 항목입니다."
 
+    def get_review(self, request, review_id) -> Review:
+        """
+        리뷰 조회 및 권한 검증을 수행
+        """
+        try:
+            review = Review.objects.get(id=review_id)
+        except Review.DoesNotExist:
+            raise ReviewNotFound()
+
+        # 권한 검사
+        self.check_object_permissions(request, review)
+
+        return review
+
     @extend_schema(
         tags=["리뷰"],
         summary="리뷰 수정 API",
@@ -25,20 +39,14 @@ class ReviewUpdateAPIView(APIView):
     )
     def patch(self, request, review_id):
         self.validation_error_message = "유효하지 않은 수정 요청입니다."
-        # 1. 존재 여부 확인
-        try:
-            review = Review.objects.get(id=review_id)
-        except Review.DoesNotExist:
-            raise ReviewNotFound()
+        # 1. 조회 & 검증
+        review = self.get_review(request, review_id)
 
-        # 2. 권한 검사(이걸 호출해야 has_object_permission가 작동함)
-        self.check_object_permissions(request, review)
-
-        # 3. 데이터 검증
+        # 2. 데이터 검증
         serializer = ReviewCreateSerializer(data=request.data, partial=True)
         serializer.is_valid(raise_exception=True)
 
-        # 4. 서비스 호출
+        # 3. 서비스 호출
         updated_review = update_review(
             review=review, validated_data=serializer.validated_data
         )
@@ -48,16 +56,10 @@ class ReviewUpdateAPIView(APIView):
 
     @extend_schema(tags=["리뷰"], summary="리뷰 삭제 API")
     def delete(self, request, review_id):
-        # 1. 존재 여부 확인
-        try:
-            review = Review.objects.get(id=review_id)
-        except Review.DoesNotExist:
-            raise ReviewNotFound()
+        # 1. 조회 & 검증
+        review = self.get_review(request, review_id)
 
-        # 2. 권한 검사
-        self.check_object_permissions(request, review)
-
-        # 3. 서비스 호출
+        # 2. 서비스 호출
         delete_review(review=review)
 
         return Response(
