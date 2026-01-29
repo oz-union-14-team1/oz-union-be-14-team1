@@ -6,18 +6,18 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('game', '0002_genre_genre_ko_tag_tag_ko'),
+        ("game", "0002_genre_genre_ko_tag_tag_ko"),
     ]
 
     operations = [
         migrations.AlterField(
-            model_name='genre',
-            name='genre_ko',
+            model_name="genre",
+            name="genre_ko",
             field=models.CharField(max_length=255),
         ),
         migrations.AlterField(
-            model_name='tag',
-            name='tag_ko',
+            model_name="tag",
+            name="tag_ko",
             field=models.CharField(max_length=255),
         ),
     ]
