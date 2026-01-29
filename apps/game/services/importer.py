@@ -50,7 +50,7 @@ class GameImportService:
                         text_to_translate = intro[:500]
                         intro_ko = self.translator.translate(text_to_translate)
                         time.sleep(0.5)
-                    except Exception :
+                    except Exception:
                         intro_ko = intro[:500]
 
                 genres_info = detail.get("genres", [])
