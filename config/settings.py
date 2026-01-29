@@ -6,6 +6,7 @@ import os
 import sys
 from pathlib import Path
 import environ  # type: ignore
+import sentry_sdk
 
 # 1. BASE_DIR 설정
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -260,6 +261,14 @@ INTERNAL_IPS = [
 #     INTERNAL_IPS += [ip[:-1] + "1" for ip in ips]
 # except Exception:
 #     pass
+
+
+sentry_sdk.init(
+    dsn="https://6ba8a2247abb4eafd2f10109756d1374@o4510793767190528.ingest.us.sentry.io/4510793768239104",
+    # Add data like request headers and IP for users,
+    # see https://docs.sentry.io/platforms/python/data-management/data-collected/ for more info
+    send_default_pii=True,
+)
 
 if DEBUG:
     import mimetypes

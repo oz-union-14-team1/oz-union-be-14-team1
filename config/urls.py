@@ -8,7 +8,13 @@ from drf_spectacular.views import (
     SpectacularAPIView,
 )
 
+
+def trigger_error(request):
+    division_by_zero = 1 / 0  # noqa
+
+
 urlpatterns: list[URLPattern | URLResolver] = [
+    path("sentry-debug/", trigger_error),  # type:ignore
     path("admin/", admin.site.urls),
     path("api/v1/user/", include("apps.user.urls")),
     path("api/v1/user/preference/", include("apps.preference.urls")),
