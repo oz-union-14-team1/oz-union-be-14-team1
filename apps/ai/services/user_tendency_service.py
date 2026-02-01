@@ -34,13 +34,15 @@ class UserTendencyService:
         """
         from apps.ai.tasks.user_tendency import run_user_tendency_analysis
 
+        # 1. DB 데이터가 이미 있다면 바로 반환
         if hasattr(user, "ai_tendency"):
             return {"status": "completed", "tendency": user.ai_tendency.tendency}
 
-        # 2. 캐시 확인 (이미 분석 중인지 체크)
-        cache_key = f"debounce_tendency_analysis_{user.id}"
+        # 2. 캐시 확인 (분석 진행 중 여부 체크)
+        cache_key = f"tendency_analysis_lock_{user.id}"
+
         if cache.get(cache_key):
-            # 이미 Task가 돌고 있다면 그냥 "처리 중" 메시지만 반환하고 Task는 실행 X
+            # 이미 Task가 돌고 있다면 API는 기다리라는 메시지만 반환
             return {
                 "status": "processing",
                 "message": "성향 분석이 진행 중입니다. 잠시만 기다려주세요.",
@@ -48,14 +50,14 @@ class UserTendencyService:
             }
 
         # 3. 데이터도 없고, 분석 중도 아니라면 -> 분석 요청 (비동기)
-        # 캐시 설정 (분석 중임을 표시, 10초 쿨타임)
-        cache.set(cache_key, "processing", timeout=10)
+        cache.set(cache_key, "processing", timeout=60 * 5)
 
+        # 4. task 호출
         run_user_tendency_analysis.delay(user.id)
 
         return {
             "status": "processing",
-            "message": "성향 분석이 시작되었습니다.",
+            "message": "성향 분석 요청이 접수되었습니다.",
             "tendency": None,
         }
 
