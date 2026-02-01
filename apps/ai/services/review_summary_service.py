@@ -10,7 +10,7 @@ from google.genai import types
 from apps.ai.models.game_review_summary import GameReviewSummary
 from apps.ai.pydantics.review_summary import GameSummary
 
-from apps.ai.utils import BAD_PATTERNS, SAFETY_SETTINGS
+from apps.ai.utils import SAFETY_SETTINGS, is_valid_review_for_ai
 from apps.game.models.game import Game
 
 from apps.ai.exceptions.ai_exceptions import (
@@ -20,7 +20,6 @@ from apps.ai.exceptions.ai_exceptions import (
     NotEnoughValidReviews,
 )
 from django.db.models.functions import Length
-import re
 
 logger = logging.getLogger(__name__)
 
@@ -44,8 +43,6 @@ class ReviewSummaryService:
         self.min_valid_reviews = getattr(settings, "AI_SUMMARY_MIN_VALID_REVIEWS", 3)
         self.summary_review_count = getattr(settings, "AI_SUMMARY_REVIEW_COUNT", 5)
 
-        self.profanity_pattern = re.compile("|".join(BAD_PATTERNS))
-
         # AI의 페르소나(역할)를 정의
         self.system_instruction = (
             "당신은 20년 경력의 베테랑 게임 전문 리뷰 분석가입니다. "
@@ -56,6 +53,14 @@ class ReviewSummaryService:
             "절대로 요약 결과에는 그대로 포함하지 마세요. "
             "해당 표현은 무시하거나, 격식 있고 정중한 표현으로 순화하여 요약해야 합니다. "
             "무조건 JSON 형식으로만 응답하세요."
+        )
+
+        # AI에게 보낼 사용자 프롬프트
+        self.user_prompt_template = (
+            "게임명: {game_name}\n"
+            "아래 유저 리뷰들을 분석해서 지정된 JSON 스키마에 맞춰 요약해줘.\n\n"
+            "[Review Data]\n"
+            "{reviews_text}"
         )
 
     def get_summary(self, game_id: int) -> dict:
@@ -95,6 +100,12 @@ class ReviewSummaryService:
         # 마지막 수정일로부터 30일이 지났으면 True를 반환
         return update_time_difference > timedelta(days=self.update_interval_days)
 
+    def _build_user_prompt(self, game_name: str, reviews_text: str) -> str:
+        return self.user_prompt_template.format(
+            game_name=game_name,
+            reviews_text=reviews_text
+        )
+
     def _generate_and_save(self, game: Game, summary_obj) -> dict:
         """
         AI 요약 생성 및 DB 저장
@@ -108,8 +119,9 @@ class ReviewSummaryService:
 
         clean_reviews = []
         for review in bring_reviews:
-            if self.profanity_pattern.search(review.content):
-                continue  # 욕설 발견 시 건너뜀
+            # 욕설 포함여부만 판단
+            if not is_valid_review_for_ai(review.content):
+                continue  # 유효하지 않은(짧은 욕설 등) 리뷰는 건너뜀
 
             clean_reviews.append(review)
 
@@ -128,13 +140,7 @@ class ReviewSummaryService:
         reviews_text = "\n".join([f"- {r.content}" for r in clean_reviews])
 
         # AI에게 보낼 사용자 프롬프트를 구성
-        user_prompt = f"""
-        게임명: {game.name}
-        아래 유저 리뷰들을 분석해서 지정된 JSON 스키마에 맞춰 요약해줘.
-
-        [Review Data]
-        {reviews_text}
-        """
+        user_prompt = self._build_user_prompt(game.name, reviews_text)
 
         try:
             response = self.client.models.generate_content(

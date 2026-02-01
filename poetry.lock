@@ -97,6 +97,18 @@ html5lib = ["html5lib"]
 lxml = ["lxml"]
 
 [[package]]
+name = "better-profanity"
+version = "0.7.0"
+description = "Blazingly fast cleaning swear words (and their leetspeak) in strings"
+optional = false
+python-versions = "==3.*"
+groups = ["main"]
+files = [
+    {file = "better_profanity-0.7.0-py3-none-any.whl", hash = "sha256:bd4c529ea6aa2db1aaa50524be1ed14d0fe5c664f1fd88c8bc388c7e9f9f00e8"},
+    {file = "better_profanity-0.7.0.tar.gz", hash = "sha256:8a6fdc8606d7471e7b5f6801917eca98ec211098262e82f62da4f5de3a73145b"},
+]
+
+[[package]]
 name = "billiard"
 version = "4.2.4"
 description = "Python multiprocessing fork with improvements and bugfixes"
@@ -527,7 +539,6 @@ description = "Cross-platform colored terminal text."
 optional = false
 python-versions = "!=3.0.*,!=3.1.*,!=3.2.*,!=3.3.*,!=3.4.*,!=3.5.*,!=3.6.*,>=2.7"
 groups = ["main", "dev"]
-markers = "platform_system == \"Windows\""
 files = [
     {file = "colorama-0.4.6-py2.py3-none-any.whl", hash = "sha256:4f1d9991f5acc0ca119f9d443620b77f9d6b33703e51011c16baf57afb285fc6"},
     {file = "colorama-0.4.6.tar.gz", hash = "sha256:08695f5cb7ed6e0531a20572697297273c47b8cae5a63ffc6d6ed5c201be6e44"},
@@ -1179,6 +1190,22 @@ yaml = ["PyYAML (>=3.10)"]
 zookeeper = ["kazoo (>=2.8.0)"]
 
 [[package]]
+name = "korcen"
+version = "1.0.2"
+description = "한국어 비속어 검열"
+optional = false
+python-versions = ">=3.6"
+groups = ["main"]
+files = [
+    {file = "korcen-1.0.2-py3-none-any.whl", hash = "sha256:bf543ce48e79a4b4391e17f25054b5fdfb90a8224e728be8331c7ed6cc4b861e"},
+    {file = "korcen-1.0.2.tar.gz", hash = "sha256:a2ee52bda54ae1c356556ef6d9d49b4012e0dafee1f7fabe1690b8aa27286273"},
+]
+
+[package.dependencies]
+better-profanity = "*"
+OrderedDict = "*"
+
+[[package]]
 name = "librt"
 version = "0.7.8"
 description = "Mypyc runtime library"
@@ -1336,6 +1363,17 @@ groups = ["dev"]
 files = [
     {file = "mypy_extensions-1.1.0-py3-none-any.whl", hash = "sha256:1be4cccdb0f2482337c4743e60421de3a356cd97508abadd57d47403e94f5505"},
     {file = "mypy_extensions-1.1.0.tar.gz", hash = "sha256:52e68efc3284861e772bbcd66823fde5ae21fd2fdb51c62a211403730b916558"},
+]
+
+[[package]]
+name = "ordereddict"
+version = "1.1"
+description = "A drop-in substitute for Py2.7's new collections.OrderedDict that works in Python 2.4-2.6."
+optional = false
+python-versions = "*"
+groups = ["main"]
+files = [
+    {file = "ordereddict-1.1.tar.gz", hash = "sha256:1c35b4ac206cef2d24816c89f89cf289dd3d38cf7c449bb3fab7bf6d43f01b1f"},
 ]
 
 [[package]]
@@ -2447,3 +2485,4 @@ files = [
 lock-version = "2.1"
 python-versions = ">=3.12,<4.0"
 content-hash = "f0f6787b3c879dc8313a55e434a3953d9876fb8f2691734eca2a4670f28b5b2a"
+content-hash = "455961f1356642c69af90a7bd0dc71b6716f0c61f6a4344f06b06e7652507e77"
