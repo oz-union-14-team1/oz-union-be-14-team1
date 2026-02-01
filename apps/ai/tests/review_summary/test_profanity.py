@@ -1,51 +1,55 @@
 from django.test import TestCase
-from apps.ai.services.review_summary_service import ReviewSummaryService
-from unittest.mock import patch
+from apps.ai.utils import is_valid_review_for_ai
 
 
 class ProfanityFilterTest(TestCase):
-    def setUp(self):
-        with patch("apps.ai.services.review_summary_service.genai.Client"):
-            self.service = ReviewSummaryService()
-            self.pattern = self.service.profanity_pattern
+    """
+    is_valid_review_for_ai 함수 테스트
+    1. 욕설 O + 짧음(<10자) -> False (필터링)
+    2. 욕설 O + 김(>=10자) -> True (통과)
+    3. 욕설 X -> True (통과)
+    """
 
-    def test_bad_words_detection(self):
-        """욕설이 제대로 잡히는지 테스트"""
-        bad_examples = [
+    def test_short_bad_words_filtered(self):
+        """1. 짧은 욕설(10자 미만)은 False 반환"""
+        bad_shorts = [
             "시발",
             "시.발",
-            "시1발",
-            "와 시@발",
             "개새끼",
-            "개.새.끼",
-            "개1새2끼",
+            "미친놈",
             "병신",
-            "병.신",
-            "야이 븅신아",
-            "미친",
-            "미.친",
-            "지랄",
-            "염병",
-            "느금마",
-            "니미",
-            "좆",
-            "좃",
+            "ㅗㅗㅗㅗ",
         ]
-        for word in bad_examples:
+        for word in bad_shorts:
             with self.subTest(word=word):
-                self.assertTrue(self.pattern.search(word), f"못 잡은 욕설: {word}")
+                self.assertFalse(
+                    is_valid_review_for_ai(word), f"필터링 실패(통과됨): {word}"
+                )
 
-    def test_normal_words_safety(self):
-        """정상적인 단어가 오해받지 않는지 테스트 (True Negative)"""
-        good_examples = [
-            "시린발",
-            "시골발",
-            "병원신",
-            "등신대",
-            "미나리친구",
-            "염소병",
-            "병",
+    def test_long_bad_words_passed(self):
+        """2. 긴 욕설(10자 이상)은 True 반환 (정보 가치 인정)"""
+        bad_longs = [
+            "시발 게임이 너무 재미없어서 화가 난다",  # 19자
+            "운영자가 개새끼지만 게임성은 좋다",  # 17자
+            "이런 병신 같은 버그가 아직도 있네",  # 18자
+            "솔직히 존나 재미없음 환불좀",  # 15자
         ]
-        for word in good_examples:
+        for word in bad_longs:
             with self.subTest(word=word):
-                self.assertFalse(self.pattern.search(word), f"잡힌 단어: {word}")
+                self.assertTrue(
+                    is_valid_review_for_ai(word), f"통과 실패(필터링됨): {word}"
+                )
+
+    def test_normal_words_passed(self):
+        """3. 일반적인 단어는 길이에 상관없이 True 반환"""
+        normals = [
+            "안녕하세요",  # 짧은 정상
+            "갓겜",  # 매우 짧은 정상
+            "정말 재미있는 게임입니다 추천해요",  # 긴 정상
+            "타격감이 훌륭하고 그래픽이 좋아요",
+        ]
+        for word in normals:
+            with self.subTest(word=word):
+                self.assertTrue(
+                    is_valid_review_for_ai(word), f"오탐지(필터링됨): {word}"
+                )

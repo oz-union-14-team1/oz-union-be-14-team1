@@ -102,8 +102,7 @@ class ReviewSummaryService:
 
     def _build_user_prompt(self, game_name: str, reviews_text: str) -> str:
         return self.user_prompt_template.format(
-            game_name=game_name,
-            reviews_text=reviews_text
+            game_name=game_name, reviews_text=reviews_text
         )
 
     def _generate_and_save(self, game: Game, summary_obj) -> dict:

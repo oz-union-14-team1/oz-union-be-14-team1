@@ -4,7 +4,6 @@ from rest_framework.views import APIView
 from typing import cast
 from rest_framework.response import Response
 
-from apps.community.models import ReviewComment
 from apps.community.serializers.comment.comment_list import ReviewCommentListSerializer
 from apps.community.services.comment.comment_create_service import create_comment
 from apps.community.services.comment.comment_list_service import (

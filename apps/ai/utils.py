@@ -1,5 +1,5 @@
 from google.genai import types
-from korcen import korcen
+from korcen import korcen  # type: ignore
 
 # AI 안전 설정
 # BLOCK_ONLY_HIGH(최소 차단)

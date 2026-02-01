@@ -1,11 +1,8 @@
-from typing import cast
-
 from apps.community.exceptions.review_exceptions import CommentNotFound
 from apps.community.models import ReviewComment
 from apps.community.permissions.review_permissions import IsReviewAuthor
 from apps.community.services.comment.comment_delete_service import delete_comment
 from apps.community.services.comment.comment_update_service import update_comment
-from apps.user.models import User
 from drf_spectacular.utils import extend_schema
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.views import APIView
