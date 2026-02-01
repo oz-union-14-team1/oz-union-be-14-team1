@@ -28,6 +28,13 @@ class UserTendencyService:
             "무조건 JSON 형식으로만 응답하세요."
         )
 
+        self.user_prompt_template = (
+            "이 유저의 게이머 성향을 10글자 이내로 요약해줘.\n\n"
+            "[User Preferences]\n"
+            "선호 장르: {genre_names}\n"
+            "선호 태그: {tag_names}"
+        )
+
     def get_or_create_tendency(self, user) -> dict:
         """
         API View에서 호출: DB 데이터를 우선 반환하고, 없으면 분석 요청
@@ -61,6 +68,11 @@ class UserTendencyService:
             "tendency": None,
         }
 
+    def _build_user_prompt(self, genre_names: str, tag_names: str) -> str:
+        return self.user_prompt_template.format(
+            genre_names=genre_names, tag_names=tag_names
+        )
+
     def analyze_and_save(self, user) -> dict:
         """
         실제 분석 및 DB 저장
@@ -81,12 +93,7 @@ class UserTendencyService:
         if not genre_names and not tag_names:
             return self._save_default(user, "아직 모르는 게이머")
 
-        user_prompt = f"""
-        이 유저의 게이머 성향을 10글자 이내로 요약해줘.
-        [User Preferences]
-        - 선호 장르: {genre_names}
-        - 선호 태그: {tag_names}
-        """
+        user_prompt = self._build_user_prompt(genre_names, tag_names)
 
         try:
             response = self.client.models.generate_content(
