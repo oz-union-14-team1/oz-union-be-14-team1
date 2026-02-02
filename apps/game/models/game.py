@@ -8,7 +8,7 @@ class Game(models.Model):
     developer = models.CharField(max_length=255)
     publisher = models.CharField(max_length=255)
     created_at = models.DateTimeField(auto_now_add=True)
-    id_deleted = models.BooleanField(default=False)
+    is_deleted = models.BooleanField(default=False)
 
     class Meta:
         db_table = "games"
