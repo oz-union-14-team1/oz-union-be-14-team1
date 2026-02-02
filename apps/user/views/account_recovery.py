@@ -22,14 +22,26 @@ logger = logging.getLogger(__name__)
 
 def _mask(value: str) -> str:
     value = value or ""
-    if len(value) <= 2:
-        return value[0] + "*" if value else ""
-    return value[:2] + "***" + value[-1]
+    length = len(value)
+
+    if length <= 1:
+        return value + "*"
+
+    if length == 2:
+        return value[0] + "*"
+
+    return value[:2] + "***" + value[5:]
+
+def mask_email(email: str) -> str:
+    if "@" not in email:
+        return _mask(email)
+
+    local, domain = email.split("@", 1)
+    return f"{_mask(local)}@{domain}"
 
 
 def _generate_6bigit_code() -> str:
     return f"{secrets.randbelow(900000)+100000:06d}"
-
 
 class FindAccountView(APIView):
     authentication_classes = []
@@ -118,6 +130,8 @@ class PasswordResetRequestView(APIView):
             is_active=True,
         ).first()
 
+        code = None
+
         if user:
             ttl = getattr(settings, "VERIFICATION_TOKEN_TTL_SECONDS", 300)
             max_attempts = getattr(
@@ -137,7 +151,7 @@ class PasswordResetRequestView(APIView):
 
             if code is None:
                 code = _generate_6bigit_code()
-                cache.set("password_reset:{code}", user.id, timeout=ttl)
+                cache.set(f"password_reset:{code}", user.id, timeout=ttl)
 
             logger.warning(
                 "[비밀번호 리셋 코드] identifier=%s phone_number=%s code=%s ttl=%s",
@@ -147,10 +161,11 @@ class PasswordResetRequestView(APIView):
                 ttl,
             )
 
-        return Response(
-            {"message": "비밀번호 재설정 안내를 전송했습니다."},
-            status=status.HTTP_200_OK,
-        )
+        data = {"message": "비밀번호 재설정 안내를 전송했습니다."}
+        if code:
+            data["code"] = code
+
+        return Response(data, status=status.HTTP_200_OK)
 
 
 class PasswordResetConfirmView(APIView):
