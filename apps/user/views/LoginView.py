@@ -13,7 +13,7 @@ class LoginView(APIView):
 
     @extend_schema(
         summary="이메일 로그인",
-        description="이메일과 비밀번호로 로그인해서 access token을 발급합니다.",
+        description="이메일과 비밀번호로 로그인해서 access token + refresh token을 발급합니다.",
         request=LoginSerializer,
         responses={
             200: OpenApiResponse(
@@ -21,6 +21,10 @@ class LoginView(APIView):
                     "type": "object",
                     "properties": {
                         "access_token": {
+                            "type": "string",
+                            "example": "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9...",
+                        },
+                        "refresh_token": {
                             "type": "string",
                             "example": "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9...",
                         }
@@ -43,7 +47,7 @@ class LoginView(APIView):
         refresh_token, access_token = token_service.create_token_pair(user=user)
 
         response = Response(
-            {"access_token": access_token},
+            {"access_token": access_token,"refresh_token": refresh_token},
             status=status.HTTP_200_OK,
         )
         response.set_cookie(key="refresh_token", value=refresh_token)
