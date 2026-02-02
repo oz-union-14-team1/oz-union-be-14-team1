@@ -7,6 +7,7 @@ from apps.game.serializers.game_serializer import (
     GameListSerializer,
     GameDetailSerializer,
 )
+from rest_framework.permissions import AllowAny
 
 
 class GamePagination(PageNumberPagination):
@@ -16,6 +17,7 @@ class GamePagination(PageNumberPagination):
 
 
 class GameListView(APIView):
+    permission_classes = [AllowAny]
 
     def get(self, request):
         games = Game.objects.filter(id_deleted=False).order_by("-release_date")
@@ -31,6 +33,7 @@ class GameListView(APIView):
 
 
 class GameDetailView(APIView):
+    permission_classes = [AllowAny]
 
     def get(self, request, pk):
         game = get_object_or_404(Game, pk=pk, id_deleted=False)
