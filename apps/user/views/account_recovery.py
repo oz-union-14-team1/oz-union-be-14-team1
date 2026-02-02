@@ -54,6 +54,7 @@ class FindAccountView(APIView):
     permission_classes = [AllowAny]
 
     @extend_schema(
+        tags=["회원관리"],
         summary="계정 찾기",
         description="휴대폰 번호로 가입된 계정(identifier)을 찾아 마스킹하여 반환합니다.",
         request=FindAccountSerializer,
@@ -104,6 +105,7 @@ class PasswordResetRequestView(APIView):
     permission_classes = [AllowAny]
 
     @extend_schema(
+        tags=["회원관리"],
         summary="비밀번호 재설정 요청",
         description="identifier + 휴대폰 번호가 일치하면 6자리 인증 토큰을 발급(서버에 저장)하고 안내 메시지를 반환합니다.",
         request=PasswordResetRequestSerializer,
@@ -178,6 +180,7 @@ class PasswordResetConfirmView(APIView):
     permission_classes = [AllowAny]
 
     @extend_schema(
+        tags=["회원관리"],
         summary="비밀번호 재설정 확정",
         description="6자리 인증 코드가 유효하면 새 비밀번호로 변경합니다.",
         request=PasswordResetConfirmSerializer,

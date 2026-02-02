@@ -12,6 +12,7 @@ class MeView(APIView):
     permission_classes = [IsAuthenticated]
 
     @extend_schema(
+        tags=["회원관리"],
         summary="내 정보 조회",
         description="로그인한 사용자의 정보를 조회합니다. email은 읽기 전용입니다.",
         responses={
@@ -27,6 +28,7 @@ class MeView(APIView):
         return Response(serializer.data, status=status.HTTP_200_OK)
 
     @extend_schema(
+        tags=["회원관리"],
         summary="내 정보 전체 수정",
         description="nickname, name, gender 필드를 전체 수정합니다. email과 password는 수정 불가합니다. 비밀번호를 인증용으로 입력해야 합니다.",
         request=MeSerializer,
@@ -53,6 +55,7 @@ class MeView(APIView):
         return Response(serializer.data, status=status.HTTP_200_OK)
 
     @extend_schema(
+        tags=["회원관리"],
         summary="내 정보 부분 수정",
         description="nickname, name, gender 필드 중 일부만 수정 가능합니다. email과 password는 수정 불가합니다. 비밀번호를 인증용으로 입력해야 합니다.",
         request=MeSerializer,
@@ -83,6 +86,7 @@ class WithdrawView(APIView):
     permission_classes = [IsAuthenticated]
 
     @extend_schema(
+        tags=["회원관리"],
         summary="회원 탈퇴",
         description="비밀번호를 입력하면 회원 탈퇴 처리됩니다.",
         request=DeleteUserSerializer,

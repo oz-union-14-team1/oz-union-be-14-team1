@@ -13,6 +13,7 @@ class LoginView(APIView):
     permission_classes = [AllowAny]
 
     @extend_schema(
+        tags=["회원관리"],
         summary="이메일 로그인",
         description="이메일과 비밀번호로 로그인해서 access token + refresh token을 발급합니다.",
         request=LoginSerializer,

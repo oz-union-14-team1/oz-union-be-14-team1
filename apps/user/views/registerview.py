@@ -17,6 +17,7 @@ class RegisterView(APIView):
     permission_classes = [AllowAny]
 
     @extend_schema(
+        tags=["회원관리"],
         summary="회원가입",
         description="이메일/ 문자 인증을 완료한 사용자의 회원가입",
         request=SignUpSerializer,

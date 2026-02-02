@@ -11,6 +11,7 @@ class LogoutView(APIView):
     permission_classes = [IsAuthenticated]
 
     @extend_schema(
+        tags=["회원관리"],
         summary="로그아웃",
         description="Refresh Token , Access Token 을 블랙리스트 처리하고 쿠키를 삭제합니다.",
         responses={

@@ -13,6 +13,7 @@ class TokenRefreshWithBlacklistView(APIView):
     permission_classes = [AllowAny]
 
     @extend_schema(
+        tags=["회원관리"],
         summary="토큰 재발급",
         description="refresh_token으로 access_token을 재발급합니다. 블랙리스트된 refresh_token은 거부합니다.",
         request=TokenRefreshRequestSerializer,
