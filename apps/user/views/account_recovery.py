@@ -27,11 +27,14 @@ def _mask(value: str) -> str:
     if length <= 1:
         return value + "*"
 
-    if length == 2:
+    elif length == 2:
         return value[0] + "*"
 
-    return value[:2] + "***" + value[5:]
+    elif length == 3:
+        return value[0] + "*" + value[-1]
 
+    else:
+        return value[:2] + "*" * (length - 4) + value[-2:]
 
 def mask_email(email: str) -> str:
     if "@" not in email:
@@ -88,7 +91,7 @@ class FindAccountView(APIView):
         return Response(
             {
                 "exists": True,
-                "identifier": _mask(user.email),
+                "identifier": mask_email(user.email),
                 "message": "계정을 찾았습니다.",
             },
             status=status.HTTP_200_OK,
@@ -135,7 +138,7 @@ class PasswordResetRequestView(APIView):
         code = None
 
         if user:
-            ttl = getattr(settings, "VERIFICATION_TOKEN_TTL_SECONDS", 300)
+            ttl = getattr(settings, "VERIFICATION_DEFAULT_TTL_SECONDS", 300)
             max_attempts = getattr(
                 settings, "VERIFICATION_TOKEN_GENERATE_MAX_ATTEMPTS", 5
             )
@@ -154,19 +157,18 @@ class PasswordResetRequestView(APIView):
             if code is None:
                 code = _generate_6bigit_code()
                 cache.set(f"password_reset:{code}", user.id, timeout=ttl)
-
-            logger.warning(
-                "[비밀번호 리셋 코드] identifier=%s phone_number=%s code=%s ttl=%s",
-                identifier,
-                phone_number,
-                code,
-                ttl,
-            )
+            if settings.DEBUG:
+                logger.warning(
+                    "[비밀번호 리셋 코드] identifier=%s phone_number=%s code=%s ttl=%s",
+                    identifier,
+                    phone_number,
+                    code,
+                    ttl,
+                )
 
         data = {"message": "비밀번호 재설정 안내를 전송했습니다."}
-        if code:
+        if code and getattr(settings, "PASSWORD_RESET_RETURN_CODE", False):
             data["code"] = code
-
         return Response(data, status=status.HTTP_200_OK)
 
 
