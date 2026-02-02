@@ -9,7 +9,6 @@ class Game(models.Model):
     publisher = models.CharField(max_length=255)
     created_at = models.DateTimeField(auto_now_add=True)
     id_deleted = models.BooleanField(default=False)
-    avg_score = models.FloatField(default=0)
 
     class Meta:
         db_table = "games"
