@@ -23,7 +23,6 @@ class ReviewSummaryServiceTest(TestCase):
             intro="Intro",
             released_at=timezone.now(),
             developer="developer",
-            avg_score=5.0,
         )
 
     def create_reviews(self, count):

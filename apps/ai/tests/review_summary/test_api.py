@@ -22,7 +22,6 @@ class GameReviewSummaryAPIViewTest(APITestCase):
             intro="Intro",
             released_at=timezone.now(),
             developer="developer",
-            avg_score=5.0,
         )
         # URL 이름은 urls.py에 정의된 name과 일치해야 함
         self.url = reverse("game_summary", kwargs={"game_id": self.game.id})
