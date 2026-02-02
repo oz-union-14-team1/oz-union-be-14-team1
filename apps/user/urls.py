@@ -7,6 +7,7 @@ from apps.user.views.account_recovery import (
     PasswordResetRequestView,
     PasswordResetConfirmView,
 )
+from apps.user.views.logout import LogoutView
 
 app_name = "user"
 
@@ -26,4 +27,5 @@ urlpatterns = [
         PasswordResetConfirmView.as_view(),
         name="password_reset_confirm",
     ),
+    path("logout/", LogoutView.as_view(), name="logout"),
 ]
