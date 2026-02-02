@@ -48,7 +48,7 @@ class UserTendencyServiceTest(TestCase):
         """
         DB엔 없지만 현재 분석 중(캐시 존재)이라면, 작업을 중복 실행하지 않는다.
         """
-        cache_key = f"debounce_tendency_analysis_{self.user.id}"
+        cache_key = f"tendency_analysis_lock_{self.user.id}"
         cache.set(cache_key, "processing", timeout=10)
 
         result = self.service.get_or_create_tendency(self.user)
@@ -66,7 +66,7 @@ class UserTendencyServiceTest(TestCase):
         self.assertEqual(result["status"], "processing")
         mock_task.delay.assert_called_once_with(self.user.id)
 
-        cache_key = f"debounce_tendency_analysis_{self.user.id}"
+        cache_key = f"tendency_analysis_lock_{self.user.id}"
         self.assertEqual(cache.get(cache_key), "processing")
 
     @patch(

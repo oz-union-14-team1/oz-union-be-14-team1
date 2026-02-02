@@ -112,9 +112,9 @@ class ReviewSummaryServiceTest(TestCase):
     @patch("apps.ai.services.review_summary_service.genai.Client")
     def test_filter_profanity_before_ai_call(self, mock_client_class):
         """
-        욕설이 포함된 리뷰는 AI 요약 요청 데이터에서 제외되는지 테스트
+        욕설이 포함되고 짧은 리뷰(<10자)는 AI 요약 요청 데이터에서 제외되는지 테스트
         """
-        # Given: 정상 리뷰 3개 + 욕설 리뷰 2개 생성 (총 5개)
+        # Given: 정상 리뷰 3개 + 짧은 욕설 리뷰 2개 생성
         Review.objects.create(
             game=self.game,
             user=self.user,
@@ -122,14 +122,14 @@ class ReviewSummaryServiceTest(TestCase):
             rating=5,
         )
         Review.objects.create(
-            game=self.game, user=self.user, content="이건 진짜로 시1발 망겜임", rating=1
-        )  # 욕설
+            game=self.game, user=self.user, content="시1발 망겜", rating=1
+        )  # [수정] 욕설 + 짧음(6자) -> 필터링 대상
         Review.objects.create(
             game=self.game, user=self.user, content="그래픽이 엄청 훌륭해요.", rating=5
         )
         Review.objects.create(
-            game=self.game, user=self.user, content="운영자가 진짜 개.새.끼임", rating=1
-        )  # 욕설
+            game=self.game, user=self.user, content="개.새.끼임", rating=1
+        )  # [수정] 욕설 + 짧음(6자) -> 필터링 대상
         Review.objects.create(
             game=self.game,
             user=self.user,

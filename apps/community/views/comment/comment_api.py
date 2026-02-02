@@ -19,7 +19,6 @@ from rest_framework import serializers
 
 class ReviewCommentAPIView(APIView):
     permission_classes = [IsAuthenticatedOrReadOnly]
-
     validation_error_message = "이 필드는 필수 항목입니다."
 
     @extend_schema(
