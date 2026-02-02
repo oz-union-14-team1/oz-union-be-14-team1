@@ -29,5 +29,7 @@ urlpatterns = [
         name="password_reset_confirm",
     ),
     path("logout", LogoutView.as_view(), name="logout"),
-    path("token/refresh", TokenRefreshWithBlacklistView.as_view(), name="token_refresh"),
+    path(
+        "token/refresh", TokenRefreshWithBlacklistView.as_view(), name="token_refresh"
+    ),
 ]

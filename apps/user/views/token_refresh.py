@@ -3,10 +3,11 @@ from rest_framework.response import Response
 from rest_framework.permissions import AllowAny
 from rest_framework.views import APIView
 from rest_framework_simplejwt.exceptions import TokenError
-from drf_spectacular.utils import extend_schema,OpenApiResponse
+from drf_spectacular.utils import extend_schema, OpenApiResponse
 
 from apps.user.utils.tokens import TokenService
 from apps.user.serializers.token_refresh import TokenRefreshRequestSerializer
+
 
 class TokenRefreshWithBlacklistView(APIView):
     permission_classes = [AllowAny]
@@ -27,9 +28,10 @@ class TokenRefreshWithBlacklistView(APIView):
             401: OpenApiResponse(description="refresh_token 무효/블랙리스트"),
         },
     )
-
     def post(self, request):
-        refresh = request.data.get("refresh_token") or request.COOKIES.get("refresh_token")
+        refresh = request.data.get("refresh_token") or request.COOKIES.get(
+            "refresh_token"
+        )
         if not refresh:
             return Response(
                 {"detail": "refresh token 소실"}, status=status.HTTP_400_BAD_REQUEST
