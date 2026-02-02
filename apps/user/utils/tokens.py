@@ -3,7 +3,7 @@ from __future__ import annotations
 import secrets
 import time
 from typing import Optional
-from rest_framework_simplejwt.tokens import RefreshToken , AccessToken
+from rest_framework_simplejwt.tokens import RefreshToken
 from rest_framework_simplejwt.exceptions import TokenError
 
 from django.core.cache import caches
@@ -57,6 +57,7 @@ class TokenService:
         access_token = str(refresh_token.access_token)
 
         return str(refresh_token), access_token
+
     # 토큰 재발급
     def _bl_key(self, refresh_token: str) -> str:
         return f"{self.namespace}:bl:{refresh_token}"
@@ -64,7 +65,7 @@ class TokenService:
     # 토큰 블랙리스트
     def black_list(self, refresh_token: str) -> None:
         try:
-            token = RefreshToken(refresh_token)
+            token = RefreshToken(refresh_token)  # type: ignore[arg-type]
             exp = int(token["exp"])
         except (TypeError, KeyError, ValueError, TokenError):
             return

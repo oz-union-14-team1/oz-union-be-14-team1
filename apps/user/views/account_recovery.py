@@ -32,6 +32,7 @@ def _mask(value: str) -> str:
 
     return value[:2] + "***" + value[5:]
 
+
 def mask_email(email: str) -> str:
     if "@" not in email:
         return _mask(email)
@@ -42,6 +43,7 @@ def mask_email(email: str) -> str:
 
 def _generate_6bigit_code() -> str:
     return f"{secrets.randbelow(900000)+100000:06d}"
+
 
 class FindAccountView(APIView):
     authentication_classes = []
