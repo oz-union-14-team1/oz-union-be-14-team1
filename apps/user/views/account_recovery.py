@@ -36,6 +36,7 @@ def _mask(value: str) -> str:
     else:
         return value[:2] + "*" * (length - 4) + value[-2:]
 
+
 def mask_email(email: str) -> str:
     if "@" not in email:
         return _mask(email)

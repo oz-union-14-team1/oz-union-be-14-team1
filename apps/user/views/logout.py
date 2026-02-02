@@ -24,13 +24,19 @@ class LogoutView(APIView):
         },
     )
     def post(self, request):
-        refresh_token = request.COOKIES.get("refresh_token")
+        svc = TokenService()
 
+        refresh_token = request.COOKIES.get("refresh_token")
         if refresh_token:
-            TokenService().black_list(refresh_token)
+            svc.blacklist(refresh_token)
+
+        auth = request.headers.get("Authorization", "")
+        if auth.startswith("Bearer "):
+            access_token = auth.split(" ", 1)[1].strip()
+            svc.blacklist_access(access_token)
 
         response = Response(
             {"detail": "로그아웃 되었습니다."}, status=status.HTTP_200_OK
         )
-        response.delete_cookie("refresh_token")
+        response.delete_cookie("refresh_token", path="/")
         return response
