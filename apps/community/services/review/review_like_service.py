@@ -10,7 +10,7 @@ def _get_review_with_lock(review_id: int) -> Review:
     리뷰를 Lock과 함께 조회하고, 없으면 예외를 발생시킴
     """
     try:
-        return Review.objects.select_for_update().get(id=review_id)  # type: ignore
+        return Review.objects.select_for_update().get(id=review_id, is_deleted=False)  # type: ignore
     except Review.DoesNotExist:
         raise ReviewNotFound()
 
