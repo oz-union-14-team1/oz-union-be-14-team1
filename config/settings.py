@@ -117,6 +117,7 @@ VERIFICATION_DEFAULT_TTL_SECONDS: int = int(
 VERIFICATION_TOKEN_GENERATE_MAX_ATTEMPTS: int = int(
     os.getenv("VERIFICATION_TOKEN_GENERATE_MAX_ATTEMPTS", "5")
 )
+PASSWORD_RESET_RETURN_CODE = DEBUG
 VERIFICATION_CODE_LENGTH: int = int(os.getenv("VERIFICATION_CODE_LENGTH", "6"))
 VERIFICATION_TOKEN_BYTES: int = int(os.getenv("VERIFICATION_TOKEN_BYTES", "32"))
 VERIFICATION_CODE_CHARS: str = os.getenv("VERIFICATION_CODE_CHARS", "1234567890")
@@ -181,7 +182,7 @@ REST_FRAMEWORK = {
     "DEFAULT_AUTHENTICATION_CLASSES": [
         # "rest_framework.authentication.BasicAuthentication",
         # "rest_framework.authentication.SessionAuthentication",
-        "rest_framework_simplejwt.authentication.JWTAuthentication",
+        "apps.user.authentication.BlacklistJWTAuthentication",
     ],
     "EXCEPTION_HANDLER": "apps.core.exceptions.handler.custom_exception_handler",
 }
