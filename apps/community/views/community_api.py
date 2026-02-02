@@ -26,8 +26,7 @@ class CommunityReviewListAPIView(APIView):
                 description="GenreListAPIView에서 조회된 '장르 명(Name)'을 전달하여 필터링",
                 required=False,
                 type=str,
-                examples=[
-                ],
+                examples=[],
             )
         ],
     )
