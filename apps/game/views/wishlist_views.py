@@ -3,7 +3,10 @@ from rest_framework.response import Response
 from rest_framework import status
 from rest_framework.permissions import IsAuthenticated
 from apps.game.models.wishlist import Wishlist
-from apps.game.serializers.wishlist_serializer import WishlistCreateSerializer,WishlistSerializer
+from apps.game.serializers.wishlist_serializer import (
+    WishlistCreateSerializer,
+    WishlistSerializer,
+)
 
 
 class WishlistView(APIView):
@@ -15,7 +18,8 @@ class WishlistView(APIView):
         return Response(serializer.data)
 
     def post(self, request):
-        serializer = WishlistCreateSerializer(data=request.data, context={"request": request}
+        serializer = WishlistCreateSerializer(
+            data=request.data, context={"request": request}
         )
 
         if serializer.is_valid():
