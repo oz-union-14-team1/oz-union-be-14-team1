@@ -3,6 +3,7 @@ from rest_framework.exceptions import AuthenticationFailed
 
 from apps.user.utils.tokens import TokenService
 
+
 class BlacklistJWTAuthentication(JWTAuthentication):
     def authenticate(self, request):
         result = super().authenticate(request)
@@ -20,9 +21,15 @@ class BlacklistJWTAuthentication(JWTAuthentication):
         if raw_token is None:
             return result
 
-        access_str = raw_token.decode() if isinstance(raw_token, (bytes, bytearray)) else str(raw_token)
+        access_str = (
+            raw_token.decode()
+            if isinstance(raw_token, (bytes, bytearray))
+            else str(raw_token)
+        )
 
         if TokenService().is_access_blacklisted(access_str):
-            raise AuthenticationFailed("로그아웃된 토큰입니다.", code="token_blacklisted")
+            raise AuthenticationFailed(
+                "로그아웃된 토큰입니다.", code="token_blacklisted"
+            )
 
         return (user, validated_token)
