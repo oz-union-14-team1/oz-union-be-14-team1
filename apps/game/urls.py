@@ -7,5 +7,5 @@ urlpatterns = [
     path("", GameListView.as_view(), name="game-list"),
     path("<int:pk>/", GameDetailView.as_view(), name="game-detail"),
     path("wishlist/", WishlistView.as_view(), name="wishlist"),
-    path("wishlist/<int:pk>/", WishlistDestroyView.as_view(), name="wishlist-detail"),
+    path("wishlist/<int:pk>/", WishlistDestroyView.as_view(), name="wishlist-destroy"),
 ]
