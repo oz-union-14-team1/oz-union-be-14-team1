@@ -1,8 +1,10 @@
 from __future__ import annotations
 
 import secrets
+import time
 from typing import Optional
 from rest_framework_simplejwt.tokens import RefreshToken
+from rest_framework_simplejwt.exceptions import TokenError
 
 from django.core.cache import caches
 
@@ -55,3 +57,23 @@ class TokenService:
         access_token = str(refresh_token.access_token)
 
         return str(refresh_token), access_token
+
+    def _bl_key(self, refresh_token: str) -> str:
+        return f"{self.namespace}:bl:{refresh_token}"
+
+    def black_list(self, refresh_token: str) -> None:
+        try:
+            token = RefreshToken(refresh_token)
+            exp = int(token["exp"])
+        except (TypeError, KeyError, ValueError, TokenError):
+            return
+
+        now = int(time.time())
+        ttl = max(exp - now, 0)
+        if ttl <= 0:
+            return
+
+        self.cache.set(self._bl_key(refresh_token), "1", timeout=ttl)
+
+    def is_refresh_blacklisted(self, refresh_token: str) -> bool:
+        return self.cache.get(self._bl_key(refresh_token)) is not None
