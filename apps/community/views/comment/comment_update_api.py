@@ -66,6 +66,4 @@ class ReviewCommentUpdateAPIView(APIView):
         # 2. 서비스 레이어 호출
         delete_comment(comment=comment)
 
-        return Response(
-            {"message": "댓글이 삭제되었습니다."}, status=status.HTTP_204_NO_CONTENT
-        )
+        return Response(status=status.HTTP_204_NO_CONTENT)

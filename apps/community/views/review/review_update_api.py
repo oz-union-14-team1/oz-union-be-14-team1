@@ -22,7 +22,7 @@ class ReviewUpdateAPIView(APIView):
         리뷰 조회 및 권한 검증을 수행
         """
         try:
-            review = Review.objects.get(id=review_id)
+            review = Review.objects.get(id=review_id, is_deleted=False)
         except Review.DoesNotExist:
             raise ReviewNotFound()
 
@@ -62,6 +62,4 @@ class ReviewUpdateAPIView(APIView):
         # 2. 서비스 호출
         delete_review(review=review)
 
-        return Response(
-            {"message": "리뷰가 삭제되었습니다."}, status=status.HTTP_204_NO_CONTENT
-        )
+        return Response(status=status.HTTP_204_NO_CONTENT)
