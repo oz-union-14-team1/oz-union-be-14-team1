@@ -27,7 +27,7 @@ class LoginView(APIView):
                         "refresh_token": {
                             "type": "string",
                             "example": "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9...",
-                        }
+                        },
                     },
                 },
                 description="로그인 성공",
@@ -47,7 +47,7 @@ class LoginView(APIView):
         refresh_token, access_token = token_service.create_token_pair(user=user)
 
         response = Response(
-            {"access_token": access_token,"refresh_token": refresh_token},
+            {"access_token": access_token, "refresh_token": refresh_token},
             status=status.HTTP_200_OK,
         )
         response.set_cookie(key="refresh_token", value=refresh_token)
