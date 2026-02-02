@@ -10,7 +10,6 @@ from apps.ai.models.game_review_summary import GameReviewSummary
 from apps.ai.pydantics.review_summary import GameSummary
 
 from apps.ai.utils import SAFETY_SETTINGS, is_valid_review_for_ai
-from apps.core.utils import query_debugger
 from apps.game.models.game import Game
 
 from apps.ai.exceptions.ai_exceptions import (
