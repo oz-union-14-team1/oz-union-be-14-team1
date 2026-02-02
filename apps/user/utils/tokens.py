@@ -57,10 +57,11 @@ class TokenService:
         access_token = str(refresh_token.access_token)
 
         return str(refresh_token), access_token
-
+    # 토큰 재발급
     def _bl_key(self, refresh_token: str) -> str:
         return f"{self.namespace}:bl:{refresh_token}"
 
+    # 토큰 블랙리스트
     def black_list(self, refresh_token: str) -> None:
         try:
             token = RefreshToken(refresh_token)
