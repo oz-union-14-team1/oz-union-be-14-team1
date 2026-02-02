@@ -3,7 +3,7 @@ from __future__ import annotations
 import secrets
 import time
 from typing import Optional
-from rest_framework_simplejwt.tokens import RefreshToken
+from rest_framework_simplejwt.tokens import RefreshToken , AccessToken
 from rest_framework_simplejwt.exceptions import TokenError
 
 from django.core.cache import caches
