@@ -18,14 +18,16 @@ class CommunityReviewListAPIView(APIView):
 
     @extend_schema(
         tags=["커뮤니티"],
-        summary="커뮤니티 목록 조회 API",
+        summary="커뮤니티 리뷰 목록 조회 (장르 필터링)",
         responses=CommunityReviewListSerializer,
         parameters=[
             OpenApiParameter(
                 name="genre",
-                description="필터링할 장르의 이름 (예: RPG, Strategy)",
+                description="GenreListAPIView에서 조회된 '장르 명(Name)'을 전달하여 필터링",
                 required=False,
                 type=str,
+                examples=[
+                ],
             )
         ],
     )

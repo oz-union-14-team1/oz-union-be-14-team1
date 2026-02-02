@@ -19,5 +19,7 @@ def get_community_review_all(genre_name: Optional[str] = None) -> QuerySet[Revie
     # 장르 이름으로 필터링 적용
     if genre_name:
         queryset = queryset.filter(game__game_genres__genre__genre=genre_name)
+        # 조인으로 인해 발생 가능한 중복데이터 제거
+        queryset = queryset.distinct()
 
     return queryset.order_by("-created_at")
