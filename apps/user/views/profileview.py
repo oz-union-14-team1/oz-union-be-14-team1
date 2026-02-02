@@ -23,7 +23,7 @@ class MeView(APIView):
         """
         내 정보 조회
         """
-        serializer = MeSerializer(request.user)
+        serializer = MeSerializer(request.user, context={"request": request})
         return Response(serializer.data, status=status.HTTP_200_OK)
 
     @extend_schema(
