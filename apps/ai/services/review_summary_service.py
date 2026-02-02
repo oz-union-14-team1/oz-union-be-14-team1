@@ -2,7 +2,6 @@ import json
 import logging
 from datetime import timedelta
 from django.utils import timezone
-from django.db import transaction
 from django.conf import settings
 from google import genai
 from google.genai import types
@@ -11,6 +10,7 @@ from apps.ai.models.game_review_summary import GameReviewSummary
 from apps.ai.pydantics.review_summary import GameSummary
 
 from apps.ai.utils import SAFETY_SETTINGS, is_valid_review_for_ai
+from apps.core.utils import query_debugger
 from apps.game.models.game import Game
 
 from apps.ai.exceptions.ai_exceptions import (
@@ -72,19 +72,20 @@ class ReviewSummaryService:
         except Game.DoesNotExist:
             raise GameNotFound()
 
-        review_count = game.reviews.filter(is_deleted=False).count()  # type: ignore
+        summary_obj = getattr(game, "summary", None)
 
+        # 2. 갱신이 필요한지 체크
+        if not self._update_and_parse(summary_obj):
+            # 갱신 필요 없으면 바로 리턴!
+            return json.loads(summary_obj.text)  # type: ignore
+
+        # 3. 요약본이 없거나 갱신이 필요할 때만 리뷰 개수 체크
+        review_count = game.reviews.filter(is_deleted=False).count()
         if review_count < self.min_review_count:
             raise NotEnoughReviews()
 
-        summary_obj = getattr(game, "summary", None)
-
-        # 갱신이 필요한지 확인(필요OX)
-        if self._update_and_parse(summary_obj):
-            # 갱신이 필요하면 AI 생성 및 저장을 수행하고 결과를 반환
-            return self._generate_and_save(game, summary_obj)
-        # 갱신이 필요 없으면 DB에 저장된 JSON 텍스트를 파싱하여 반환
-        return json.loads(summary_obj.text)  # type: ignore
+        # 4. 생성 및 저장
+        return self._generate_and_save(game, summary_obj)
 
     def _update_and_parse(self, summary_obj) -> bool:
         """
@@ -157,14 +158,13 @@ class ReviewSummaryService:
             # 생성된 JSON 문자열을 가져옴
             result_json_str = response.text
 
-            with transaction.atomic():
-                if summary_obj:
-                    # 기존 요약이 있다면 내용을 수정
-                    summary_obj.text = result_json_str
-                    summary_obj.save()
-                else:
-                    # 없다면 생성
-                    GameReviewSummary.objects.create(game=game, text=result_json_str)
+            if summary_obj:
+                # 기존 요약이 있다면 내용을 수정
+                summary_obj.text = result_json_str
+                summary_obj.save(update_fields=["text", "updated_at"])
+            else:
+                # 없다면 생성
+                GameReviewSummary.objects.create(game=game, text=result_json_str)
 
             # 저장된 JSON 문자열을 딕셔너리로 변환하여 반환
             return json.loads(result_json_str)
