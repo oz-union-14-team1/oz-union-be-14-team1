@@ -182,7 +182,7 @@ REST_FRAMEWORK = {
     "DEFAULT_AUTHENTICATION_CLASSES": [
         # "rest_framework.authentication.BasicAuthentication",
         # "rest_framework.authentication.SessionAuthentication",
-        "apps.user.authentication.BlacklistJWTAuthentication",
+        "apps.user.utils.authentication.BlacklistJWTAuthentication",
     ],
     "EXCEPTION_HANDLER": "apps.core.exceptions.handler.custom_exception_handler",
 }
@@ -216,15 +216,16 @@ SPECTACULAR_SETTINGS = {
         ]
     }""",
     "SERVE_PERMISSIONS": ["rest_framework.permissions.AllowAny"],
-    "SECURITY": [
-        {
+    "APPEND_COMPONENTS": {
+        "securitySchemes": {
             "BearerAuth": {
                 "type": "http",
                 "scheme": "bearer",
                 "bearerFormat": "JWT",
             }
         }
-    ],
+    },
+    "SECURITY": [{"BearerAuth": []}],
 }
 
 APPEND_SLASH = False
