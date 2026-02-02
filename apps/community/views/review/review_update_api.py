@@ -62,6 +62,4 @@ class ReviewUpdateAPIView(APIView):
         # 2. 서비스 호출
         delete_review(review=review)
 
-        return Response(
-            status=status.HTTP_204_NO_CONTENT
-        )
+        return Response(status=status.HTTP_204_NO_CONTENT)
