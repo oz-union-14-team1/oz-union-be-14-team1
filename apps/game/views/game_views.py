@@ -8,9 +8,10 @@ from apps.game.serializers.game_serializer import (
     GameListSerializer,
     GameDetailSerializer,
 )
-from rest_framework.permissions import AllowAny
+from rest_framework.permissions import AllowAny, IsAuthenticated
 from django.db.models import Q
 from drf_spectacular.utils import extend_schema
+
 
 
 class GamePagination(PageNumberPagination):
@@ -88,3 +89,6 @@ class GameSearchView(APIView):
         serializer = GameListSerializer(paginated_games, many=True)
 
         return paginator.get_paginated_response(serializer.data)
+
+
+
