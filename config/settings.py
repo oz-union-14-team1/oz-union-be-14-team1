@@ -191,10 +191,8 @@ REST_FRAMEWORK = {
 SIMPLE_JWT = {
     # 1. 액세스 토큰 수명: API 접근용 (보안상 짧게, 편의상 길게)
     "ACCESS_TOKEN_LIFETIME": timedelta(hours=1),
-
     # 2. 리프레시 토큰 수명: 재로그인 방지용 (길게 설정)
     "REFRESH_TOKEN_LIFETIME": timedelta(days=7),
-
 }
 
 MEDIA_URL = "/media/"

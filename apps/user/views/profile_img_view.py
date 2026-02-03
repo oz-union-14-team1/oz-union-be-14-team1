@@ -1,5 +1,3 @@
-from django.core.files.storage import default_storage
-from django.core.files.base import ContentFile
 from drf_spectacular.utils import extend_schema
 from rest_framework import status
 from rest_framework.parsers import MultiPartParser, FormParser
@@ -26,14 +24,10 @@ class ProfileImageView(APIView):
         service = ProfileImageService()
 
         image_url = service.update_profile_image(
-            user=request.user,
-            image_file=serializer.validated_data['profile_image']
+            user=request.user, image_file=serializer.validated_data["profile_image"]
         )
 
         return Response(
-            {
-                "message": "프로필 사진이 등록되었습니다.",
-                "profile_img_url": image_url
-            },
-            status=status.HTTP_200_OK
+            {"message": "프로필 사진이 등록되었습니다.", "profile_img_url": image_url},
+            status=status.HTTP_200_OK,
         )
