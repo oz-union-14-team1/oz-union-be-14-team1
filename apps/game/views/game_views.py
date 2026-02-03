@@ -75,13 +75,16 @@ class GameSearchView(APIView):
         if tag:
             games = (
                 Game.objects.filter(game_tags__tag=tag, is_deleted=False)
+                .prefetch_related("game_images")
                 .order_by("-released_at")
                 .distinct()
             )
         else:
-            games = Game.objects.filter(
-                name__icontains=query, is_deleted=False
-            ).order_by("-released_at")
+            games = (
+                Game.objects.filter(name__icontains=query, is_deleted=False)
+                .prefetch_related("game_images")
+                .order_by("-released_at")
+            )
 
         paginator = GamePagination()
         paginated_games = paginator.paginate_queryset(games, request)

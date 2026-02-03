@@ -26,17 +26,16 @@ class GamePreferenceGameRecommendView(APIView):
         responses=GameListSerializer,
     )
     def get(self, request):
-        preference_tags = TagPreference.objects.filter(
-            user=request.user
-        ).select_related("tag")
-
-        pref_tag_ids = [pref.tag_id for pref in preference_tags]
+        pref_tag_ids = TagPreference.objects.filter(user=request.user).values_list(
+            "tag_id", flat=True
+        )
 
         games = (
             Game.objects.filter(
                 game_tags__tag_id__in=pref_tag_ids,
                 is_deleted=False,
             )
+            .prefetch_related("game_images")
             .annotate(
                 matching_tags_count=Count(
                     "game_tags",
@@ -84,6 +83,7 @@ class GamePreferenceTagRecommendView(APIView):
                 is_deleted=False,
             )
             .exclude(id__in=wishlist_game_ids)
+            .prefetch_related("game_images")
             .annotate(
                 matching_tags_count=Count(
                     "game_tags",
