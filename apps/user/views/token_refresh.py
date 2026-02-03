@@ -3,6 +3,7 @@ from rest_framework.response import Response
 from rest_framework.permissions import AllowAny
 from rest_framework.views import APIView
 from rest_framework_simplejwt.exceptions import TokenError
+from rest_framework.exceptions import AuthenticationFailed
 from drf_spectacular.utils import extend_schema, OpenApiResponse
 
 from apps.user.utils.tokens import TokenService
@@ -40,10 +41,25 @@ class TokenRefreshWithBlacklistView(APIView):
 
         try:
             access = TokenService().refresh_access_token(refresh)
-        except TokenError as e:
-            msg = str(e)
-            if "Blacklisted" in msg:
-                return Response({"detail": "blacklisted refresh token"}, status=401)
-            return Response({"detail": "invalid refresh token"}, status=401)
+        except AuthenticationFailed as e:
+            codes = e.get_codes()
+            flat = (
+                {codes}
+                if isinstance(codes, str)
+                else set(codes) if isinstance(codes, list) else set()
+            )
+            if "token_Blacklisted" in flat:
+                return Response(
+                    {"detail": "blacklisted refresh token"},
+                    status=status.HTTP_401_UNAUTHORIZED,
+                )
+            return Response(
+                {"detail", "unauthorized"}, status=status.HTTP_401_UNAUTHORIZED
+            )
+
+        except TokenError:
+            return Response(
+                {"detail": "invalid refresh token"}, status=status.HTTP_401_UNAUTHORIZED
+            )
 
         return Response({"access_token": access}, status=status.HTTP_200_OK)

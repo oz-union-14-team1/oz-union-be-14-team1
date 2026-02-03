@@ -29,7 +29,7 @@ class LogoutView(APIView):
 
         refresh_token = request.COOKIES.get("refresh_token")
         if refresh_token:
-            svc.blacklist(refresh_token)
+            svc.blacklist_refresh(refresh_token)
 
         auth = request.headers.get("Authorization", "")
         if auth.startswith("Bearer "):

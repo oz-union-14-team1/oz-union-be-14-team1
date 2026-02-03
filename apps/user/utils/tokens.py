@@ -6,6 +6,7 @@ from typing import Optional
 
 from django.core.cache import caches
 from rest_framework_simplejwt.exceptions import TokenError
+from rest_framework.exceptions import AuthenticationFailed
 from rest_framework_simplejwt.tokens import AccessToken, RefreshToken
 
 from apps.user.utils.verification import TOKEN_BYTES, DEFAULT_TTL_SECONDS
@@ -48,10 +49,10 @@ class TokenService:
         access_token = str(refresh_token.access_token)
         return str(refresh_token), access_token
 
-    def _blacklist_key(self, refresh_token: str) -> str:
-        return f"{self.namespace}:bl:{refresh_token}"
+    def _refresh_blacklist_key(self, refresh_token: str) -> str:
+        return f"{self.namespace}:rbl:{refresh_token}"
 
-    def blacklist(self, refresh_token: str) -> None:
+    def blacklist_refresh(self, refresh_token: str) -> None:
         try:
             token = RefreshToken(refresh_token)  # type: ignore[arg-type]
             exp = int(token["exp"])
@@ -62,16 +63,21 @@ class TokenService:
         if ttl <= 0:
             return
 
-        self.cache.set(self._blacklist_key(refresh_token), "1", timeout=ttl)
+        self.cache.set(self._refresh_blacklist_key(refresh_token), "1", timeout=ttl)
 
     def is_refresh_blacklisted(self, refresh_token: str) -> bool:
-        return self.cache.get(self._blacklist_key(refresh_token)) is not None
+        return self.cache.get(self._refresh_blacklist_key(refresh_token)) is not None
 
     def refresh_access_token(self, refresh_token: str) -> str:
         if self.is_refresh_blacklisted(refresh_token):
-            raise TokenError("refresh token이 블랙리스트 됐습니다.")
+            raise AuthenticationFailed(
+                "refresh token이 블랙리스트 됐습니다.", code="token_blacklisted"
+            )
+        try:
+            token = RefreshToken(refresh_token)  # type: ignore[arg-type]
+        except TokenError:
+            raise
 
-        token = RefreshToken(refresh_token)  # type: ignore[arg-type]
         return str(token.access_token)
 
     def _access_blacklist_key(self, jti: str) -> str:
