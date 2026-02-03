@@ -22,9 +22,27 @@ logger = logging.getLogger(__name__)
 
 def _mask(value: str) -> str:
     value = value or ""
-    if len(value) <= 2:
-        return value[0] + "*" if value else ""
-    return value[:2] + "***" + value[-1]
+    length = len(value)
+
+    if length <= 1:
+        return value + "*"
+
+    elif length == 2:
+        return value[0] + "*"
+
+    elif length == 3:
+        return value[0] + "*" + value[-1]
+
+    else:
+        return value[:2] + "*" * (length - 4) + value[-2:]
+
+
+def mask_email(email: str) -> str:
+    if "@" not in email:
+        return _mask(email)
+
+    local, domain = email.split("@", 1)
+    return f"{_mask(local)}@{domain}"
 
 
 def _generate_6bigit_code() -> str:
@@ -36,6 +54,7 @@ class FindAccountView(APIView):
     permission_classes = [AllowAny]
 
     @extend_schema(
+        tags=["회원관리"],
         summary="계정 찾기",
         description="휴대폰 번호로 가입된 계정(identifier)을 찾아 마스킹하여 반환합니다.",
         request=FindAccountSerializer,
@@ -74,7 +93,7 @@ class FindAccountView(APIView):
         return Response(
             {
                 "exists": True,
-                "identifier": _mask(user.email),
+                "identifier": mask_email(user.email),
                 "message": "계정을 찾았습니다.",
             },
             status=status.HTTP_200_OK,
@@ -86,6 +105,7 @@ class PasswordResetRequestView(APIView):
     permission_classes = [AllowAny]
 
     @extend_schema(
+        tags=["회원관리"],
         summary="비밀번호 재설정 요청",
         description="identifier + 휴대폰 번호가 일치하면 6자리 인증 토큰을 발급(서버에 저장)하고 안내 메시지를 반환합니다.",
         request=PasswordResetRequestSerializer,
@@ -118,8 +138,10 @@ class PasswordResetRequestView(APIView):
             is_active=True,
         ).first()
 
+        code = None
+
         if user:
-            ttl = getattr(settings, "VERIFICATION_TOKEN_TTL_SECONDS", 300)
+            ttl = getattr(settings, "VERIFICATION_DEFAULT_TTL_SECONDS", 300)
             max_attempts = getattr(
                 settings, "VERIFICATION_TOKEN_GENERATE_MAX_ATTEMPTS", 5
             )
@@ -137,20 +159,20 @@ class PasswordResetRequestView(APIView):
 
             if code is None:
                 code = _generate_6bigit_code()
-                cache.set("password_reset:{code}", user.id, timeout=ttl)
+                cache.set(f"password_reset:{code}", user.id, timeout=ttl)
+            if settings.DEBUG:
+                logger.warning(
+                    "[비밀번호 리셋 코드] identifier=%s phone_number=%s code=%s ttl=%s",
+                    identifier,
+                    phone_number,
+                    code,
+                    ttl,
+                )
 
-            logger.warning(
-                "[비밀번호 리셋 코드] identifier=%s phone_number=%s code=%s ttl=%s",
-                identifier,
-                phone_number,
-                code,
-                ttl,
-            )
-
-        return Response(
-            {"message": "비밀번호 재설정 안내를 전송했습니다."},
-            status=status.HTTP_200_OK,
-        )
+        data = {"message": "비밀번호 재설정 안내를 전송했습니다."}
+        if code and getattr(settings, "PASSWORD_RESET_RETURN_CODE", False):
+            data["code"] = code
+        return Response(data, status=status.HTTP_200_OK)
 
 
 class PasswordResetConfirmView(APIView):
@@ -158,6 +180,7 @@ class PasswordResetConfirmView(APIView):
     permission_classes = [AllowAny]
 
     @extend_schema(
+        tags=["회원관리"],
         summary="비밀번호 재설정 확정",
         description="6자리 인증 코드가 유효하면 새 비밀번호로 변경합니다.",
         request=PasswordResetConfirmSerializer,

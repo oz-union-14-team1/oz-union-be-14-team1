@@ -7,6 +7,8 @@ from apps.user.views.account_recovery import (
     PasswordResetRequestView,
     PasswordResetConfirmView,
 )
+from apps.user.views.logout import LogoutView
+from apps.user.views.token_refresh import TokenRefreshWithBlacklistView
 
 app_name = "user"
 
@@ -25,5 +27,9 @@ urlpatterns = [
         "password/reset/confirm",
         PasswordResetConfirmView.as_view(),
         name="password_reset_confirm",
+    ),
+    path("logout", LogoutView.as_view(), name="logout"),
+    path(
+        "token/refresh", TokenRefreshWithBlacklistView.as_view(), name="token_refresh"
     ),
 ]

@@ -3,6 +3,7 @@ from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework import status
 from rest_framework.permissions import AllowAny
+from django.conf import settings
 
 from apps.user.serializers.login import LoginSerializer
 from apps.user.utils.tokens import TokenService
@@ -12,8 +13,9 @@ class LoginView(APIView):
     permission_classes = [AllowAny]
 
     @extend_schema(
+        tags=["회원관리"],
         summary="이메일 로그인",
-        description="이메일과 비밀번호로 로그인해서 access token을 발급합니다.",
+        description="이메일과 비밀번호로 로그인해서 access token + refresh token을 발급합니다.",
         request=LoginSerializer,
         responses={
             200: OpenApiResponse(
@@ -23,7 +25,11 @@ class LoginView(APIView):
                         "access_token": {
                             "type": "string",
                             "example": "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9...",
-                        }
+                        },
+                        "refresh_token": {
+                            "type": "string",
+                            "example": "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9...",
+                        },
                     },
                 },
                 description="로그인 성공",
@@ -43,9 +49,16 @@ class LoginView(APIView):
         refresh_token, access_token = token_service.create_token_pair(user=user)
 
         response = Response(
-            {"access_token": access_token},
+            {"access_token": access_token, "refresh_token": refresh_token},
             status=status.HTTP_200_OK,
         )
-        response.set_cookie(key="refresh_token", value=refresh_token)
+        response.set_cookie(
+            key="refresh_token",
+            value=refresh_token,
+            httponly=True,
+            samesite="Lax",
+            secure=not settings.DEBUG,
+            path="/",
+        )
 
         return response

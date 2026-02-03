@@ -8,6 +8,7 @@ User = get_user_model()
 class MeSerializer(serializers.ModelSerializer):
     email = serializers.EmailField(read_only=True)
     password = serializers.CharField(write_only=True, required=False)
+    phone_number = serializers.CharField(read_only=True)
 
     class Meta:
         model = User
@@ -20,6 +21,7 @@ class MeSerializer(serializers.ModelSerializer):
             "is_active",
             "created_at",
             "updated_at",
+            "phone_number",
             "password",
         )
         read_only_fields = (
@@ -28,6 +30,7 @@ class MeSerializer(serializers.ModelSerializer):
             "is_active",
             "created_at",
             "updated_at",
+            "phone_number",
         )
 
     def validate_password(self, value):
