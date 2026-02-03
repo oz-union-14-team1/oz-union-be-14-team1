@@ -2,7 +2,10 @@ from django.urls import path
 from apps.game.views.game_views import GameListView, GameDetailView, GameSearchView
 from apps.game.views.wishlist_views import WishlistView, WishlistDestroyView
 from apps.game.views.import_views import GameImportView
-from apps.game.views.recommend_views import GamePreferenceGameRecommendView
+from apps.game.views.recommend_views import (
+    GamePreferenceGameRecommendView,
+    GamePreferenceTagRecommendView,
+)
 
 
 urlpatterns = [
@@ -16,5 +19,10 @@ urlpatterns = [
         "recommend/preference",
         GamePreferenceGameRecommendView.as_view(),
         name="game-recommend-preference",
+    ),
+    path(
+        "api/v1/game/recommend/wishlist",
+        GamePreferenceTagRecommendView.as_view(),
+        name="game-recommend-wishlist",
     ),
 ]
