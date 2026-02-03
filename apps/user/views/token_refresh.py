@@ -48,13 +48,13 @@ class TokenRefreshWithBlacklistView(APIView):
                 if isinstance(codes, str)
                 else set(codes) if isinstance(codes, list) else set()
             )
-            if "token_Blacklisted" in flat:
+            if "token_blacklisted" in flat:
                 return Response(
                     {"detail": "blacklisted refresh token"},
                     status=status.HTTP_401_UNAUTHORIZED,
                 )
             return Response(
-                {"detail", "unauthorized"}, status=status.HTTP_401_UNAUTHORIZED
+                {"detail": "unauthorized"}, status=status.HTTP_401_UNAUTHORIZED
             )
 
         except TokenError:
