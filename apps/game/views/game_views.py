@@ -28,7 +28,7 @@ class GameListView(APIView):
         responses=GameListSerializer,
     )
     def get(self, request):
-        games = Game.objects.filter(id_deleted=False).order_by("-release_at")
+        games = Game.objects.filter(is_deleted=False).order_by("-release_at")
 
         paginator = GamePagination()
         paginated_games = paginator.paginate_queryset(
@@ -49,7 +49,7 @@ class GameDetailView(APIView):
         responses=GameDetailSerializer,
     )
     def get(self, request, pk):
-        game = get_object_or_404(Game, pk=pk, id_deleted=False)
+        game = get_object_or_404(Game, pk=pk, is_deleted=False)
         serializer = GameDetailSerializer(game)
 
         return Response(serializer.data)
