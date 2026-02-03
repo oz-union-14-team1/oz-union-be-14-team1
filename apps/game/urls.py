@@ -21,7 +21,7 @@ urlpatterns = [
         name="game-recommend-preference",
     ),
     path(
-        "api/v1/game/recommend/wishlist",
+        "recommend/wishlist",
         GamePreferenceTagRecommendView.as_view(),
         name="game-recommend-wishlist",
     ),
