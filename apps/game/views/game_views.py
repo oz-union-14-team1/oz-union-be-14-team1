@@ -11,7 +11,7 @@ from apps.game.serializers.game_serializer import (
 )
 from rest_framework.permissions import AllowAny
 from django.db.models import Q
-from drf_spectacular.utils import extend_schema
+from drf_spectacular.utils import extend_schema, OpenApiParameter
 
 
 class GamePagination(PageNumberPagination):
@@ -62,6 +62,7 @@ class GameSearchView(APIView):
     @extend_schema(
         tags=["게임"],
         summary="게임 상세 검색 제공 api",
+        parameters=[OpenApiParameter("q", description="검색어 입력")],
         responses=GameListSerializer,
     )
     def get(self, request):
