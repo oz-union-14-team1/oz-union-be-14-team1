@@ -5,6 +5,7 @@ services:
     volumes:
       - ./:/app                       # 로컬 코드 수정 시 컨테이너에 즉시 반영
       - static_volume:/app/staticfiles
+      - media_volume:/app/media
     ports:
       - "8000:8000"                   # 포트 연결
     env_file:
@@ -47,6 +48,8 @@ services:
   nginx:
     build: ./nginx
     container_name: nginx
+    ports: # 외부 접속을 위해 포트 개방
+      - "80:80"
     volumes:
       - static_volume:/app/staticfiles
       - media_volume:/app/media
