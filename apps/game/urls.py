@@ -6,9 +6,9 @@ from apps.game.views.import_views import GameImportView
 
 urlpatterns = [
     path("", GameListView.as_view(), name="game-list"),
-    path("<int:pk>/", GameDetailView.as_view(), name="game-detail"),
-    path("wishlist/", WishlistView.as_view(), name="wishlist"),
-    path("wishlist/<int:pk>/", WishlistDestroyView.as_view(), name="wishlist-destroy"),
-    path("import/", GameImportView.as_view(), name="game-import"),
-    path("search/", GameSearchView.as_view(), name="game-search"),
+    path("<int:pk>", GameDetailView.as_view(), name="game-detail"),
+    path("wishlist", WishlistView.as_view(), name="wishlist"),
+    path("wishlist/<int:pk>", WishlistDestroyView.as_view(), name="wishlist-destroy"),
+    path("import", GameImportView.as_view(), name="game-import"),
+    path("search", GameSearchView.as_view(), name="game-search"),
 ]

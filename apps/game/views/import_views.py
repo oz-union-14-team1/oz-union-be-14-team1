@@ -3,8 +3,13 @@ from rest_framework.response import Response
 from rest_framework import status
 from rest_framework.permissions import IsAdminUser
 from apps.game.services.importer import GameImportService
+from drf_spectacular.utils import extend_schema
 
 
+@extend_schema(
+    tags=["게임"],
+    summary="관리자만 사용하는 게임 데이터 추가 api",
+)
 class GameImportView(APIView):
     permission_classes = [IsAdminUser]
 
