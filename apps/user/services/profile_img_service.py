@@ -26,7 +26,7 @@ class ProfileImageService:
         file_path = f"profile_images/{new_filename}"
 
         # 3. 파일 저장
-        saved_path = default_storage.save(file_path, ContentFile(image_file.read()))
+        saved_path = default_storage.save(file_path, image_file)
         image_url = default_storage.url(saved_path)
 
         # 4. DB 업데이트
