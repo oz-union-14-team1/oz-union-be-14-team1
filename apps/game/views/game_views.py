@@ -3,7 +3,8 @@ from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework.pagination import PageNumberPagination
 from django.shortcuts import get_object_or_404
-from apps.game.models import Game, Tag
+from apps.game.models.game import Game
+from apps.game.models.tag import Tag
 from apps.game.serializers.game_serializer import (
     GameListSerializer,
     GameDetailSerializer,
@@ -74,13 +75,16 @@ class GameSearchView(APIView):
         if tag:
             games = (
                 Game.objects.filter(game_tags__tag=tag, is_deleted=False)
+                .prefetch_related("game_images")
                 .order_by("-released_at")
                 .distinct()
             )
         else:
-            games = Game.objects.filter(
-                name__icontains=query, is_deleted=False
-            ).order_by("-released_at")
+            games = (
+                Game.objects.filter(name__icontains=query, is_deleted=False)
+                .prefetch_related("game_images")
+                .order_by("-released_at")
+            )
 
         paginator = GamePagination()
         paginated_games = paginator.paginate_queryset(games, request)
