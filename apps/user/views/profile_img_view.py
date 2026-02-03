@@ -32,9 +32,7 @@ class ProfileImageView(APIView):
             status=status.HTTP_200_OK,
         )
 
-    @extend_schema(
-        tags=["프로필"], summary="프로필 이미지 삭제"
-    )
+    @extend_schema(tags=["프로필"], summary="프로필 이미지 삭제")
     def delete(self, request):
         # 1. 서비스 호출
         service = ProfileImageService()
