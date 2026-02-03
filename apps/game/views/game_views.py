@@ -18,6 +18,7 @@ class GamePagination(PageNumberPagination):
     page_size_query_param = "page_size"
     max_page_size = 40
 
+
 @extend_schema(tags=["게임"])
 class GameListView(APIView):
     permission_classes = [AllowAny]
@@ -38,6 +39,7 @@ class GameListView(APIView):
 
         return paginator.get_paginated_response(serializer.data)
 
+
 @extend_schema(tags=["게임"])
 class GameDetailView(APIView):
     permission_classes = [AllowAny]
@@ -51,6 +53,7 @@ class GameDetailView(APIView):
         serializer = GameDetailSerializer(game)
 
         return Response(serializer.data)
+
 
 @extend_schema(tags=["게임"])
 class GameSearchView(APIView):
