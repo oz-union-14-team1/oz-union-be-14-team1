@@ -23,6 +23,7 @@ dependencies = [
     "korcen (>=1.0.2,<2.0.0)",
     "colorama (>=0.4.6,<0.5.0)",
     "sentry-sdk[django] (>=2.51.0,<3.0.0)",
+    "pillow (>=12.1.0,<13.0.0)",
 ]
 
 

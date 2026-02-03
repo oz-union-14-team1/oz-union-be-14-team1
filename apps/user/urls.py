@@ -1,5 +1,6 @@
 from django.urls import path
 from apps.user.views.LoginView import LoginView
+from apps.user.views.profile_img_view import ProfileImageView
 from apps.user.views.registerview import RegisterView
 from apps.user.views.profileview import MeView, WithdrawView
 from apps.user.views.account_recovery import (
@@ -32,4 +33,5 @@ urlpatterns = [
     path(
         "token/refresh", TokenRefreshWithBlacklistView.as_view(), name="token_refresh"
     ),
+    path("me/image", ProfileImageView.as_view(), name="profile_image" ),
 ]
