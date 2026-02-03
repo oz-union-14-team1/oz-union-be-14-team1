@@ -10,6 +10,7 @@ from apps.game.serializers.game_serializer import (
 )
 from rest_framework.permissions import AllowAny
 from django.db.models import Q
+from drf_spectacular.utils import extend_schema
 
 
 class GamePagination(PageNumberPagination):
@@ -17,12 +18,16 @@ class GamePagination(PageNumberPagination):
     page_size_query_param = "page_size"
     max_page_size = 40
 
-
+@extend_schema(tags=["게임"])
 class GameListView(APIView):
     permission_classes = [AllowAny]
 
+    @extend_schema(
+        summary="게임 전체 목록 제공 api",
+        responses=GameListSerializer,
+    )
     def get(self, request):
-        games = Game.objects.filter(id_deleted=False).order_by("-release_date")
+        games = Game.objects.filter(id_deleted=False).order_by("-release_at")
 
         paginator = GamePagination()
         paginated_games = paginator.paginate_queryset(
@@ -33,20 +38,28 @@ class GameListView(APIView):
 
         return paginator.get_paginated_response(serializer.data)
 
-
+@extend_schema(tags=["게임"])
 class GameDetailView(APIView):
     permission_classes = [AllowAny]
 
+    @extend_schema(
+        summary="게임 상세 정보 제공 api",
+        responses=GameDetailSerializer,
+    )
     def get(self, request, pk):
         game = get_object_or_404(Game, pk=pk, id_deleted=False)
         serializer = GameDetailSerializer(game)
 
         return Response(serializer.data)
 
-
+@extend_schema(tags=["게임"])
 class GameSearchView(APIView):
     permission_classes = [AllowAny]
 
+    @extend_schema(
+        summary="게임 상세 검색 제공 api",
+        responses=GameListSerializer,
+    )
     def get(self, request):
         query = request.query_params.get("q")
 
