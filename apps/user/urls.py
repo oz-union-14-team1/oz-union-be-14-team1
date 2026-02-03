@@ -34,5 +34,4 @@ urlpatterns = [
         "token/refresh", TokenRefreshWithBlacklistView.as_view(), name="token_refresh"
     ),
     path("me/image", ProfileImageView.as_view(), name="profile_image"),
-    path("me/image", ProfileImageView.as_view(), name="profile_image"),
 ]
