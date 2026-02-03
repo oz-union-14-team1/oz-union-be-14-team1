@@ -3,15 +3,15 @@ from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework.pagination import PageNumberPagination
 from django.shortcuts import get_object_or_404
-from apps.game.models import Game, Tag
+from apps.game.models.game import Game
+from apps.game.models.tag import Tag
 from apps.game.serializers.game_serializer import (
     GameListSerializer,
     GameDetailSerializer,
 )
-from rest_framework.permissions import AllowAny, IsAuthenticated
+from rest_framework.permissions import AllowAny
 from django.db.models import Q
 from drf_spectacular.utils import extend_schema
-
 
 
 class GamePagination(PageNumberPagination):
@@ -89,6 +89,3 @@ class GameSearchView(APIView):
         serializer = GameListSerializer(paginated_games, many=True)
 
         return paginator.get_paginated_response(serializer.data)
-
-
-
