@@ -19,11 +19,11 @@ class GamePagination(PageNumberPagination):
     max_page_size = 40
 
 
-@extend_schema(tags=["게임"])
 class GameListView(APIView):
     permission_classes = [AllowAny]
 
     @extend_schema(
+        tags=["게임"],
         summary="게임 전체 목록 제공 api",
         responses=GameListSerializer,
     )
@@ -40,11 +40,11 @@ class GameListView(APIView):
         return paginator.get_paginated_response(serializer.data)
 
 
-@extend_schema(tags=["게임"])
 class GameDetailView(APIView):
     permission_classes = [AllowAny]
 
     @extend_schema(
+        tags=["게임"],
         summary="게임 상세 정보 제공 api",
         responses=GameDetailSerializer,
     )
@@ -55,11 +55,11 @@ class GameDetailView(APIView):
         return Response(serializer.data)
 
 
-@extend_schema(tags=["게임"])
 class GameSearchView(APIView):
     permission_classes = [AllowAny]
 
     @extend_schema(
+        tags=["게임"],
         summary="게임 상세 검색 제공 api",
         responses=GameListSerializer,
     )

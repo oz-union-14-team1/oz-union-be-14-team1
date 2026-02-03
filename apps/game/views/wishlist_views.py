@@ -10,13 +10,11 @@ from apps.game.serializers.wishlist_serializer import (
 from drf_spectacular.utils import extend_schema
 
 
-@extend_schema(
-    tags=["게임"],
-)
 class WishlistView(APIView):
     permission_classes = [IsAuthenticated]
 
     @extend_schema(
+        tags=["게임"],
         responses=WishlistSerializer,
         summary="위시리스트 조회 api",
     )
@@ -26,6 +24,7 @@ class WishlistView(APIView):
         return Response(serializer.data)
 
     @extend_schema(
+        tags=["게임"],
         responses=WishlistCreateSerializer,
         summary="위시리스트 추가 api",
     )
