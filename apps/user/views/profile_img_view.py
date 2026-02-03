@@ -10,7 +10,7 @@ from apps.user.services.profile_img_service import ProfileImageService
 
 class ProfileImageView(APIView):
     permission_classes = [IsAuthenticated]
-    parser_classes = [MultiPartParser, FormParser]  # 필수
+    parser_classes = [MultiPartParser, FormParser]
 
     @extend_schema(
         tags=["프로필"], summary="프로필이미지 업로드", request=ProfileImageSerializer
@@ -33,7 +33,7 @@ class ProfileImageView(APIView):
         )
 
     @extend_schema(
-        tags=["프로필"], summary="프로필 이미지 삭제", request=ProfileImageSerializer
+        tags=["프로필"], summary="프로필 이미지 삭제"
     )
     def delete(self, request):
         # 1. 서비스 호출
