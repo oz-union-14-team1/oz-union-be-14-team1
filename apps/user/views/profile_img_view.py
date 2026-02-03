@@ -31,3 +31,14 @@ class ProfileImageView(APIView):
             {"message": "프로필 사진이 등록되었습니다.", "profile_img_url": image_url},
             status=status.HTTP_200_OK,
         )
+
+    @extend_schema(
+        tags=["프로필"], summary="프로필 이미지 삭제", request=ProfileImageSerializer
+    )
+    def delete(self, request):
+        # 1. 서비스 호출
+        service = ProfileImageService()
+
+        service.delete_profile_image(request.user)
+
+        return Response(status=status.HTTP_204_NO_CONTENT)
