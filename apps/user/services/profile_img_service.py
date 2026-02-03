@@ -2,15 +2,20 @@ from django.core.files.storage import default_storage
 from django.core.files.base import ContentFile
 import uuid
 import os
+from django.conf import settings
 
 class ProfileImageService:
     def update_profile_image(self, user, image_file):
         # 1. 기존 이미지가 있다면 삭제
         if user.profile_img_url:
             try:
-                path = user.profile_img_url.replace('/media/', '')
-                if default_storage.exists(path):
-                    default_storage.delete(path)
+                media_url = settings.MEDIA_URL
+                # URL이 MEDIA_URL로 시작하는 경우에만 경로 추출 시도
+                if user.profile_img_url.startswith(media_url):
+                    path = user.profile_img_url.replace(media_url, '', 1)
+
+                    if default_storage.exists(path):
+                        default_storage.delete(path)
             except Exception:
                 pass
 
