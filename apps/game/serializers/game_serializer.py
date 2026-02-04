@@ -36,14 +36,19 @@ class GameImageSerializer(serializers.ModelSerializer):
 
 class GameListSerializer(serializers.ModelSerializer):
     image = serializers.SerializerMethodField()
+    tags = serializers.SerializerMethodField()
 
     class Meta:
         model = Game
-        fields = ["id", "name", "image"]
+        fields = ["id", "name", "tags", "image"]
 
     def get_image(self, obj):
         first_image = obj.game_images.first()
         return first_image.img_url
+
+    def get_tags(self, obj):
+        tags = Tag.objects.filter(game_tags__game=obj)
+        return [tag.tag for tag in tags]
 
 
 class GameDetailSerializer(serializers.ModelSerializer):
