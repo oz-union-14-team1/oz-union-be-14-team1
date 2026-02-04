@@ -15,7 +15,7 @@ class LoginView(APIView):
     @extend_schema(
         tags=["회원관리"],
         summary="이메일 로그인",
-        description="이메일과 비밀번호로 로그인해서 access token + refresh token을 발급합니다.",
+        description="이메일과 비밀번호로 로그인해서 access token을 반환하고 refresh tokendms HttpOnly 쿠키로 설정됩니다.",
         request=LoginSerializer,
         responses={
             200: OpenApiResponse(
@@ -26,11 +26,8 @@ class LoginView(APIView):
                             "type": "string",
                             "example": "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9...",
                         },
-                        "refresh_token": {
-                            "type": "string",
-                            "example": "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9...",
-                        },
                     },
+                    "required": ["access_token"],
                 },
                 description="로그인 성공",
             ),
@@ -48,16 +45,20 @@ class LoginView(APIView):
         token_service = TokenService()
         refresh_token, access_token = token_service.create_token_pair(user=user)
 
+        data = {"access_token": access_token}
+        if settings.DEBUG:
+            data["refresh_token"] = refresh_token
+
         response = Response(
-            {"access_token": access_token, "refresh_token": refresh_token},
+            data,
             status=status.HTTP_200_OK,
         )
         response.set_cookie(
             key="refresh_token",
             value=refresh_token,
             httponly=True,
-            samesite="Lax",
-            secure=not settings.DEBUG,
+            samesite=settings.REFRESH_COOKIE_SAMESITE,
+            secure=settings.REFRESH_COOKIE_SECURE,
             path="/",
         )
 
