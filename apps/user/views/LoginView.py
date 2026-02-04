@@ -15,7 +15,7 @@ class LoginView(APIView):
     @extend_schema(
         tags=["회원관리"],
         summary="이메일 로그인",
-        description="이메일과 비밀번호로 로그인해서 access token을 반환하고 refresh tokendms HttpOnly 쿠키로 설정됩니다.",
+        description="이메일과 비밀번호로 로그인해서 access token을 반환하고 refresh tokens HttpOnly 쿠키로 설정됩니다.",
         request=LoginSerializer,
         responses={
             200: OpenApiResponse(
