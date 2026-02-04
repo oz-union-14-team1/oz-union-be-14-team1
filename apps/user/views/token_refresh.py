@@ -30,10 +30,8 @@ class TokenRefreshWithBlacklistView(APIView):
             401: OpenApiResponse(description="refresh_token 무효/블랙리스트"),
         },
     )
-    def post(self, request):
-        refresh = request.data.get("refresh_token") or request.COOKIES.get(
-            "refresh_token"
-        )
+    def get(self, request):
+        refresh = request.COOKIES.get("refresh_token")
         if not refresh:
             return Response(
                 {"detail": "refresh token 소실"}, status=status.HTTP_400_BAD_REQUEST
