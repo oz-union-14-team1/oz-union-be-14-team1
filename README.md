@@ -57,6 +57,8 @@
     <td align="center" width="200px"><b>게임 파트</b></td>
     <td align="center" width="200px"><b>AI 파트</b></td>
     <td align="center" width="200px"><b>댓글 파트</b></td>
+    <td align="center" width="200px"><b>PR 리뷰 대장</b></td>
+    <td align="center" width="200px"><b>PR 리뷰</b></td>
   </tr>
   <tr>
     <td align="center">
@@ -86,6 +88,20 @@
       </a><br/>
       <b>이현직</b><br/>
       <a href="https://github.com/j-lee03">@j-lee03</a>
+    </td>
+    <td align="center">
+      <a href="#">
+        <img src="https://avatars.githubusercontent.com/u/227925955?v=4" width="100px" style="border-radius:50%"/>
+      </a><br/>
+      <b>한율조교</b><br/>
+      <a href="https://github.com/1yul2">@1yul2</a>
+    </td>
+    <td align="center">
+      <a href="#">
+        <img src="https://avatars.githubusercontent.com/u/219768803?v=4" width="100px" style="border-radius:50%"/>
+      </a><br/>
+      <b>박민수 러닝헬퍼</b><br/>
+      <a href="https://github.com/moxopills">@moxopills</a>
     </td>
   </tr>
 </table>
@@ -298,10 +314,10 @@
 ```
 ### 예시 ✅
 ```
-✨ feat(#100): Spring Boot
-🐛 fix(#139): 휴무 신청 승인 시 NPE 해결
-♻️ refactor(#139): 근무 스케줄 조회 로직 리팩터링
-📝 docs(#139):  README 배포 구조 업데이트
+✨ feat(#36): rawg api 를 통한 게임 데이터 저장
+🐛 fix(#83): 테스트에서 실제 ai api호출 문제 해결
+♻️ refactor(#114): 중복코드 메서드화
+📝 docs(#139): 리드미 전체 내용 수정
 ```
 ---
 ## 🏷️ 커밋 메시지 타입 (Commit Types)
@@ -329,15 +345,15 @@
 
 ---
 ## 🌿 브랜치 전략
-| 브랜치 | 설명 | 예시 |
-| :--- | :--- | :--- |
-| **main** | 운영/배포용 메인 브랜치 | - |
-| **dev** | 개발 통합 브랜치 | - |
-| **feature/01-기능** | 기능 추가 | `feature/490-actuator-health-check` |
-| **fix/** | 버그 수정 | `fix/512-leave-request-error` |
-| **refactor/** | 리팩터링 | `refactor/478-schedule-service` |
-| **chore/** | 설정, 빌드 등 기타 | `chore/490-actuator-config` |
-| **docs/** | 문서 수정 | `docs/450-readme-update` |
+| 브랜치 | 설명 | 예시                          |
+| :--- | :--- |:----------------------------|
+| **main** | 운영/배포용 메인 브랜치 | -                           |
+| **dev** | 개발 통합 브랜치 | -                           |
+| **feature/01-기능** | 기능 추가 | `feature/150-game-services` |
+| **fix/** | 버그 수정 | `fix/153-refresh-token-fix` |
+| **refactor/** | 리팩터링 | `refactor/103-update`       |
+| **chore/** | 설정, 빌드 등 기타 | `chore/490-docker`          |
+| **docs/** | 문서 수정 | `docs/139-readme-update`    |
 
 
 ---
