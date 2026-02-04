@@ -12,9 +12,20 @@ class ProfileImageView(APIView):
     permission_classes = [IsAuthenticated]
     parser_classes = [MultiPartParser, FormParser]
 
+    @extend_schema(tags=["프로필"], summary="프로필 이미지 조회")
+    def get(self, request):
+
+        user_profile_url = request.user.profile_img_url
+
+        return Response(
+            {"profile_img_url": user_profile_url},
+            status=status.HTTP_200_OK,
+        )
+
     @extend_schema(
         tags=["프로필"], summary="프로필이미지 업로드", request=ProfileImageSerializer
     )
+
     def post(self, request):
         # 1. 입력 데이터 검증
         serializer = ProfileImageSerializer(data=request.data)
