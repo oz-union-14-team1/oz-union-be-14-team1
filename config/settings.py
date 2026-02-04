@@ -21,6 +21,8 @@ SECRET_KEY = env("SECRET_KEY")
 DEBUG = env("DEBUG")
 RAWG_API_KEY = env("RAWG_API_KEY", default="dummy_api_key_for_ci")
 
+REFRESH_COOKIE_SAMESITE = "Lax" if DEBUG else "None"
+REFRESH_COOKIE_SECURE = False if DEBUG else True
 ALLOWED_HOSTS = ["*"]
 
 AUTH_USER_MODEL = "user.User"
@@ -251,10 +253,14 @@ SECURE_PROXY_SSL_HEADER = ("HTTP_X_FORWARDED_PROTO", "https")
 
 CORS_ALLOWED_ORIGINS = [
     "http://localhost:3000",
+    "https://oz-union-fe-14-team1.vercel.app",
 ]
+
 CORS_ALLOW_CREDENTIALS = True
+
 CSRF_TRUSTED_ORIGINS = [
     "http://localhost:3000",
+    "https://oz-union-fe-14-team1.vercel.app",
 ]
 
 if "test" in sys.argv:
