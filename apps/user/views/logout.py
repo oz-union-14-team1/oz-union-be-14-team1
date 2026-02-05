@@ -5,6 +5,7 @@ from rest_framework.permissions import IsAuthenticated
 from drf_spectacular.utils import extend_schema, OpenApiResponse
 
 from apps.user.utils.tokens import TokenService
+from apps.user.utils.cookies import delete_refresh_cookie, REFRESH_COOKIE_NAME
 
 
 class LogoutView(APIView):
@@ -27,7 +28,7 @@ class LogoutView(APIView):
     def post(self, request):
         svc = TokenService()
 
-        refresh_token = request.COOKIES.get("refresh_token")
+        refresh_token = request.COOKIES.get(REFRESH_COOKIE_NAME)
         if refresh_token:
             svc.blacklist_refresh(refresh_token)
 
@@ -39,5 +40,5 @@ class LogoutView(APIView):
         response = Response(
             {"detail": "로그아웃 되었습니다."}, status=status.HTTP_200_OK
         )
-        response.delete_cookie("refresh_token", path="/")
+        delete_refresh_cookie(response)
         return response

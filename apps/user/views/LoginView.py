@@ -5,6 +5,7 @@ from rest_framework import status
 from rest_framework.permissions import AllowAny
 from django.conf import settings
 
+from apps.user.utils.cookies import set_refresh_cookie
 from apps.user.serializers.login import LoginSerializer
 from apps.user.utils.tokens import TokenService
 
@@ -53,13 +54,6 @@ class LoginView(APIView):
             data,
             status=status.HTTP_200_OK,
         )
-        response.set_cookie(
-            key="refresh_token",
-            value=refresh_token,
-            httponly=True,
-            samesite=settings.REFRESH_COOKIE_SAMESITE,
-            secure=settings.REFRESH_COOKIE_SECURE,
-            path="/",
-        )
+        set_refresh_cookie(response, refresh_token)
 
         return response

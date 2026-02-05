@@ -6,6 +6,7 @@ from rest_framework_simplejwt.tokens import RefreshToken
 from drf_spectacular.utils import extend_schema, OpenApiResponse
 
 from apps.user.serializers.profile import MeSerializer, DeleteUserSerializer
+from apps.user.utils.cookies import delete_refresh_cookie, REFRESH_COOKIE_NAME
 
 
 class MeView(APIView):
@@ -106,7 +107,7 @@ class WithdrawView(APIView):
         user = request.user
 
         # refresh token 블랙리스트
-        refresh_token = request.COOKIES.get("refresh_token")
+        refresh_token = request.COOKIES.get(REFRESH_COOKIE_NAME)
         if refresh_token:
             try:
                 token = RefreshToken(refresh_token)
@@ -120,7 +121,9 @@ class WithdrawView(APIView):
         user.is_active = False
         user.save(update_fields=["email", "password", "is_active"])
 
-        return Response(
+        response = Response(
             {"message": "회원 탈퇴가 완료되었습니다."},
             status=status.HTTP_200_OK,
         )
+        delete_refresh_cookie(response)
+        return response
