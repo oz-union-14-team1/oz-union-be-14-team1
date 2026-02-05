@@ -29,7 +29,15 @@ class GameListView(APIView):
         responses=GameListSerializer,
     )
     def get(self, request):
-        games = Game.objects.filter(is_deleted=False).prefetch_related('game_images','game_tags__tag','game_platforms__platform',).order_by("-released_at")
+        games = (
+            Game.objects.filter(is_deleted=False)
+            .prefetch_related(
+                "game_images",
+                "game_tags__tag",
+                "game_platforms__platform",
+            )
+            .order_by("-released_at")
+        )
 
         paginator = GamePagination()
         paginated_games = paginator.paginate_queryset(

@@ -1,7 +1,6 @@
 from rest_framework import serializers
 from apps.game.models import Game, Genre, Tag, Platform, GameImg
-from apps.community.models.reviews import Review
-from django.db.models import Avg
+
 
 class GenreSerializer(serializers.ModelSerializer):
     class Meta:
@@ -59,7 +58,10 @@ class GameListSerializer(serializers.ModelSerializer):
         return [game_tag.tag.tag for game_tag in obj.game_tags.all()]
 
     def get_platforms(self, obj):
-        return [game_platform.platform.platform for game_platform in obj.game_platforms.all()]
+        return [
+            game_platform.platform.platform
+            for game_platform in obj.game_platforms.all()
+        ]
 
 
 class GameDetailSerializer(serializers.ModelSerializer):
@@ -68,6 +70,7 @@ class GameDetailSerializer(serializers.ModelSerializer):
     platforms = serializers.SerializerMethodField()
     images = serializers.SerializerMethodField()
     avg_score = serializers.SerializerMethodField()
+
     class Meta:
         model = Game
         fields = [
@@ -81,7 +84,7 @@ class GameDetailSerializer(serializers.ModelSerializer):
             "tags",
             "platforms",
             "images",
-            "avg_score"
+            "avg_score",
         ]
 
     def get_genres(self, obj):
@@ -91,7 +94,10 @@ class GameDetailSerializer(serializers.ModelSerializer):
         return [game_tag.tag.tag for game_tag in obj.game_tags.all()]
 
     def get_platforms(self, obj):
-        return [game_platform.platform.platform for game_platform in obj.game_platforms.all()]
+        return [
+            game_platform.platform.platform
+            for game_platform in obj.game_platforms.all()
+        ]
 
     def get_images(self, obj):
         return [image.img_url for image in obj.game_images.all()]
