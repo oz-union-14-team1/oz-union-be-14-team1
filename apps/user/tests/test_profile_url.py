@@ -1,13 +1,20 @@
+import unittest
+
+try:
+    from PIL import Image  # type: ignore
+except ModuleNotFoundError:
+    raise unittest.SkipTest("Pillow(PIL) not installed")
+
+import io
 import shutil
 import tempfile
-from django.test import override_settings
-from django.urls import reverse
-from rest_framework.test import APITestCase
-from rest_framework import status
+
 from django.contrib.auth import get_user_model
 from django.core.files.uploadedfile import SimpleUploadedFile
-from PIL import Image  # type: ignore
-import io
+from django.test import override_settings
+from django.urls import reverse
+from rest_framework import status
+from rest_framework.test import APITestCase
 
 # 1. 테스트용 임시 미디어 루트 생성 (실제 폴더 오염 방지)
 MEDIA_ROOT = tempfile.mkdtemp()
