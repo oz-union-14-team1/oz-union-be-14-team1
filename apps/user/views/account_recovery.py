@@ -219,7 +219,8 @@ class CodeVerifyView(APIView):
         code = serializer.validated_data["code"]
         purpose = serializer.validated_data.get("purpose", "password_reset")
 
-        saved_code = cache.get(f"verify:sms:{purpose}:{phone_number}")
+        sms_key = f"verify:sms:{purpose}:{phone_number}"
+        saved_code = cache.get(sms_key)
         if not saved_code or saved_code != code:
             return Response(
                 {"detail": "인증번호가 올바르지않거나 만료되었습니다."},
@@ -228,6 +229,8 @@ class CodeVerifyView(APIView):
         ttl = getattr(settings, "VERIFICATION_DEFAULT_TTL_SECONDS", 300)
 
         cache.set(f"verify:ok:{purpose}:{phone_number}", True, timeout=ttl)
+
+        cache.delete(sms_key)
 
         return Response(
             {"message": "인증이 성공하였습니다."}, status=status.HTTP_200_OK
@@ -320,7 +323,7 @@ class PasswordResetRequestView(APIView):
             httponly=True,
             secure=not settings.DEBUG,
             samesite="Lax",
-            path="/api/v1/user/password/reset/",  # ✅ CHANGED: 경로 제한
+            path="/api/v1/user/password/reset/",
         )
         return resp
 
@@ -369,7 +372,7 @@ class PasswordResetConfirmView(APIView):
                 {"detail": "인증 정보가 없습니다."},
                 status=status.HTTP_400_BAD_REQUEST,
             )
-
+        token_key = f"pw_reset:token:{reset_token}"
         user_id = cache.get(f"pw_reset:token:{reset_token}")
         if not user_id:
             return Response(
@@ -379,17 +382,20 @@ class PasswordResetConfirmView(APIView):
 
         user = User.objects.filter(id=user_id, is_active=True).first()
         if not user:
-            return Response(
+            cache.delete(token_key)
+            resp = Response(
                 {"detail": "유효하지 않은 요청입니다."},
                 status=status.HTTP_400_BAD_REQUEST,
             )
+            resp.delete_cookie("pw_reset_token", path="/api/v1/user/password/reset/")
+            return resp
 
         new_password = serializer.validated_data["new_password"]
 
         user.set_password(new_password)
         user.save(update_fields=["password"])
 
-        cache.delete(f"pw_reset:token:{reset_token}")
+        cache.delete(token_key)
 
         resp = Response(
             {"message": "비밀번호가 성공적으로 변경되었습니다."},

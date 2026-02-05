@@ -23,7 +23,6 @@ urlpatterns = [
     path("code/send", CodeSendView.as_view(), name="code_send"),
     path("code/verify", CodeVerifyView.as_view(), name="code_verify"),
     path("find-account", FindAccountView.as_view(), name="find_account"),
-    path("find-account", FindAccountView.as_view(), name="find_account"),
     path(
         "password/reset/request",
         PasswordResetRequestView.as_view(),

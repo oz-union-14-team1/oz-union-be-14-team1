@@ -86,5 +86,5 @@ class CodeVerifySerializer(serializers.Serializer):
     def validate_code(self, value: str) -> str:
         value = (value or "").strip()
         if not value.isdigit() or len(value) != 6:
-            raise serializers.ValidationError("인증번호는 6자리여야 합니다.")
+            raise serializers.ValidationError("인증번호는 6자리 숫자여야 합니다.")
         return value
