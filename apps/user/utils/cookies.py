@@ -8,8 +8,8 @@ def set_refresh_cookie(response, token: str) -> None:
         key=REFRESH_COOKIE_NAME,
         value=token,
         httponly=True,
-        samesite="Lax",
-        secure=not settings.DEBUG,
+        samesite=settings.REFRESH_COOKIE_SAMESITE,
+        secure=settings.REFRESH_COOKIE_SECURE,
         path="/",
     )
 
@@ -18,5 +18,4 @@ def delete_refresh_cookie(response) -> None:
     response.delete_cookie(
         key=REFRESH_COOKIE_NAME,
         path="/",
-        samesite="Lax",
     )

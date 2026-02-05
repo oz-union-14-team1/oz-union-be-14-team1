@@ -21,7 +21,7 @@ SECRET_KEY = env("SECRET_KEY")
 DEBUG = env("DEBUG")
 RAWG_API_KEY = env("RAWG_API_KEY", default="dummy_api_key_for_ci")
 
-REFRESH_COOKIE_SAMESITE = "Lax" if DEBUG else "None"
+REFRESH_COOKIE_SAMESITE = "None"
 REFRESH_COOKIE_SECURE = False if DEBUG else True
 ALLOWED_HOSTS = ["*"]
 
