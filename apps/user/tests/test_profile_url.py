@@ -6,7 +6,7 @@ from rest_framework.test import APITestCase
 from rest_framework import status
 from django.contrib.auth import get_user_model
 from django.core.files.uploadedfile import SimpleUploadedFile
-from PIL import Image
+from PIL import Image  # type: ignore
 import io
 
 # 1. 테스트용 임시 미디어 루트 생성 (실제 폴더 오염 방지)
