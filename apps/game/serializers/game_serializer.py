@@ -1,6 +1,7 @@
 from rest_framework import serializers
 from apps.game.models import Game, Genre, Tag, Platform, GameImg
-
+from apps.community.models.reviews import Review
+from django.db.models import Avg
 
 class GenreSerializer(serializers.ModelSerializer):
     class Meta:
@@ -55,12 +56,10 @@ class GameListSerializer(serializers.ModelSerializer):
         return first_image.img_url
 
     def get_tags(self, obj):
-        tags = Tag.objects.filter(game_tags__game=obj)
-        return [tag.tag for tag in tags]
+        return [game_tag.tag.tag for game_tag in obj.game_tags.all()]
 
     def get_platforms(self, obj):
-        platforms = Platform.objects.filter(game_platforms__game=obj)
-        return [platform.platform for platform in platforms]
+        return [game_platform.platform.platform for game_platform in obj.game_platforms.all()]
 
 
 class GameDetailSerializer(serializers.ModelSerializer):
@@ -68,7 +67,7 @@ class GameDetailSerializer(serializers.ModelSerializer):
     tags = serializers.SerializerMethodField()
     platforms = serializers.SerializerMethodField()
     images = serializers.SerializerMethodField()
-
+    avg_score = serializers.SerializerMethodField()
     class Meta:
         model = Game
         fields = [
@@ -82,20 +81,20 @@ class GameDetailSerializer(serializers.ModelSerializer):
             "tags",
             "platforms",
             "images",
+            "avg_score"
         ]
 
     def get_genres(self, obj):
-        genres = Genre.objects.filter(game_genres__game=obj)
-        return [genre.genre for genre in genres]
+        return [game_genre.genre.genre for game_genre in obj.game_genres.all()]
 
     def get_tags(self, obj):
-        tags = Tag.objects.filter(game_tags__game=obj)
-        return [tag.tag for tag in tags]
+        return [game_tag.tag.tag for game_tag in obj.game_tags.all()]
 
     def get_platforms(self, obj):
-        platforms = Platform.objects.filter(game_platforms__game=obj)
-        return [platform.platform for platform in platforms]
+        return [game_platform.platform.platform for game_platform in obj.game_platforms.all()]
 
     def get_images(self, obj):
-        images = obj.game_images.all()
-        return [image.img_url for image in images]
+        return [image.img_url for image in obj.game_images.all()]
+
+    def get_avg_score(self, obj):
+        return round(obj.avg_score, 1) if obj.avg_score else 0

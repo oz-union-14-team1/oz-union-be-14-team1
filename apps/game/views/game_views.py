@@ -10,7 +10,7 @@ from apps.game.serializers.game_serializer import (
     GameDetailSerializer,
 )
 from rest_framework.permissions import AllowAny
-from django.db.models import Q
+from django.db.models import Q, Avg
 from drf_spectacular.utils import extend_schema, OpenApiParameter
 
 
@@ -29,7 +29,7 @@ class GameListView(APIView):
         responses=GameListSerializer,
     )
     def get(self, request):
-        games = Game.objects.filter(is_deleted=False).order_by("-released_at")
+        games = Game.objects.filter(is_deleted=False).prefetch_related('game_images','game_tags__tag','game_platforms__platform',).order_by("-released_at")
 
         paginator = GamePagination()
         paginated_games = paginator.paginate_queryset(
@@ -50,7 +50,18 @@ class GameDetailView(APIView):
         responses=GameDetailSerializer,
     )
     def get(self, request, pk):
-        game = get_object_or_404(Game, pk=pk, is_deleted=False)
+        game = get_object_or_404(
+            Game.objects.prefetch_related(
+                "game_images",
+                "game_genres__genre",
+                "game_tags__tag",
+                "game_platforms__platform",
+            ).annotate(
+                avg_score=Avg("reviews__rating", filter=Q(reviews__is_deleted=False))
+            ),
+            pk=pk,
+            is_deleted=False,
+        )
         serializer = GameDetailSerializer(game)
 
         return Response(serializer.data)
@@ -73,17 +84,23 @@ class GameSearchView(APIView):
 
         tag = Tag.objects.filter(Q(slug=query) | Q(tag_ko=query)).first()
 
+        prefetch_options = [
+            "game_images",
+            "game_tags__tag",
+            "game_platforms__platform",
+        ]
+
         if tag:
             games = (
                 Game.objects.filter(game_tags__tag=tag, is_deleted=False)
-                .prefetch_related("game_images")
+                .prefetch_related(*prefetch_options)
                 .order_by("-released_at")
                 .distinct()
             )
         else:
             games = (
                 Game.objects.filter(name__icontains=query, is_deleted=False)
-                .prefetch_related("game_images")
+                .prefetch_related(*prefetch_options)
                 .order_by("-released_at")
             )
 
