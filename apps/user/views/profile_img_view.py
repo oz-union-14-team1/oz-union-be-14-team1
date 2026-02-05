@@ -14,8 +14,11 @@ class ProfileImageView(APIView):
 
     @extend_schema(tags=["프로필"], summary="프로필 이미지 조회")
     def get(self, request):
-
         user_profile_url = request.user.profile_img_url
+
+        # 상대 경로(예: /media/...)인 경우 도메인을 붙여서 완전한 URL로 변환
+        if user_profile_url and not user_profile_url.startswith("http"):
+            user_profile_url = request.build_absolute_uri(user_profile_url)
 
         return Response(
             {"profile_img_url": user_profile_url},
@@ -37,8 +40,17 @@ class ProfileImageView(APIView):
             user=request.user, image_file=serializer.validated_data["profile_image"]
         )
 
+        # 응답할 때 도메인을 붙여서 완전한 URL로 변환하여 전달
+        if image_url and not image_url.startswith("http"):
+            full_image_url = request.build_absolute_uri(image_url)
+        else:
+            full_image_url = image_url
+
         return Response(
-            {"message": "프로필 사진이 등록되었습니다.", "profile_img_url": image_url},
+            {
+                "message": "프로필 사진이 등록되었습니다.",
+                "profile_img_url": full_image_url,
+            },
             status=status.HTTP_200_OK,
         )
 
