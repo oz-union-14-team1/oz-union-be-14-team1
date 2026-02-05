@@ -37,10 +37,18 @@ class GameImageSerializer(serializers.ModelSerializer):
 class GameListSerializer(serializers.ModelSerializer):
     image = serializers.SerializerMethodField()
     tags = serializers.SerializerMethodField()
+    platforms = serializers.SerializerMethodField()
 
     class Meta:
         model = Game
-        fields = ["id", "name", "tags", "image"]
+        fields = [
+            "id",
+            "name",
+            "tags",
+            "image",
+            "released_at",
+            "platforms",
+        ]
 
     def get_image(self, obj):
         first_image = obj.game_images.first()
@@ -49,6 +57,10 @@ class GameListSerializer(serializers.ModelSerializer):
     def get_tags(self, obj):
         tags = Tag.objects.filter(game_tags__game=obj)
         return [tag.tag for tag in tags]
+
+    def get_platforms(self, obj):
+        platforms = Platform.objects.filter(game_platforms__game=obj)
+        return [platform.platform for platform in platforms]
 
 
 class GameDetailSerializer(serializers.ModelSerializer):
