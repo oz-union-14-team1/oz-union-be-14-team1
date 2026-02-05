@@ -16,8 +16,12 @@ services:
       # Redis 연결 설정 (Celery Worker와 동일하게 맞춤)
       - REDIS_URL=redis://redis:6379/0
       - CELERY_BROKER_URL=redis://redis:6379/0
+
+      - USE_REDIS=True
+      -
     depends_on:
       - db
+      - redis
     networks:
       - app_network
     command: >                        # 서버 실행 명령어
