@@ -10,3 +10,6 @@ class UserSocialAccount(models.Model):
     provider_email = models.CharField(max_length=255, null=True)
     connected_at = models.DateTimeField()
     created_at = models.DateTimeField()
+
+    class Meta:
+        db_table = "social_account"
