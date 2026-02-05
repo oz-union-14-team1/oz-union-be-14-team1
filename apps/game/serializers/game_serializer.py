@@ -41,7 +41,14 @@ class GameListSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Game
-        fields = ["id", "name", "tags", "image", "released_at", "platforms",]
+        fields = [
+            "id",
+            "name",
+            "tags",
+            "image",
+            "released_at",
+            "platforms",
+        ]
 
     def get_image(self, obj):
         first_image = obj.game_images.first()
