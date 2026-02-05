@@ -15,6 +15,8 @@ from apps.user.serializers.account_recovery import (
     FindAccountSerializer,
     PasswordResetConfirmSerializer,
     PasswordResetRequestSerializer,
+    CodeVerifySerializer,
+    CodeSendSerializer,
 )
 
 logger = logging.getLogger(__name__)
@@ -56,7 +58,7 @@ class FindAccountView(APIView):
     @extend_schema(
         tags=["회원관리"],
         summary="계정 찾기",
-        description="휴대폰 번호로 가입된 계정(identifier)을 찾아 마스킹하여 반환합니다.",
+        description="휴대폰 인증을 통과한 phone_number로 가입된 계정을 마스킹하여 반환합니다.",
         request=FindAccountSerializer,
         responses={
             200: OpenApiResponse(
@@ -64,31 +66,50 @@ class FindAccountView(APIView):
                     "type": "object",
                     "properties": {
                         "exists": {"type": "boolean", "example": True},
-                        "identifier": {"type": "string", "example": "my***"},
+                        "identifier": {
+                            "type": "string",
+                            "example": "my***@example.com",
+                        },
                         "message": {"type": "string", "example": "계정을 찾았습니다."},
                     },
                 },
-                description="계정 존재 여부 반환(존재하면 identifier 마스킹)",
             ),
-            400: OpenApiResponse(description="잘못된 요청(필수값 누락/형식 오류)"),
+            400: OpenApiResponse(
+                response={
+                    "type": "object",
+                    "properties": {
+                        "detail": {
+                            "type": "string",
+                            "example": "휴대폰 인증이 필요합니다.",
+                        }
+                    },
+                }
+            ),
         },
     )
     def post(self, request):
         serializer = FindAccountSerializer(data=request.data)
         serializer.is_valid(raise_exception=True)
 
-        phone_number = serializer.validated_data["phone_number"].strip()
+        phone_number = serializer.validated_data["phone_number"]
 
-        user = User.objects.filter(
-            phone_number=phone_number,
-            is_active=True,
-        ).first()
+        if not cache.get(f"verify:ok:find_account:{phone_number}"):
+            return Response(
+                {"detail": "휴대폰 인증이 필요합니다."},
+                status=status.HTTP_400_BAD_REQUEST,
+            )
 
+        user = User.objects.filter(phone_number=phone_number, is_active=True).first()
         if not user:
+            cache.delete(f"verify:ok:find_account:{phone_number}")
+            cache.delete(f"verify:sms:find_account:{phone_number}")
             return Response(
                 {"exists": False, "message": "일치하는 계정을 찾을 수 없습니다."},
                 status=status.HTTP_200_OK,
             )
+
+        cache.delete(f"verify:ok:find_account:{phone_number}")
+        cache.delete(f"verify:sms:find_account:{phone_number}")
 
         return Response(
             {
@@ -100,6 +121,119 @@ class FindAccountView(APIView):
         )
 
 
+class CodeSendView(APIView):
+    authentication_classes = []
+    permission_classes = [AllowAny]
+
+    @extend_schema(
+        tags=["회원관리"],
+        summary="인증번호 전송",
+        description="""phone_number로 6자리 인증번호를 생성해 캐시에 저장합니다. purpose로 용도를 구분합니다.
+        
+        find_account: 아이디찾기
+        password_reset: 비밀번호 재설정 
+        update_phone, 휴대폰 변경/ 회원수정
+        """,
+        request=CodeSendSerializer,
+        responses={
+            200: OpenApiResponse(
+                response={
+                    "type": "object",
+                    "properties": {
+                        "message": {
+                            "type": "string",
+                            "example": "인증번호를 전송했습니다.",
+                        },
+                        "code": {"type": "string", "example": "123456"},
+                    },
+                }
+            )
+        },
+    )
+    def post(self, request):
+        serializer = CodeSendSerializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+
+        phone_number = serializer.validated_data["phone_number"]
+        purpose = serializer.validated_data.get("purpose", "password_reset")
+
+        ttl = getattr(settings, "VERIFICATION_DEFAULT_TTL_SECONDS", 300)
+        code = _generate_6bigit_code()
+
+        cache.set(f"verify:sms:{purpose}:{phone_number}", code, timeout=ttl)
+
+        data = {"message": "인증번호를 전송했습니다."}
+
+        if settings.DEBUG:
+            data["code"] = code
+            logger.warning(
+                "[CODE_SEND] purpose=%s phone=%s code=%s ttl=%s",
+                purpose,
+                phone_number,
+                code,
+                ttl,
+            )
+
+        return Response(data, status=status.HTTP_200_OK)
+
+
+class CodeVerifyView(APIView):
+    authentication_classes = []
+    permission_classes = [AllowAny]
+
+    @extend_schema(
+        tags=["회원관리"],
+        summary="인증번호 확인",
+        description="phone_number + code가 일치하면 인증 성공. purpose로 용도를 구분합니다.",
+        request=CodeVerifySerializer,
+        responses={
+            200: OpenApiResponse(
+                response={
+                    "type": "object",
+                    "properties": {
+                        "message": {
+                            "type": "string",
+                            "example": "인증이 성공하였습니다.",
+                        }
+                    },
+                }
+            ),
+            400: OpenApiResponse(
+                response={
+                    "type": "object",
+                    "properties": {
+                        "detail": {
+                            "type": "string",
+                            "example": "인증번호가 올바르지 않거나 만료되었습니다.",
+                        }
+                    },
+                }
+            ),
+        },
+    )
+    def post(self, request):
+        serializer = CodeVerifySerializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+
+        phone_number = serializer.validated_data["phone_number"]
+        code = serializer.validated_data["code"]
+        purpose = serializer.validated_data.get("purpose", "password_reset")
+
+        saved_code = cache.get(f"verify:sms:{purpose}:{phone_number}")
+        if not saved_code or saved_code != code:
+            return Response(
+                {"detail": "인증번호가 올바르지않거나 만료되었습니다."},
+                status=status.HTTP_400_BAD_REQUEST,
+            )
+        ttl = getattr(settings, "VERIFICATION_DEFAULT_TTL_SECONDS", 300)
+
+        cache.set(f"verify:ok:{purpose}:{phone_number}", True, timeout=ttl)
+
+        return Response(
+            {"message": "인증이 성공하였습니다."}, status=status.HTTP_200_OK
+        )
+
+
 class PasswordResetRequestView(APIView):
     authentication_classes = []
     permission_classes = [AllowAny]
@@ -107,7 +241,7 @@ class PasswordResetRequestView(APIView):
     @extend_schema(
         tags=["회원관리"],
         summary="비밀번호 재설정 요청",
-        description="identifier + 휴대폰 번호가 일치하면 6자리 인증 토큰을 발급(서버에 저장)하고 안내 메시지를 반환합니다.",
+        description="password_reset 인증 통과 + code 확인 후 reset_token을 발급하고, 토큰은 HttpOnly 쿠키로만 설정합니다.",
         request=PasswordResetRequestSerializer,
         responses={
             200: OpenApiResponse(
@@ -116,63 +250,79 @@ class PasswordResetRequestView(APIView):
                     "properties": {
                         "message": {
                             "type": "string",
-                            "example": "비밀번호 재설정 안내를 전송했습니다.",
+                            "example": "비밀번호 재설정 요청이 확인되었습니다.",
                         }
                     },
-                },
-                description="요청 처리 완료(보안상 존재 여부와 관계없이 동일 응답)",
+                }
             ),
-            400: OpenApiResponse(description="잘못된 요청(필수값 누락/형식 오류)"),
+            400: OpenApiResponse(
+                response={
+                    "type": "object",
+                    "properties": {
+                        "detail": {
+                            "type": "string",
+                            "example": "휴대폰 인증이 필요합니다.",
+                        }
+                    },
+                }
+            ),
         },
     )
     def post(self, request):
         serializer = PasswordResetRequestSerializer(data=request.data)
         serializer.is_valid(raise_exception=True)
 
-        identifier = serializer.validated_data["identifier"].strip()
-        phone_number = serializer.validated_data["phone_number"].strip()
+        identifier = (serializer.validated_data["identifier"] or "").strip()
+        phone_number = serializer.validated_data["phone_number"]
+        code = serializer.validated_data["code"]
+
+        if not cache.get(f"verify:ok:password_reset:{phone_number}"):
+            return Response(
+                {"detail": "휴대폰 인증이 필요합니다."},
+                status=status.HTTP_400_BAD_REQUEST,
+            )
+
+        saved_code = cache.get(f"verify:sms:password_reset:{phone_number}")
+        if not saved_code or saved_code != code:
+            return Response(
+                {"detail": "인증번호가 올바르지 않거나 만료되었습니다."},
+                status=status.HTTP_400_BAD_REQUEST,
+            )
 
         user = User.objects.filter(
             email=identifier,
             phone_number=phone_number,
             is_active=True,
         ).first()
-
-        code = None
-
-        if user:
-            ttl = getattr(settings, "VERIFICATION_DEFAULT_TTL_SECONDS", 300)
-            max_attempts = getattr(
-                settings, "VERIFICATION_TOKEN_GENERATE_MAX_ATTEMPTS", 5
+        if not user:
+            return Response(
+                {"detail": "일치하는 계정을 찾을 수 없습니다."},
+                status=status.HTTP_400_BAD_REQUEST,
             )
 
-            code = None
+        ttl = getattr(settings, "VERIFICATION_DEFAULT_TTL_SECONDS", 300)
+        reset_token = secrets.token_urlsafe(32)
+        cache.set(f"pw_reset:token:{reset_token}", user.id, timeout=ttl)
 
-            for _ in range(max_attempts):
-                candidate = _generate_6bigit_code()
-                cache_key = f"password_reset:{candidate}"
+        # 인증 관련 키 1회용 처리
+        cache.delete(f"verify:ok:password_reset:{phone_number}")
+        cache.delete(f"verify:sms:password_reset:{phone_number}")
 
-                if cache.get(cache_key) is None:
-                    cache.set(cache_key, user.id, timeout=ttl)
-                    code = candidate
-                    break
+        resp = Response(
+            {"message": "비밀번호 재설정 요청이 확인되었습니다."},
+            status=status.HTTP_200_OK,
+        )
 
-            if code is None:
-                code = _generate_6bigit_code()
-                cache.set(f"password_reset:{code}", user.id, timeout=ttl)
-            if settings.DEBUG:
-                logger.warning(
-                    "[비밀번호 리셋 코드] identifier=%s phone_number=%s code=%s ttl=%s",
-                    identifier,
-                    phone_number,
-                    code,
-                    ttl,
-                )
-
-        data = {"message": "비밀번호 재설정 안내를 전송했습니다."}
-        if code and getattr(settings, "PASSWORD_RESET_RETURN_CODE", False):
-            data["code"] = code
-        return Response(data, status=status.HTTP_200_OK)
+        resp.set_cookie(
+            key="pw_reset_token",
+            value=reset_token,
+            max_age=ttl,
+            httponly=True,
+            secure=not settings.DEBUG,
+            samesite="Lax",
+            path="/api/v1/user/password/reset/",  # ✅ CHANGED: 경로 제한
+        )
+        return resp
 
 
 class PasswordResetConfirmView(APIView):
@@ -182,7 +332,7 @@ class PasswordResetConfirmView(APIView):
     @extend_schema(
         tags=["회원관리"],
         summary="비밀번호 재설정 확정",
-        description="6자리 인증 코드가 유효하면 새 비밀번호로 변경합니다.",
+        description="쿠키가 유효하면 새 비밀번호로 변경합니다.",
         request=PasswordResetConfirmSerializer,
         responses={
             200: OpenApiResponse(
@@ -194,8 +344,7 @@ class PasswordResetConfirmView(APIView):
                             "example": "비밀번호가 성공적으로 변경되었습니다.",
                         }
                     },
-                },
-                description="비밀번호 변경 성공",
+                }
             ),
             400: OpenApiResponse(
                 response={
@@ -203,11 +352,10 @@ class PasswordResetConfirmView(APIView):
                     "properties": {
                         "detail": {
                             "type": "string",
-                            "example": "유효하지 않거나 만료된 토큰입니다.",
+                            "example": "유효하지 않거나 만료된 인증입니다.",
                         }
                     },
-                },
-                description="유효하지 않은 요청(토큰 만료/불일치/비밀번호 검증 실패 등)",
+                }
             ),
         },
     )
@@ -215,15 +363,17 @@ class PasswordResetConfirmView(APIView):
         serializer = PasswordResetConfirmSerializer(data=request.data)
         serializer.is_valid(raise_exception=True)
 
-        code = serializer.validated_data["code"]
-        new_password = serializer.validated_data["new_password"]
+        reset_token = request.COOKIES.get("pw_reset_token")
+        if not reset_token:
+            return Response(
+                {"detail": "인증 정보가 없습니다."},
+                status=status.HTTP_400_BAD_REQUEST,
+            )
 
-        cache_key = f"password_reset:{code}"
-        user_id = cache.get(cache_key)
-
+        user_id = cache.get(f"pw_reset:token:{reset_token}")
         if not user_id:
             return Response(
-                {"detail": "유효하지 않거나 만료된 인증 코드입니다."},
+                {"detail": "유효하지 않거나 만료된 인증입니다."},
                 status=status.HTTP_400_BAD_REQUEST,
             )
 
@@ -234,11 +384,17 @@ class PasswordResetConfirmView(APIView):
                 status=status.HTTP_400_BAD_REQUEST,
             )
 
+        new_password = serializer.validated_data["new_password"]
+
         user.set_password(new_password)
         user.save(update_fields=["password"])
-        cache.delete(cache_key)
 
-        return Response(
+        cache.delete(f"pw_reset:token:{reset_token}")
+
+        resp = Response(
             {"message": "비밀번호가 성공적으로 변경되었습니다."},
             status=status.HTTP_200_OK,
         )
+
+        resp.delete_cookie("pw_reset_token", path="/api/v1/user/password/reset/")
+        return resp
