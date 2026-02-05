@@ -25,7 +25,6 @@ class ProfileImageView(APIView):
     @extend_schema(
         tags=["프로필"], summary="프로필이미지 업로드", request=ProfileImageSerializer
     )
-
     def post(self, request):
         # 1. 입력 데이터 검증
         serializer = ProfileImageSerializer(data=request.data)
