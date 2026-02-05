@@ -24,6 +24,8 @@ dependencies = [
     "colorama (>=0.4.6,<0.5.0)",
     "sentry-sdk[django] (>=2.51.0,<3.0.0)",
     "pillow (>=12.1.0,<13.0.0)",
+    "django-redis (>=5.4.0,<6.0.0)",
+    "redis (>=5.0.0, <6.0.0)"
 ]
 
 
@@ -54,6 +56,4 @@ django_settings_module = "config.settings"
 
 [tool.poetry.dependencies]
 python = ">=3.12,<4.0"
-django-redis = ">=5.4.0,<6.0.0"
-redis = ">=5.0.0, <6.0.0"
 telnyx = "^2.0"
