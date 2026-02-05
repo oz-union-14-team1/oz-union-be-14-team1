@@ -32,10 +32,27 @@ class MeSerializer(serializers.ModelSerializer):
             "updated_at",
             "phone_number",
         )
+        extra_kwargs = {
+            "nickname": {"validators": []},
+        }
 
     def validate_password(self, value):
         user = self.context["request"].user
         return validate_user_password(user, value)
+
+    def validate_nickname(self, value: str) -> str:
+        request = self.context.get("request")
+        user = request.user if request else None
+
+        value = (value or "").strip()
+
+        if user and value == (user.nickname or ""):
+            raise serializers.ValidationError("기존 닉네임과 동일합니다.")
+
+        if user and User.objects.exclude(pk=user.pk).filter(nickname=value).exists():
+            raise serializers.ValidationError("이미 사용 중인 닉네임입니다.")
+
+        return value
 
     def update(self, instance, validated_data):
         validated_data.pop("email", None)

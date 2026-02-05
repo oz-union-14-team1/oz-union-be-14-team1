@@ -26,6 +26,12 @@ class SignUpSerializer(serializers.Serializer):
             "phone_number",
         ]
 
+    def validate_email(self, value: str) -> str:
+        value = (value or "").strip()
+        if User.objects.filter(email=value).exists():
+            raise serializers.ValidationError("이미 가입된 이메일입니다.")
+        return value
+
     def validate_password(self, value: str) -> str:
         """비밀번호 유효성 검증"""
         if len(value) < 8 or len(value) > 20:
@@ -59,12 +65,6 @@ class SignUpSerializer(serializers.Serializer):
             raise serializers.ValidationError("이미 가입된 휴대폰 번호입니다.")
 
         return normalized
-
-    def validate(self, attrs):
-        email = attrs.get("email")
-        if email and User.objects.filter(email=email).exists():
-            raise serializers.ValidationError({"email": ["이미 가입된 이메일입니다."]})
-        return attrs
 
     def create(self, validated_data):
         email = validated_data.pop("email")
