@@ -25,7 +25,8 @@ dependencies = [
     "sentry-sdk[django] (>=2.51.0,<3.0.0)",
     "pillow (>=12.1.0,<13.0.0)",
     "django-redis (>=5.4.0,<6.0.0)",
-    "redis (>=5.0.0, <6.0.0)"
+    "redis (>=5.0.0, <6.0.0)",
+    "types-requests (>=2.32.4.20260107,<3.0.0.0)"
 ]
 
 
