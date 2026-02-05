@@ -7,6 +7,8 @@ from apps.user.views.account_recovery import (
     FindAccountView,
     PasswordResetRequestView,
     PasswordResetConfirmView,
+    CodeVerifyView,
+    CodeSendView,
 )
 from apps.user.views.logout import LogoutView
 from apps.user.views.token_refresh import TokenRefreshWithBlacklistView
@@ -18,6 +20,8 @@ urlpatterns = [
     path("signup", RegisterView.as_view(), name="signup"),
     path("me", MeView.as_view(), name="profile"),
     path("me/delete", WithdrawView.as_view(), name="profile_delete"),
+    path("code/send", CodeSendView.as_view(), name="code_send"),
+    path("code/verify", CodeVerifyView.as_view(), name="code_verify"),
     path("find-account", FindAccountView.as_view(), name="find_account"),
     path(
         "password/reset/request",
