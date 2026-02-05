@@ -1,3 +1,5 @@
+from typing import ClassVar, Any
+
 from rest_framework import serializers
 from django.contrib.auth import get_user_model
 from apps.user.validators.validator import validate_user_password
@@ -32,7 +34,7 @@ class MeSerializer(serializers.ModelSerializer):
             "updated_at",
             "phone_number",
         )
-        extra_kwargs = {
+        extra_kwargs: ClassVar[dict[str, Any]] = {
             "nickname": {"validators": []},
         }
 
