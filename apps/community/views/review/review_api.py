@@ -6,7 +6,9 @@ from drf_spectacular.utils import extend_schema, inline_serializer
 from typing import cast
 from rest_framework import serializers
 from apps.community.pagination import ReviewPageNumberPagination
-from apps.community.serializers.community_review_list import CommunityReviewListSerializer
+from apps.community.serializers.community_review_list import (
+    CommunityReviewListSerializer,
+)
 from apps.community.serializers.review.review_create import ReviewCreateSerializer
 from apps.community.serializers.review.review_list import ReviewListSerializer
 from apps.community.services.review.review_create_service import create_review
@@ -108,5 +110,7 @@ class MyReviewListAPIView(APIView, ReviewPaginationMixin):
 
         # 2. Mixin의 공통 메서드를 사용하여 응답 반환
         return self.get_paginated_response(
-            request=request, queryset=queryset, serializer_class=CommunityReviewListSerializer
+            request=request,
+            queryset=queryset,
+            serializer_class=CommunityReviewListSerializer,
         )
