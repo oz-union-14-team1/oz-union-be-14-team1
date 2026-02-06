@@ -28,13 +28,10 @@ def _mask(value: str) -> str:
 
     if length <= 1:
         return value + "*"
-
     elif length == 2:
         return value[0] + "*"
-
     elif length == 3:
         return value[0] + "*" + value[-1]
-
     else:
         return value[:2] + "*" * (length - 4) + value[-2:]
 
@@ -48,7 +45,7 @@ def mask_email(email: str) -> str:
 
 
 def _generate_6bigit_code() -> str:
-    return f"{secrets.randbelow(900000)+100000:06d}"
+    return f"{secrets.randbelow(900000) + 100000:06d}"
 
 
 class FindAccountView(APIView):
@@ -66,10 +63,7 @@ class FindAccountView(APIView):
                     "type": "object",
                     "properties": {
                         "exists": {"type": "boolean", "example": True},
-                        "identifier": {
-                            "type": "string",
-                            "example": "my***@example.com",
-                        },
+                        "identifier": {"type": "string", "example": "my***@example.com"},
                         "message": {"type": "string", "example": "계정을 찾았습니다."},
                     },
                 },
@@ -78,10 +72,7 @@ class FindAccountView(APIView):
                 response={
                     "type": "object",
                     "properties": {
-                        "detail": {
-                            "type": "string",
-                            "example": "휴대폰 인증이 필요합니다.",
-                        }
+                        "detail": {"type": "string", "example": "휴대폰 인증이 필요합니다."}
                     },
                 }
             ),
@@ -129,9 +120,9 @@ class CodeSendView(APIView):
         tags=["회원관리"],
         summary="인증번호 전송",
         description="""phone_number로 6자리 인증번호를 생성해 캐시에 저장합니다. purpose로 용도를 구분합니다.
-        
+
         find_account: 아이디찾기
-        password_reset: 비밀번호 재설정 
+        password_reset: 비밀번호 재설정
         update_phone, 휴대폰 변경/ 회원수정
         """,
         request=CodeSendSerializer,
@@ -140,10 +131,7 @@ class CodeSendView(APIView):
                 response={
                     "type": "object",
                     "properties": {
-                        "message": {
-                            "type": "string",
-                            "example": "인증번호를 전송했습니다.",
-                        },
+                        "message": {"type": "string", "example": "인증번호를 전송했습니다."},
                         "code": {"type": "string", "example": "123456"},
                     },
                 }
@@ -164,15 +152,15 @@ class CodeSendView(APIView):
 
         data = {"message": "인증번호를 전송했습니다."}
 
-        data["code"] = code
-
-        logger.warning(
-            "[CODE_SEND] purpose=%s phone=%s code=%s ttl=%s",
-            purpose,
-            phone_number,
-            code,
-            ttl,
-        )
+        if settings.DEBUG:
+            data["code"] = code
+            logger.warning(
+                "[CODE_SEND] purpose=%s phone=%s code=%s ttl=%s",
+                purpose,
+                phone_number,
+                code,
+                ttl,
+            )
 
         return Response(data, status=status.HTTP_200_OK)
 
@@ -190,22 +178,14 @@ class CodeVerifyView(APIView):
             200: OpenApiResponse(
                 response={
                     "type": "object",
-                    "properties": {
-                        "message": {
-                            "type": "string",
-                            "example": "인증이 성공하였습니다.",
-                        }
-                    },
+                    "properties": {"message": {"type": "string", "example": "인증이 성공하였습니다."}},
                 }
             ),
             400: OpenApiResponse(
                 response={
                     "type": "object",
                     "properties": {
-                        "detail": {
-                            "type": "string",
-                            "example": "인증번호가 올바르지 않거나 만료되었습니다.",
-                        }
+                        "detail": {"type": "string", "example": "인증번호가 올바르지 않거나 만료되었습니다."}
                     },
                 }
             ),
@@ -226,16 +206,14 @@ class CodeVerifyView(APIView):
                 {"detail": "인증번호가 올바르지않거나 만료되었습니다."},
                 status=status.HTTP_400_BAD_REQUEST,
             )
-        ttl = getattr(settings, "VERIFICATION_DEFAULT_TTL_SECONDS", 300)
 
-        # Redis에 인증번호 저장
-        cache.set(f"verify:ok:{purpose}:{phone_number}", True, timeout=ttl)
+        ok_ttl = getattr(settings, "VERIFICATION_OK_TTL_SECONDS", 900)  # 기본 15분
+
+        cache.set(f"verify:ok:{purpose}:{phone_number}", True, timeout=ok_ttl)
 
         cache.delete(sms_key)
 
-        return Response(
-            {"message": "인증이 성공하였습니다."}, status=status.HTTP_200_OK
-        )
+        return Response({"message": "인증이 성공하였습니다."}, status=status.HTTP_200_OK)
 
 
 class PasswordResetRequestView(APIView):
@@ -245,29 +223,21 @@ class PasswordResetRequestView(APIView):
     @extend_schema(
         tags=["회원관리"],
         summary="비밀번호 재설정 요청",
-        description="password_reset 인증 통과 + code 확인 후 reset_token을 발급하고, 토큰은 HttpOnly 쿠키로만 설정합니다.",
+        description="password_reset 인증 통과(verify:ok) 후 reset_token을 발급하고, 토큰은 HttpOnly 쿠키로만 설정합니다.",
         request=PasswordResetRequestSerializer,
         responses={
             200: OpenApiResponse(
                 response={
                     "type": "object",
                     "properties": {
-                        "message": {
-                            "type": "string",
-                            "example": "비밀번호 재설정 요청이 확인되었습니다.",
-                        }
+                        "message": {"type": "string", "example": "비밀번호 재설정 요청이 확인되었습니다."}
                     },
                 }
             ),
             400: OpenApiResponse(
                 response={
                     "type": "object",
-                    "properties": {
-                        "detail": {
-                            "type": "string",
-                            "example": "휴대폰 인증이 필요합니다.",
-                        }
-                    },
+                    "properties": {"detail": {"type": "string", "example": "휴대폰 인증이 필요합니다."}},
                 }
             ),
         },
@@ -278,18 +248,10 @@ class PasswordResetRequestView(APIView):
 
         identifier = (serializer.validated_data["identifier"] or "").strip()
         phone_number = serializer.validated_data["phone_number"]
-        code = serializer.validated_data["code"]
 
         if not cache.get(f"verify:ok:password_reset:{phone_number}"):
             return Response(
                 {"detail": "휴대폰 인증이 필요합니다."},
-                status=status.HTTP_400_BAD_REQUEST,
-            )
-
-        saved_code = cache.get(f"verify:sms:password_reset:{phone_number}")
-        if not saved_code or saved_code != code:
-            return Response(
-                {"detail": "인증번호가 올바르지 않거나 만료되었습니다."},
                 status=status.HTTP_400_BAD_REQUEST,
             )
 
@@ -304,13 +266,13 @@ class PasswordResetRequestView(APIView):
                 status=status.HTTP_400_BAD_REQUEST,
             )
 
-        ttl = getattr(settings, "VERIFICATION_DEFAULT_TTL_SECONDS", 300)
+        token_ttl = getattr(settings, "PW_RESET_TOKEN_TTL_SECONDS", 900)
+
         reset_token = secrets.token_urlsafe(32)
-        cache.set(f"pw_reset:token:{reset_token}", user.id, timeout=ttl)
+        cache.set(f"pw_reset:token:{reset_token}", user.id, timeout=token_ttl)
 
         # 인증 관련 키 1회용 처리
         cache.delete(f"verify:ok:password_reset:{phone_number}")
-        cache.delete(f"verify:sms:password_reset:{phone_number}")
 
         resp = Response(
             {"message": "비밀번호 재설정 요청이 확인되었습니다."},
@@ -320,7 +282,7 @@ class PasswordResetRequestView(APIView):
         resp.set_cookie(
             key="pw_reset_token",
             value=reset_token,
-            max_age=ttl,
+            max_age=token_ttl,
             httponly=True,
             secure=not settings.DEBUG,
             samesite="Lax",
@@ -342,23 +304,13 @@ class PasswordResetConfirmView(APIView):
             200: OpenApiResponse(
                 response={
                     "type": "object",
-                    "properties": {
-                        "message": {
-                            "type": "string",
-                            "example": "비밀번호가 성공적으로 변경되었습니다.",
-                        }
-                    },
+                    "properties": {"message": {"type": "string", "example": "비밀번호가 성공적으로 변경되었습니다."}},
                 }
             ),
             400: OpenApiResponse(
                 response={
                     "type": "object",
-                    "properties": {
-                        "detail": {
-                            "type": "string",
-                            "example": "유효하지 않거나 만료된 인증입니다.",
-                        }
-                    },
+                    "properties": {"detail": {"type": "string", "example": "유효하지 않거나 만료된 인증입니다."}},
                 }
             ),
         },
@@ -373,8 +325,9 @@ class PasswordResetConfirmView(APIView):
                 {"detail": "인증 정보가 없습니다."},
                 status=status.HTTP_400_BAD_REQUEST,
             )
+
         token_key = f"pw_reset:token:{reset_token}"
-        user_id = cache.get(f"pw_reset:token:{reset_token}")
+        user_id = cache.get(token_key)
         if not user_id:
             return Response(
                 {"detail": "유효하지 않거나 만료된 인증입니다."},
