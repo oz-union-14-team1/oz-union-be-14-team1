@@ -1,5 +1,6 @@
 import re
 from django.core.exceptions import ValidationError
+from rest_framework import serializers
 
 
 def validate_email_format(value: str):
@@ -23,9 +24,7 @@ def validate_nickname_format(value: str):
         raise ValidationError("닉네임은 한글, 영문, 숫자만 가능합니다.")
 
 
-def validate_user_password(user, password):
+def validate_user_password(user, password: str) -> str:
     if not user.check_password(password):
-        from rest_framework import serializers
-
         raise serializers.ValidationError("비밀번호가 올바르지 않습니다.")
     return password
