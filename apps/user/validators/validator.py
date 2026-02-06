@@ -2,6 +2,7 @@ import re
 from django.core.exceptions import ValidationError
 from rest_framework import serializers
 
+
 def validate_email_format(value: str):
     """이메일 형식 체크"""
     # ValidationError = 데이터 처리에서 입력된 데이터가 정의된 규칙, 형식 제약조건에 만족하지 못하면 발생하는 오류

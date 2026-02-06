@@ -18,8 +18,12 @@ class MeSerializer(serializers.ModelSerializer):
     password = serializers.CharField(write_only=True, required=False)
     phone_number = serializers.CharField(read_only=True)
 
-    new_password = serializers.CharField(write_only=True, required=False, allow_blank=True)
-    new_password_confirm = serializers.CharField(write_only=True, required=False, allow_blank=True)
+    new_password = serializers.CharField(
+        write_only=True, required=False, allow_blank=True
+    )
+    new_password_confirm = serializers.CharField(
+        write_only=True, required=False, allow_blank=True
+    )
 
     class Meta:
         model = User
@@ -118,7 +122,9 @@ class MeSerializer(serializers.ModelSerializer):
         try:
             instance.save()
         except IntegrityError:
-            raise serializers.ValidationError({"nickname": "이미 사용 중인 닉네임입니다."})
+            raise serializers.ValidationError(
+                {"nickname": "이미 사용 중인 닉네임입니다."}
+            )
 
         return instance
 
