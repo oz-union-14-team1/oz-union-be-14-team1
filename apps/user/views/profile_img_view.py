@@ -37,7 +37,7 @@ class ProfileImageView(APIView):
         service = ProfileImageService()
 
         image_url = service.update_profile_image(
-            user=request.user, image_file=serializer.validated_data["profile_image"]
+            user=request.user, image_file=serializer.validated_data["profile_image"], request=request
         )
 
         # 응답할 때 도메인을 붙여서 완전한 URL로 변환하여 전달
