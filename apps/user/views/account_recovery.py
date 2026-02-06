@@ -63,7 +63,10 @@ class FindAccountView(APIView):
                     "type": "object",
                     "properties": {
                         "exists": {"type": "boolean", "example": True},
-                        "identifier": {"type": "string", "example": "my***@example.com"},
+                        "identifier": {
+                            "type": "string",
+                            "example": "my***@example.com",
+                        },
                         "message": {"type": "string", "example": "계정을 찾았습니다."},
                     },
                 },
@@ -72,7 +75,10 @@ class FindAccountView(APIView):
                 response={
                     "type": "object",
                     "properties": {
-                        "detail": {"type": "string", "example": "휴대폰 인증이 필요합니다."}
+                        "detail": {
+                            "type": "string",
+                            "example": "휴대폰 인증이 필요합니다.",
+                        }
                     },
                 }
             ),
@@ -131,7 +137,10 @@ class CodeSendView(APIView):
                 response={
                     "type": "object",
                     "properties": {
-                        "message": {"type": "string", "example": "인증번호를 전송했습니다."},
+                        "message": {
+                            "type": "string",
+                            "example": "인증번호를 전송했습니다.",
+                        },
                         "code": {"type": "string", "example": "123456"},
                     },
                 }
@@ -178,14 +187,22 @@ class CodeVerifyView(APIView):
             200: OpenApiResponse(
                 response={
                     "type": "object",
-                    "properties": {"message": {"type": "string", "example": "인증이 성공하였습니다."}},
+                    "properties": {
+                        "message": {
+                            "type": "string",
+                            "example": "인증이 성공하였습니다.",
+                        }
+                    },
                 }
             ),
             400: OpenApiResponse(
                 response={
                     "type": "object",
                     "properties": {
-                        "detail": {"type": "string", "example": "인증번호가 올바르지 않거나 만료되었습니다."}
+                        "detail": {
+                            "type": "string",
+                            "example": "인증번호가 올바르지 않거나 만료되었습니다.",
+                        }
                     },
                 }
             ),
@@ -213,7 +230,9 @@ class CodeVerifyView(APIView):
 
         cache.delete(sms_key)
 
-        return Response({"message": "인증이 성공하였습니다."}, status=status.HTTP_200_OK)
+        return Response(
+            {"message": "인증이 성공하였습니다."}, status=status.HTTP_200_OK
+        )
 
 
 class PasswordResetRequestView(APIView):
@@ -230,14 +249,22 @@ class PasswordResetRequestView(APIView):
                 response={
                     "type": "object",
                     "properties": {
-                        "message": {"type": "string", "example": "비밀번호 재설정 요청이 확인되었습니다."}
+                        "message": {
+                            "type": "string",
+                            "example": "비밀번호 재설정 요청이 확인되었습니다.",
+                        }
                     },
                 }
             ),
             400: OpenApiResponse(
                 response={
                     "type": "object",
-                    "properties": {"detail": {"type": "string", "example": "휴대폰 인증이 필요합니다."}},
+                    "properties": {
+                        "detail": {
+                            "type": "string",
+                            "example": "휴대폰 인증이 필요합니다.",
+                        }
+                    },
                 }
             ),
         },
@@ -304,13 +331,23 @@ class PasswordResetConfirmView(APIView):
             200: OpenApiResponse(
                 response={
                     "type": "object",
-                    "properties": {"message": {"type": "string", "example": "비밀번호가 성공적으로 변경되었습니다."}},
+                    "properties": {
+                        "message": {
+                            "type": "string",
+                            "example": "비밀번호가 성공적으로 변경되었습니다.",
+                        }
+                    },
                 }
             ),
             400: OpenApiResponse(
                 response={
                     "type": "object",
-                    "properties": {"detail": {"type": "string", "example": "유효하지 않거나 만료된 인증입니다."}},
+                    "properties": {
+                        "detail": {
+                            "type": "string",
+                            "example": "유효하지 않거나 만료된 인증입니다.",
+                        }
+                    },
                 }
             ),
         },
