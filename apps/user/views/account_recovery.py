@@ -212,31 +212,30 @@ class CodeVerifyView(APIView):
         },
     )
     def post(self, request):
-        serializer = CodeSendSerializer(data=request.data)
+        serializer = CodeVerifySerializer(data=request.data)
         serializer.is_valid(raise_exception=True)
 
         phone_number = serializer.validated_data["phone_number"]
+        code = serializer.validated_data["code"]
         purpose = serializer.validated_data.get("purpose", "password_reset")
 
+        sms_key = f"verify:sms:{purpose}:{phone_number}"
+        saved_code = cache.get(sms_key)
+        if not saved_code or saved_code != code:
+            return Response(
+                {"detail": "인증번호가 올바르지않거나 만료되었습니다."},
+                status=status.HTTP_400_BAD_REQUEST,
+            )
         ttl = getattr(settings, "VERIFICATION_DEFAULT_TTL_SECONDS", 300)
-        code = _generate_6bigit_code()
 
         # Redis에 인증번호 저장
-        cache.set(f"verify:sms:{purpose}:{phone_number}", code, timeout=ttl)
+        cache.set(f"verify:ok:{purpose}:{phone_number}", True, timeout=ttl)
 
-        data = {"message": "인증번호를 전송했습니다."}
+        cache.delete(sms_key)
 
-        data["code"] = code  # 항상 응답에 코드 포함
-
-        logger.warning(
-            "[CODE_SEND] purpose=%s phone=%s code=%s ttl=%s",
-            purpose,
-            phone_number,
-            code,
-            ttl,
+        return Response(
+            {"message": "인증이 성공하였습니다."}, status=status.HTTP_200_OK
         )
-
-        return Response(data, status=status.HTTP_200_OK)
 
 
 class PasswordResetRequestView(APIView):
