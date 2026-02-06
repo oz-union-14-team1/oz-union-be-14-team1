@@ -12,6 +12,7 @@ from apps.user.views.account_recovery import (
 )
 from apps.user.views.logout import LogoutView
 from apps.user.views.token_refresh import TokenRefreshWithBlacklistView
+from apps.user.views.availability import EmailAvailabilityView, NicknameAvailabilityView
 
 app_name = "user"
 
@@ -38,4 +39,6 @@ urlpatterns = [
         "token/refresh", TokenRefreshWithBlacklistView.as_view(), name="token_refresh"
     ),
     path("me/image", ProfileImageView.as_view(), name="profile_image"),
+    path("check-email", EmailAvailabilityView.as_view(), name="check-email"),
+    path("check-nickname", NicknameAvailabilityView.as_view(), name="check-nickname"),
 ]
