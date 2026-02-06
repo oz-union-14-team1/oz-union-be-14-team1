@@ -298,3 +298,7 @@ if DEBUG:
         # 테스트 실행 중일 때 툴바 에러 무시하기
         "IS_RUNNING_TESTS": False,
     }
+
+AUTH_USER_MODEL = 'user.User'
+GOOGLE_CLIENT_ID = os.environ.get("GOOGLE_CLIENT_ID")
+GOOGLE_CLIENT_SECRET = os.environ.get("GOOGLE_CLIENT_SECRET")
