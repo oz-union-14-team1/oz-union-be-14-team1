@@ -29,18 +29,12 @@ class FindAccountSerializer(serializers.Serializer):
 class PasswordResetRequestSerializer(serializers.Serializer):
     identifier = serializers.CharField(required=True)
     phone_number = serializers.CharField(required=True)
-    code = serializers.CharField(required=True)
+    code = serializers.CharField(required=False, allow_blank=True)
 
     def validate_phone_number(self, value: str) -> str:
         normalized = normalize_phone(value)
         validate_phone_format(normalized)
         return normalized
-
-    def validate_code(self, value: str) -> str:
-        value = (value or "").strip()
-        if not value.isdigit() or len(value) != 6:
-            raise serializers.ValidationError("인증번호는 6자리 숫자여야 합니다.")
-        return value
 
 
 class PasswordResetConfirmSerializer(serializers.Serializer):
