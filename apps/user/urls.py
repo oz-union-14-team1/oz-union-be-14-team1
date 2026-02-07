@@ -11,7 +11,7 @@ from apps.user.views.account_recovery import (
     CodeSendView,
 )
 from apps.user.views.logout import LogoutView
-from apps.user.views.social_login_view import GoogleLoginView
+from apps.user.views.social_login_view import GoogleLoginView, DiscordLoginView
 from apps.user.views.token_refresh import TokenRefreshWithBlacklistView
 from apps.user.views.availability import EmailAvailabilityView, NicknameAvailabilityView
 
@@ -42,5 +42,8 @@ urlpatterns = [
     path("me/image", ProfileImageView.as_view(), name="profile_image"),
     path("check-email", EmailAvailabilityView.as_view(), name="check-email"),
     path("check-nickname", NicknameAvailabilityView.as_view(), name="check-nickname"),
+
+    # social
     path("google/login", GoogleLoginView.as_view(), name="google_login"),
+    path("discord/login", DiscordLoginView.as_view(), name="discord_login"),
 ]
