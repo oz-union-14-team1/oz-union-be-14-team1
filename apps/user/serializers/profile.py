@@ -4,9 +4,6 @@ import logging
 from rest_framework import serializers
 from django.contrib.auth import get_user_model
 from django.contrib.auth.base_user import AbstractBaseUser
-from django.contrib.auth.password_validation import (
-    validate_password as django_validate_password,
-)
 from django.db import IntegrityError
 from apps.user.validators.validator import validate_user_password
 
@@ -15,7 +12,6 @@ User = get_user_model()
 
 class MeSerializer(serializers.ModelSerializer):
     email = serializers.EmailField(read_only=True)
-    password = serializers.CharField(write_only=True, required=False)
     phone_number = serializers.CharField(read_only=True)
 
     new_password = serializers.CharField(
@@ -37,7 +33,6 @@ class MeSerializer(serializers.ModelSerializer):
             "created_at",
             "updated_at",
             "phone_number",
-            "password",
             "new_password",
             "new_password_confirm",
         )
@@ -53,12 +48,6 @@ class MeSerializer(serializers.ModelSerializer):
             "nickname": {"validators": []},
         }
 
-    def validate_password(self, value: str) -> str:
-        user = self.context["request"].user
-        if not user.check_password(value):
-            raise serializers.ValidationError("비밀번호가 올바르지 않습니다.")
-        return value
-
     def validate(self, attrs):
         logger = logging.getLogger(__name__)
 
@@ -68,14 +57,6 @@ class MeSerializer(serializers.ModelSerializer):
             attrs.get("new_password"),
             attrs.get("new_password_confirm"),
         )
-        request = self.context.get("request")
-        instance = cast(AbstractBaseUser, self.instance) if self.instance else None
-
-        if request and request.method in ("PUT", "PATCH"):
-            if not attrs.get("password"):
-                raise serializers.ValidationError(
-                    {"password": "비밀번호를 입력해야 합니다."}
-                )
 
         raw_new_pw = attrs.get("new_password", None)
         raw_new_pw2 = attrs.get("new_password_confirm", None)
@@ -98,16 +79,12 @@ class MeSerializer(serializers.ModelSerializer):
                 {"new_password_confirm": "새 비밀번호가 일치하지 않습니다."}
             )
 
-        django_validate_password(new_pw, user=instance)
-
         attrs["new_password"] = new_pw
         attrs["new_password_confirm"] = new_pw2
         return attrs
 
     def update(self, instance, validated_data):
         validated_data.pop("email", None)
-
-        validated_data.pop("password", None)
 
         new_pw = validated_data.pop("new_password", None)
         validated_data.pop("new_password_confirm", None)
