@@ -137,17 +137,17 @@ class CodeSendView(APIView):
                 response={
                     "type": "object",
                     "required": ["message", "code"],
-                        "properties": {
-                            "message": {
-                                "type": "string",
-                                "example": "인증번호를 전송했습니다.",
-                            },
-                            "code": {
-                                "type": "string",
-                                "example": "123456",
-                            },
-                        }
+                    "properties": {
+                        "message": {
+                            "type": "string",
+                            "example": "인증번호를 전송했습니다.",
+                        },
+                        "code": {
+                            "type": "string",
+                            "example": "123456",
+                        },
                     },
+                },
             )
         },
     )

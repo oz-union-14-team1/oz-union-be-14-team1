@@ -48,7 +48,6 @@ class MeSerializer(serializers.ModelSerializer):
             "nickname": {"validators": []},
         }
 
-
     def validate(self, attrs):
         logger = logging.getLogger(__name__)
 
