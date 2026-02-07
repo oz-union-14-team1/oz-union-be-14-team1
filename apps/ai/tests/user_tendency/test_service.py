@@ -123,10 +123,10 @@ class UserTendencyServiceTest(TestCase):
         result = self.service.analyze_and_save(self.user)
 
         # Then
-        self.assertEqual(result["tendency"], "아직 모르는 게이머")
+        self.assertEqual(result["tendency"], None)
         self.assertTrue(
             UserTendency.objects.filter(
-                user=self.user, tendency="아직 모르는 게이머"
+                user=self.user, tendency=None
             ).exists()
         )
 

@@ -1,5 +1,7 @@
 import logging
 import json
+from typing import Optional
+
 from django.conf import settings
 from django.db import transaction
 from google import genai
@@ -77,7 +79,7 @@ class UserTendencyService:
         """
         실제 분석 및 DB 저장
         """
-        # 순환 참조 방지용 내부 import (필요 시)
+        # 순환 참조 방지용 내부 import
         from apps.preference.services.preference_list_service import (
             get_user_total_preferences,
         )
@@ -91,7 +93,7 @@ class UserTendencyService:
         tag_names = ", ".join([str(t.tag) for t in tags])
 
         if not genre_names and not tag_names:
-            return self._save_default(user, "아직 모르는 게이머")
+            return self._save_default(user, None)
 
         user_prompt = self._build_user_prompt(genre_names, tag_names)
 
@@ -107,7 +109,7 @@ class UserTendencyService:
             )
 
             result = json.loads(response.text)
-            tendency_text = result.get("tendency", "알 수 없는 모험가")
+            tendency_text = result.get("tendency", None)
 
             return self._save_to_db(user, tendency_text)
 
@@ -118,12 +120,12 @@ class UserTendencyService:
             # 실패 시 에러를 raise 하지 않고 로깅만 남김 (재시도 정책에 따라 변경 가능)
             return {"tendency": "분석 실패"}
 
-    def _save_to_db(self, user, tendency_text: str) -> dict:
+    def _save_to_db(self, user, tendency_text: Optional[str]) -> dict:
         with transaction.atomic():
             UserTendency.objects.update_or_create(
                 user=user, defaults={"tendency": tendency_text}
             )
         return {"tendency": tendency_text}
 
-    def _save_default(self, user, text: str) -> dict:
+    def _save_default(self, user, text: Optional[str]) -> dict:
         return self._save_to_db(user, text)
