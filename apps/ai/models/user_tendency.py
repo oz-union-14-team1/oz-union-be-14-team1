@@ -17,8 +17,8 @@ class UserTendency(TimeStampedModel):
     tendency = models.CharField(
         max_length=20,
         help_text="AI가 분석한 10자 이내의 게이머 성향",
-        null = True,
-        blank = True
+        null=True,
+        blank=True,
     )
 
     class Meta:
