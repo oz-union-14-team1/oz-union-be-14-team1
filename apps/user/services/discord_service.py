@@ -26,9 +26,7 @@ class DiscordLoginService:
             "client_secret": self.client_secret,
         }
 
-        headers = {
-            'Content-Type': 'application/x-www-form-urlencoded'
-        }
+        headers = {"Content-Type": "application/x-www-form-urlencoded"}
 
         response = requests.post(self.TOKEN_URI, data=payload, headers=headers)
 

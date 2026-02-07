@@ -86,7 +86,9 @@ class GoogleLoginView(APIView):
                     user = User.objects.filter(email=email).first()
                     if not user:
                         temp_nickname = f"s_{str(uuid4())[:8]}"
-                        user = User.objects.create_user(email=email, password=None, nickname=temp_nickname)
+                        user = User.objects.create_user(
+                            email=email, password=None, nickname=temp_nickname
+                        )
                     SocialAccount.objects.create(
                         user=user, provider="google", social_id=social_id
                     )
@@ -139,7 +141,9 @@ class DiscordLoginView(APIView):
         )
 
         if not code:
-            return Response({"error": "code가 없습니다."}, status=status.HTTP_400_BAD_REQUEST)
+            return Response(
+                {"error": "code가 없습니다."}, status=status.HTTP_400_BAD_REQUEST
+            )
 
         try:
             # 1. 디스코드 서비스 호출
@@ -173,7 +177,9 @@ class DiscordLoginView(APIView):
                     if not user:
                         temp_nickname = f"s_{str(uuid4())[:8]}"
                         # 신규 유저 생성
-                        user = User.objects.create_user(email=email, password=None,nickname=temp_nickname)
+                        user = User.objects.create_user(
+                            email=email, password=None, nickname=temp_nickname
+                        )
 
                     # 소셜 계정 연동 생성
                     SocialAccount.objects.create(

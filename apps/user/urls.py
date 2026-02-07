@@ -42,7 +42,6 @@ urlpatterns = [
     path("me/image", ProfileImageView.as_view(), name="profile_image"),
     path("check-email", EmailAvailabilityView.as_view(), name="check-email"),
     path("check-nickname", NicknameAvailabilityView.as_view(), name="check-nickname"),
-
     # social
     path("google/login", GoogleLoginView.as_view(), name="google_login"),
     path("discord/login", DiscordLoginView.as_view(), name="discord_login"),

@@ -125,9 +125,7 @@ class UserTendencyServiceTest(TestCase):
         # Then
         self.assertEqual(result["tendency"], None)
         self.assertTrue(
-            UserTendency.objects.filter(
-                user=self.user, tendency=None
-            ).exists()
+            UserTendency.objects.filter(user=self.user, tendency=None).exists()
         )
 
         # AI 호출이 없어야 함
