@@ -136,15 +136,18 @@ class CodeSendView(APIView):
             200: OpenApiResponse(
                 response={
                     "type": "object",
-                    "required": ["message"],
-                    "properties": {
-                        "message": {
-                            "type": "string",
-                            "example": "인증번호를 전송했습니다.",
-                        },
-                        "code": {"type": "string", "example": "123456"},  # (optional)
+                    "required": ["message", "code"],
+                        "properties": {
+                            "message": {
+                                "type": "string",
+                                "example": "인증번호를 전송했습니다.",
+                            },
+                            "code": {
+                                "type": "string",
+                                "example": "123456",
+                            },
+                        }
                     },
-                }
             )
         },
     )
@@ -160,17 +163,18 @@ class CodeSendView(APIView):
 
         cache.set(f"verify:sms:{purpose}:{phone_number}", code, timeout=ttl)
 
-        data = {"message": "인증번호를 전송했습니다."}
+        data = {
+            "message": "인증번호를 전송했습니다.",
+            "code": code,
+        }
 
-        if getattr(settings, "RETURN_VERIFICATION_CODE", False):
-            data["code"] = code
-            logger.warning(
-                "[CODE_SEND] purpose=%s phone=%s code=%s ttl=%s",
-                purpose,
-                phone_number,
-                code,
-                ttl,
-            )
+        logger.warning(
+            "[CODE_SEND] purpose=%s phone=%s code=%s ttl=%s",
+            purpose,
+            phone_number,
+            code,
+            ttl,
+        )
 
         return Response(data, status=status.HTTP_200_OK)
 
