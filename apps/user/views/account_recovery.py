@@ -136,12 +136,13 @@ class CodeSendView(APIView):
             200: OpenApiResponse(
                 response={
                     "type": "object",
+                    "required": ["message"],
                     "properties": {
                         "message": {
                             "type": "string",
                             "example": "인증번호를 전송했습니다.",
                         },
-                        "code": {"type": "string", "example": "123456"},
+                        "code": {"type": "string", "example": "123456"},  # (optional)
                     },
                 }
             )
@@ -161,7 +162,7 @@ class CodeSendView(APIView):
 
         data = {"message": "인증번호를 전송했습니다."}
 
-        if settings.DEBUG:
+        if getattr(settings, "RETURN_VERIFICATION_CODE", False):
             data["code"] = code
             logger.warning(
                 "[CODE_SEND] purpose=%s phone=%s code=%s ttl=%s",
