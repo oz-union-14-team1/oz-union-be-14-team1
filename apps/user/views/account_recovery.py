@@ -317,8 +317,8 @@ class PasswordResetRequestView(APIView):
             max_age=token_ttl,
             httponly=True,
             secure=not settings.DEBUG,
-            samesite="Lax",
-            path="/api/v1/user/password/reset/",
+            samesite="None",
+            path="/",
         )
         return resp
 
@@ -383,7 +383,7 @@ class PasswordResetConfirmView(APIView):
                 {"detail": "유효하지 않은 요청입니다."},
                 status=status.HTTP_400_BAD_REQUEST,
             )
-            resp.delete_cookie("pw_reset_token", path="/api/v1/user/password/reset/")
+            resp.delete_cookie("pw_reset_token", path="/")
             return resp
 
         new_password = serializer.validated_data["new_password"]
@@ -398,5 +398,5 @@ class PasswordResetConfirmView(APIView):
             status=status.HTTP_200_OK,
         )
 
-        resp.delete_cookie("pw_reset_token", path="/api/v1/user/password/reset/")
+        resp.delete_cookie("pw_reset_token", path="/")
         return resp
