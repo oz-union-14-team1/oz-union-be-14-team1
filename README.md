@@ -304,6 +304,28 @@
 
 <br></details>
 
+<details>
+<summary><strong>🌐 소셜 로그인 (Social Login)</strong></summary><br>
+
+**1. OAuth 2.0 기반 인증 (Google / Discord)**
+- **인가 코드 처리 및 토큰 발급**
+    - `GoogleLoginService` / `DiscordLoginService`를 통한 Access Token 발급 및 사용자 정보 조회
+    - 이메일 인증 여부(`verified`) 확인을 통한 보안 강화
+    - 배포 환경(Debug/Production)에 따른 **Redirect URI 자동 분기** 처리
+
+**2. 계정 연동 및 회원가입 로직**
+- **지능형 계정 연결 (Account Linking)**
+    - **기존 회원**: 이메일이 일치하는 기존 유저가 있을 경우 자동으로 소셜 계정(`SocialAccount`)과 연동
+    - **신규 회원**: 일치하는 정보가 없을 경우, 난수화된 닉네임(`UUID`)으로 자동 회원가입 진행
+    - `transaction.atomic()`을 사용하여 유저 생성과 소셜 연동의 **데이터 무결성 보장**
+
+**3. JWT 토큰 발급 및 보안**
+- **자체 서비스 토큰 전환**
+    - 소셜 인증 완료 후 서비스 전용 **Access/Refresh Token** 쌍(Pair) 발급
+    - Refresh Token은 보안을 위해 **HttpOnly Cookie**에 저장 (XSS 방지)
+    - 로그인 성공/실패 여부에 따라 프론트엔드로 리디렉션 및 에러 메시지 전달
+
+<br></details>
 
 
 
