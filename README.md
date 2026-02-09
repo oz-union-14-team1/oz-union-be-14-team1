@@ -108,9 +108,79 @@
 ---
 # 🖥️ 서비스 소개
 ## 회원 
+### `💬 회원 인증 · 계정 관리 시스템 / 🔐 토큰 기반 인증 / 🧪 테스트 및 안정성 확보`
 
+> 서비스 전반의 사용자 인증과 계정 관리를 담당하는 백엔드 시스템으로,
+보안성과 확장성을 고려한 JWT 기반 인증 구조와 안정적인 계정 복구 플로우를 구현했습니다.
 
+<details> <summary><strong>🔐 인증 시스템 (Authentication)</strong></summary><br>
+1. 로그인/로그아웃
 
+- 이메일 로그인
+- 이메일·비밀번호 기반 인증
+- 로그인 성공 시
+- Access Token → Response Body 반환
+- Refresh Token → HttpOnly Cookie로 설정
+- 로그아웃
+- Refresh Token 무효화
+- Redis 기반 토큰 블랙리스트 처리로 재사용 방지
+
+<br>
+2. 토큰 관리
+
+- JWT 기반 인증 구조
+- Access / Refresh Token 분리 설계
+- Refresh Token 보안 강화
+- HttpOnly, SameSite, Secure 옵션 환경별 분기 처리
+- Redis 연동
+- 토큰 블랙리스트 관리
+- TTL 기반 자동 만료 처리
+
+<br></details>
+
+<details> <summary><strong>👤 계정 관리 (Account Management)</strong></summary><br>
+1. 내 정보 관리 (My Page)
+
+- 내 정보 조회 (R)
+  - 이메일, 닉네임 등 기본 정보 반환
+- 내 정보 수정 (U)
+  - 닉네임 수정
+- 회원 탈퇴 (D)
+  - 본인 인증 후 계정 비활성화 처리
+
+<br>
+2. 계정 찾기
+
+- 휴대폰 번호 기반 계정 조회
+- 가입된 계정 존재 여부 확인
+- 식별자(이메일) 마스킹 처리 후 반환
+- 개인정보 보호를 고려한 응답 구조 설계
+
+<br></details>
+
+<details> <summary><strong>🔑 비밀번호 재설정 (Account Recovery)</strong></summary><br>
+1. 비밀번호 재설정 요청
+
+- 이메일/휴대폰 번호 기반 요청 
+- 6자리 인증 코드 생성 
+- secrets 기반 난수 생성 
+- Redis 캐시 저장 
+- TTL 적용으로 인증 코드 자동 만료
+
+<br>
+2. 인증 코드 검증
+
+- 입력한 인증 코드 유효성 검사 
+- 만료 / 불일치 케이스 명확한 에러 응답 처리
+
+<br>
+3. 비밀번호 재설정 확정
+
+- 인증 완료 후 새 비밀번호 설정
+- 비밀번호 정책 검증 
+- 길이, 대·소문자 포함 여부 등
+
+<br></details>
 
 
 ---
