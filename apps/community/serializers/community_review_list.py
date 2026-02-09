@@ -8,12 +8,17 @@ class CommunityReviewListSerializer(ReviewListSerializer):
     기존 리뷰 리스트 정보 + 게임 정보 + 장르 정보
     """
 
+    game_id = serializers.IntegerField(source="game.id", read_only=True)
     game_title = serializers.CharField(source="game.name", read_only=True)
     game_genres = serializers.SerializerMethodField()
 
     class Meta(ReviewListSerializer.Meta):
         model = Review
-        fields = ReviewListSerializer.Meta.fields + ["game_title", "game_genres"]
+        fields = ReviewListSerializer.Meta.fields + [
+            "game_id",
+            "game_title",
+            "game_genres",
+        ]
 
     def get_game_genres(self, obj):
         """
